@@ -1,0 +1,156 @@
+<form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="field">
+    <label class="label" for="wf-name">{{ 'form.name' | translate }}</label>
+    <input id="wf-name" type="text" formControlName="name" autocomplete="off" autocapitalize="words" [attr.aria-invalid]="!!errors().name" aria-describedby="wf-name-error" />
+    @if (errors().name; as error) {
+      <p id="wf-name-error" class="field__error">{{ error.key | translate: error.params }}</p>
+    }
+  </div>
+
+  <div class="field">
+    <label class="label" for="wf-producer">{{ 'form.producer' | translate }}</label>
+    <input id="wf-producer" type="text" formControlName="producer" autocomplete="off" autocapitalize="words" />
+  </div>
+
+  <div class="grid">
+    <div class="field">
+      <label class="label" for="wf-vintage">{{ 'form.vintage' | translate }}</label>
+      <input id="wf-vintage" type="text" inputmode="numeric" maxlength="4" formControlName="vintage" [attr.aria-invalid]="!!errors().vintage" aria-describedby="wf-vintage-error" />
+      @if (errors().vintage; as error) {
+        <p id="wf-vintage-error" class="field__error">{{ error.key | translate: error.params }}</p>
+      }
+    </div>
+    @if (mode() === 'create') {
+      <div class="field">
+        <label class="label" for="wf-quantity">{{ 'form.quantity' | translate }}</label>
+        <div class="stepper">
+          <button type="button" class="stepper__btn" (click)="stepQuantity(-1)" [attr.aria-label]="'form.quantityLess' | translate">−</button>
+          <input id="wf-quantity" class="stepper__value" type="text" inputmode="numeric" maxlength="3" formControlName="quantity" [attr.aria-invalid]="!!errors().quantity" aria-describedby="wf-quantity-error" />
+          <button type="button" class="stepper__btn" (click)="stepQuantity(1)" [attr.aria-label]="'form.quantityMore' | translate">+</button>
+        </div>
+        @if (errors().quantity; as error) {
+          <p id="wf-quantity-error" class="field__error">{{ error.key | translate }}</p>
+        }
+      </div>
+    }
+  </div>
+
+  <fieldset class="field colors">
+    <legend class="label">{{ 'form.color' | translate }}</legend>
+    <div class="segments">
+      @for (color of colors; track color) {
+        <label class="segment">
+          <input class="visually-hidden" type="radio" formControlName="color" [value]="color" />
+          <app-color-dot [color]="color" [size]="12" />
+          <span>{{ 'wine.color.' + color | translate }}</span>
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  @if (mode() === 'create') {
+    <div class="field">
+      <label class="label" for="wf-price">{{ 'form.price' | translate }}</label>
+      <input id="wf-price" type="text" inputmode="decimal" formControlName="price" [placeholder]="'form.optional' | translate" [attr.aria-invalid]="!!errors().price" aria-describedby="wf-price-error" />
+      @if (errors().price; as error) {
+        <p id="wf-price-error" class="field__error">{{ error.key | translate }}</p>
+      }
+    </div>
+  }
+
+  <details class="details" [open]="mode() === 'edit'">
+    <summary class="details__summary">{{ 'form.details' | translate }}</summary>
+    <div class="details__body">
+      <div class="grid">
+        <div class="field">
+          <label class="label" for="wf-country">{{ 'form.country' | translate }}</label>
+          <input id="wf-country" type="text" formControlName="country" list="wf-countries" autocomplete="off" autocapitalize="words" />
+          <datalist id="wf-countries">
+            @for (country of countries(); track country) {
+              <option [value]="country"></option>
+            }
+          </datalist>
+        </div>
+        <div class="field">
+          <label class="label" for="wf-region">{{ 'form.region' | translate }}</label>
+          <input id="wf-region" type="text" formControlName="region" list="wf-regions" autocomplete="off" autocapitalize="words" />
+          <datalist id="wf-regions">
+            @for (region of regions(); track region) {
+              <option [value]="region"></option>
+            }
+          </datalist>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="wf-appellation">{{ 'form.appellation' | translate }}</label>
+        <input id="wf-appellation" type="text" formControlName="appellation" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="label" for="wf-grapes">{{ 'form.grapes' | translate }}</label>
+        <input id="wf-grapes" type="text" formControlName="grapes" list="wf-grape-list" autocomplete="off" autocapitalize="words" aria-describedby="wf-grapes-hint" />
+        <datalist id="wf-grape-list">
+          @for (grape of grapes(); track grape) {
+            <option [value]="grape"></option>
+          }
+        </datalist>
+        <p id="wf-grapes-hint" class="field__hint">{{ 'form.grapesHint' | translate }}</p>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label class="label" for="wf-from">{{ 'form.drinkFrom' | translate }}</label>
+          <input id="wf-from" type="text" inputmode="numeric" maxlength="4" formControlName="drinkFrom" [attr.aria-invalid]="!!errors().drinkFrom" aria-describedby="wf-from-error" />
+          @if (errors().drinkFrom; as error) {
+            <p id="wf-from-error" class="field__error">{{ error.key | translate }}</p>
+          }
+        </div>
+        <div class="field">
+          <label class="label" for="wf-until">{{ 'form.drinkUntil' | translate }}</label>
+          <input id="wf-until" type="text" inputmode="numeric" maxlength="4" formControlName="drinkUntil" [attr.aria-invalid]="!!errors().drinkUntil" aria-describedby="wf-until-error" />
+          @if (errors().drinkUntil; as error) {
+            <p id="wf-until-error" class="field__error">{{ error.key | translate }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label class="label" for="wf-alcohol">{{ 'form.alcohol' | translate }}</label>
+          <input id="wf-alcohol" type="text" inputmode="decimal" formControlName="alcohol" [attr.aria-invalid]="!!errors().alcohol" aria-describedby="wf-alcohol-error" />
+          @if (errors().alcohol; as error) {
+            <p id="wf-alcohol-error" class="field__error">{{ error.key | translate }}</p>
+          }
+        </div>
+        <div class="field">
+          <label class="label" for="wf-sweetness">{{ 'form.sweetness' | translate }}</label>
+          <select id="wf-sweetness" formControlName="sweetness">
+            <option value="">{{ 'form.sweetnessNone' | translate }}</option>
+            @for (level of sweetnessLevels; track level) {
+              <option [value]="level">{{ 'wine.sweetness.' + level | translate }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="wf-location">{{ 'form.location' | translate }}</label>
+        <input id="wf-location" type="text" formControlName="location" autocomplete="off" [placeholder]="'form.locationPlaceholder' | translate" />
+      </div>
+
+      <div class="field">
+        <label class="label" for="wf-notes">{{ 'form.notes' | translate }}</label>
+        <textarea id="wf-notes" rows="3" formControlName="notes"></textarea>
+      </div>
+    </div>
+  </details>
+
+  <div class="actions">
+    @if (hasErrors()) {
+      <p class="field__error" role="alert">{{ 'form.errors.invalid' | translate }}</p>
+    }
+    <button type="submit" class="btn btn--accent" [disabled]="busy()">{{ submitLabel() }}</button>
+    <ng-content />
+  </div>
+</form>

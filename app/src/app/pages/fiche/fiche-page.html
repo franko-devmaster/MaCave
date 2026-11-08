@@ -1,0 +1,88 @@
+<div class="top">
+  <a class="back" routerLink="/cave">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+    {{ 'fiche.back' | translate }}
+  </a>
+  @if (detail()) {
+    <a class="icon-link" [routerLink]="['/cave', id(), 'modifier']" [attr.aria-label]="'fiche.edit' | translate">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16z" /><path d="m12.5 7.5 4 4" /></svg>
+    </a>
+  }
+</div>
+
+@if (detail(); as d) {
+  <header class="hero">
+    <div class="photo" role="img" [attr.aria-label]="'fiche.photo' | translate" [style.--tint]="'var(--wine-' + d.wine.color + ')'">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 2h4v4l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3z" /><path d="M8 13h8" />
+      </svg>
+    </div>
+    <div class="identity" [style.--bar]="'var(--wine-' + d.wine.color + ')'">
+      <div class="identity__names">
+        @if (d.wine.vintage) {
+          <span class="identity__vintage">{{ d.wine.vintage }}</span>
+        }
+        <h1 class="identity__name">{{ d.wine.name }}</h1>
+        @if (d.wine.producer) {
+          <p class="identity__producer">{{ d.wine.producer }}</p>
+        }
+      </div>
+      <p class="identity__color">
+        <app-color-dot [color]="d.wine.color" />
+        <span class="label identity__label">{{ 'wine.color.' + d.wine.color | translate }}{{ subtitle() ? ' · ' + subtitle() : '' }}</span>
+      </p>
+    </div>
+  </header>
+
+  <dl class="facts">
+    <div class="fact">
+      <dt class="label">{{ 'fiche.grape' | translate }}</dt>
+      <dd>{{ d.wine.grapes.length ? d.wine.grapes.join(', ') : ('fiche.unknown' | translate) }}</dd>
+    </div>
+    <div class="fact">
+      <dt class="label">{{ 'fiche.keep' | translate }}</dt>
+      <dd [class.accent]="d.drinkNow">{{ drinkWindow() ?? ('fiche.unknown' | translate) }}</dd>
+    </div>
+    <div class="fact">
+      <dt class="label">{{ 'fiche.paid' | translate }}</dt>
+      <dd>{{ d.lastPrice !== null ? (d.lastPrice | chf) : ('fiche.unknown' | translate) }}</dd>
+    </div>
+  </dl>
+
+  <div class="stock">
+    <p class="stock__count">
+      <span class="stock__number" data-testid="bottles">{{ d.bottles }}</span>
+      <span class="stock__unit">{{ bottlesKey() | translate }}</span>
+    </p>
+    @if (d.wine.location) {
+      <span class="label">{{ d.wine.location }}</span>
+    }
+  </div>
+  @if (d.drinkNow) {
+    <p class="drink-now">{{ 'fiche.drinkNow' | translate }}</p>
+  }
+
+  <div class="actions">
+    <button type="button" class="btn btn--primary" [disabled]="busy() || d.bottles === 0" (click)="open()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8 20h8" /></svg>
+      {{ 'fiche.open' | translate }}
+    </button>
+    <button type="button" class="btn actions__buy" [disabled]="busy()" (click)="buy()">{{ 'fiche.buy' | translate }}</button>
+  </div>
+
+  @if (d.wine.notes) {
+    <section class="notes">
+      <h2 class="label notes__title">{{ 'fiche.notes' | translate }}</h2>
+      <p class="notes__text">{{ d.wine.notes }}</p>
+    </section>
+  }
+
+  @if (toast(); as t) {
+    <div class="toast" role="status">
+      <span>{{ t.key | translate }}</span>
+      <button type="button" class="toast__undo" (click)="undo()">{{ 'fiche.undo' | translate }}</button>
+    </div>
+  }
+} @else {
+  <p class="not-found">{{ 'fiche.notFound' | translate }}</p>
+}

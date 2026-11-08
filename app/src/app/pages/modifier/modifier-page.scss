@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.top {
+  padding: calc(var(--safe-top) + var(--space-3)) var(--space-3) 0;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  font-weight: 500;
+}
+
+app-page-header ::ng-deep .header {
+  padding-top: var(--space-2);
+}
+
+.delete {
+  color: var(--color-accent);
+}
+
+.not-found {
+  padding: var(--space-6) var(--gutter);
+  color: var(--color-muted);
+}

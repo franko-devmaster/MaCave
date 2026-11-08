@@ -1,0 +1,80 @@
+import { wineInput } from '../testing/fixtures';
+import { emptyWineForm, toFormValue, toWineFormResult, validateWineForm, WineFormValue } from './wine-form';
+
+function form(overrides: Partial<WineFormValue>): WineFormValue {
+  return { ...emptyWineForm(), name: 'Cornalin', ...overrides };
+}
+
+describe('wine-form', () => {
+  it('validateWineForm when only the name is given should accept the defaults', () => {
+    expect(validateWineForm(form({}), 'create', 2026)).toEqual({});
+  });
+
+  it('validateWineForm should require a name', () => {
+    expect(validateWineForm(form({ name: '  ' }), 'create', 2026).name?.key).toBe('form.errors.nameRequired');
+  });
+
+  it.each([
+    ['1899', true],
+    ['2027', false],
+    ['2028', true],
+    ['20a9', true],
+    ['', false],
+  ])('validateWineForm with vintage "%s" should report an error: %s', (vintage, hasError) => {
+    expect(validateWineForm(form({ vintage }), 'create', 2026).vintage !== undefined).toBe(hasError);
+  });
+
+  it.each([['0'], ['1000'], ['2.5'], ['']])('validateWineForm with quantity "%s" should be rejected in create mode', (quantity) => {
+    expect(validateWineForm(form({ quantity }), 'create', 2026).quantity?.key).toBe('form.errors.quantity');
+  });
+
+  it('validateWineForm in edit mode should ignore quantity and price', () => {
+    expect(validateWineForm(form({ quantity: '', price: 'abc' }), 'edit', 2026)).toEqual({});
+  });
+
+  it('validateWineForm should reject a negative price and accept a decimal comma', () => {
+    expect(validateWineForm(form({ price: '-3' }), 'create', 2026).price?.key).toBe('form.errors.price');
+    expect(validateWineForm(form({ price: '34,50' }), 'create', 2026).price).toBeUndefined();
+  });
+
+  it('validateWineForm should reject a drinking window in the wrong order', () => {
+    expect(validateWineForm(form({ drinkFrom: '2030', drinkUntil: '2024' }), 'create', 2026).drinkUntil?.key).toBe('form.errors.yearsOrder');
+  });
+
+  it('validateWineForm should reject an alcohol degree out of range', () => {
+    expect(validateWineForm(form({ alcohol: '40' }), 'create', 2026).alcohol?.key).toBe('form.errors.alcohol');
+  });
+
+  it('toWineFormResult should trim, parse numbers and split grapes', () => {
+    const result = toWineFormResult(
+      form({
+        name: '  Petite Arvine ',
+        vintage: '2022',
+        color: 'blanc',
+        quantity: '6',
+        price: '42,50',
+        grapes: 'Petite Arvine, ',
+        alcohol: '13,5',
+        sweetness: 'doux',
+      }),
+    );
+
+    expect(result.quantity).toBe(6);
+    expect(result.pricePaid).toBe(42.5);
+    expect(result.input).toMatchObject({
+      name: 'Petite Arvine',
+      vintage: 2022,
+      color: 'blanc',
+      grapes: ['Petite Arvine'],
+      alcohol: 13.5,
+      sweetness: 'doux',
+      drinkFrom: null,
+    });
+  });
+
+  it('toFormValue then toWineFormResult should round-trip a wine', () => {
+    const input = wineInput();
+
+    expect(toWineFormResult(toFormValue(input)).input).toEqual(input);
+  });
+});

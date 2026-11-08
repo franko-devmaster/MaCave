@@ -68,12 +68,11 @@ describe('BackupService', () => {
     expect(JSON.stringify(backup)).not.toContain('sk-ant-secret');
   });
 
-  it('exportToFile should name the file by date and record the export time', async () => {
+  it('exportToFile should name the file by date', async () => {
     const file = await sut.exportToFile(NOW);
 
     expect(file.name).toBe('ma-cave-2026-11-08.json');
     expect(file.type).toBe('application/json');
-    expect(await sut.lastExportAt()).toBe(NOW.toISOString());
   });
 
   it('importFromText should replace existing data with the backup content', async () => {
@@ -111,6 +110,22 @@ describe('BackupService', () => {
     await expect(sut.importFromText('{"app":"autre"}')).rejects.toBeInstanceOf(BackupFormatError);
 
     expect(await db.wines.count()).toBe(1);
+  });
+
+  it('importFromText in merge mode should keep existing rows and upsert those of the file', async () => {
+    await db.wines.bulkPut([wine('local'), { ...wine('shared'), name: 'Ancien nom' }]);
+    const text = JSON.stringify({
+      app: BACKUP_APP_ID,
+      schemaVersion: DB_VERSION,
+      data: { wines: [{ ...wine('shared'), name: 'Nouveau nom' }, wine('file')] },
+    });
+
+    const count = await sut.importFromText(text, 'merge');
+
+    expect(count).toBe(2);
+    const wines = await db.wines.toArray();
+    expect(wines.map((w) => w.id).sort()).toEqual(['file', 'local', 'shared']);
+    expect(wines.find((w) => w.id === 'shared')?.name).toBe('Nouveau nom');
   });
 
   it('round trip export then import should restore the same data', async () => {

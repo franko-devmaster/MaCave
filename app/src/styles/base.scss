@@ -85,6 +85,12 @@ p {
     color: var(--color-on-ink);
   }
 
+  &--quiet {
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-muted);
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: default;
