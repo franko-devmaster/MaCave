@@ -1,4 +1,8 @@
-export type WineColor = 'rouge' | 'blanc' | 'rose' | 'bulles';
+export const WINE_COLORS = ['rouge', 'blanc', 'rose', 'bulles'] as const;
+export type WineColor = (typeof WINE_COLORS)[number];
+
+export const SWEETNESS_LEVELS = ['sec', 'demi-sec', 'doux'] as const;
+export type Sweetness = (typeof SWEETNESS_LEVELS)[number];
 
 export interface Wine {
   id: string;
@@ -11,7 +15,7 @@ export interface Wine {
   appellation: string;
   grapes: string[];
   alcohol: number | null;
-  sweetness: 'sec' | 'demi-sec' | 'doux' | null;
+  sweetness: Sweetness | null;
   drinkFrom: number | null;
   drinkUntil: number | null;
   labelPhotoId: string | null;
@@ -20,6 +24,9 @@ export interface Wine {
   createdAt: string;
   updatedAt: string;
 }
+
+/** Champs saisis par l'utilisateur ; l'identifiant et les dates sont gérés par le dépôt. */
+export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt'>;
 
 export interface Photo {
   id: string;

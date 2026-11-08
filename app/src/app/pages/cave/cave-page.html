@@ -1,0 +1,88 @@
+<app-page-header [title]="'cave.title' | translate">
+  <a headerAction class="icon-link" routerLink="/reglages" [attr.aria-label]="'cave.settings' | translate">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+    </svg>
+  </a>
+</app-page-header>
+
+@if (isEmpty()) {
+  <section class="empty">
+    <p class="empty__title">{{ 'cave.empty.title' | translate }}</p>
+    <p class="empty__text">{{ 'cave.empty.text' | translate }}</p>
+    <a class="btn btn--accent" routerLink="/ajouter">{{ 'cave.empty.action' | translate }}</a>
+  </section>
+} @else {
+  <p class="summary">
+    @for (part of summaryParts(); track part.key; let last = $last) {
+      <span [class.summary__accent]="part.accent">{{ part.key | translate: { count: part.count } }}</span>
+      @if (!last) {
+        <span aria-hidden="true"> · </span>
+      }
+    }
+  </p>
+
+  @if (exportReminder(); as reminder) {
+    <div class="reminder" role="status">
+      <span>{{ reminder.key | translate: { days: reminder.days } }}</span>
+      <a class="reminder__action" routerLink="/reglages">{{ 'cave.reminder.action' | translate }}</a>
+    </div>
+  }
+
+  <div class="search">
+    <label for="cave-search" class="visually-hidden">{{ 'cave.search' | translate }}</label>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" />
+    </svg>
+    <input id="cave-search" type="search" enterkeyhint="search" autocomplete="off" [value]="query()" (input)="onSearch($event)" [placeholder]="'cave.searchPlaceholder' | translate" />
+  </div>
+
+  <div class="filters" role="group" [attr.aria-label]="'cave.filterLabel' | translate">
+    <button type="button" class="chip" [class.chip--on]="filter() === 'tous'" [attr.aria-pressed]="filter() === 'tous'" (click)="filter.set('tous')">
+      {{ 'cave.filters.tous' | translate }}
+    </button>
+    <button type="button" class="chip" [class.chip--on]="filter() === 'a-boire'" [attr.aria-pressed]="filter() === 'a-boire'" (click)="filter.set('a-boire')">
+      {{ 'cave.filters.aBoire' | translate }}
+    </button>
+    @for (color of colors; track color) {
+      <button type="button" class="chip" [class.chip--on]="filter() === color" [attr.aria-pressed]="filter() === color" (click)="filter.set(color)">
+        <app-color-dot [color]="color" />
+        {{ 'wine.colorPlural.' + color | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="list">
+    @for (group of groups(); track group.color) {
+      <section [attr.aria-labelledby]="'group-' + group.color">
+        <h2 class="group" [id]="'group-' + group.color">
+          <app-color-dot [color]="group.color" />
+          <span class="label group__name">{{ 'wine.colorPlural.' + group.color | translate }}</span>
+          <span class="label">{{ 'cave.groupBottles' | translate: { count: group.bottles } }}</span>
+        </h2>
+        @for (entry of group.entries; track entry.wine.id) {
+          <app-wine-row [entry]="entry" />
+        }
+      </section>
+    }
+
+    @if (noResult()) {
+      <p class="no-result">{{ 'cave.noResult' | translate }}</p>
+    }
+
+    @if (emptied().length) {
+      <button type="button" class="toggle" [attr.aria-expanded]="showEmptied()" (click)="showEmptied.set(!showEmptied())">
+        {{ (showEmptied() ? 'cave.emptied.hide' : 'cave.emptied.show') | translate: { count: emptied().length } }}
+      </button>
+      @if (showEmptied()) {
+        <section aria-labelledby="group-emptied">
+          <h2 class="group" id="group-emptied"><span class="label group__name">{{ 'cave.emptied.title' | translate }}</span></h2>
+          @for (entry of emptied(); track entry.wine.id) {
+            <app-wine-row [entry]="entry" />
+          }
+        </section>
+      }
+    }
+  </div>
+}

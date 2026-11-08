@@ -8,8 +8,21 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/cave/cave-page').then((m) => m.CavePage),
   },
   {
+    path: 'cave/:id',
+    title: 'Fiche · Ma Cave',
+    data: { hideTabBar: true },
+    loadComponent: () => import('./pages/fiche/fiche-page').then((m) => m.FichePage),
+  },
+  {
+    path: 'cave/:id/modifier',
+    title: 'Modifier · Ma Cave',
+    data: { hideTabBar: true },
+    loadComponent: () => import('./pages/modifier/modifier-page').then((m) => m.ModifierPage),
+  },
+  {
     path: 'ajouter',
     title: 'Ajouter · Ma Cave',
+    data: { hideTabBar: true },
     loadComponent: () => import('./pages/ajouter/ajouter-page').then((m) => m.AjouterPage),
   },
   {

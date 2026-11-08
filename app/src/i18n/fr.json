@@ -16,18 +16,53 @@
   "cave": {
     "title": "Ma cave",
     "settings": "Réglages",
+    "summary": {
+      "bottles": {
+        "one": "{{count}} bouteille",
+        "other": "{{count}} bouteilles"
+      },
+      "wines": {
+        "one": "{{count}} vin",
+        "other": "{{count}} vins"
+      },
+      "drinkNow": {
+        "one": "{{count}} à boire",
+        "other": "{{count}} à boire"
+      }
+    },
+    "search": "Rechercher un vin",
+    "searchPlaceholder": "Nom, domaine, cépage, région…",
+    "filterLabel": "Filtrer la cave",
+    "filters": {
+      "tous": "Tous",
+      "aBoire": "À boire"
+    },
+    "groupBottles": "· {{count}} btl",
+    "drinkNow": "à boire",
+    "noResult": "Aucun vin ne correspond.",
+    "emptied": {
+      "show": "Voir les vins épuisés ({{count}})",
+      "hide": "Masquer les vins épuisés",
+      "title": "Plus en cave"
+    },
+    "reminder": {
+      "never": "Aucune sauvegarde depuis {{days}} jours.",
+      "since": "Dernière sauvegarde il y a {{days}} jours.",
+      "action": "Exporter"
+    },
     "empty": {
       "title": "Votre cave est vide.",
-      "text": "La saisie des vins arrive à l'itération 1."
+      "text": "Ajoutez votre premier vin : le nom, la couleur et la quantité suffisent.",
+      "action": "Ajouter un vin"
     }
   },
   "ajouter": {
-    "title": "Ajouter",
-    "subtitle": "Un vin acheté, par photo ou à la main.",
-    "empty": {
-      "title": "Bientôt ici.",
-      "text": "Ajout manuel à l'itération 1, par photo d'étiquette à l'itération 2."
-    }
+    "title": "Ajouter un vin",
+    "subtitle": "Saisie manuelle. La lecture d'étiquette par photo arrive à l'itération 2.",
+    "close": "Fermer",
+    "added": "{{name}} ajouté à la cave.",
+    "view": "Voir la fiche",
+    "submit": "Ajouter à ma cave"
   },
   "accords": {
     "title": "Accords",
@@ -56,9 +91,14 @@
       "lastExport": "Dernier export : {{date}}",
       "neverExported": "Aucun export pour l'instant.",
       "exported": "Export prêt : {{file}}",
-      "importConfirm": "L'import remplace toutes les données de l'application. Continuer ?",
       "imported": "Import terminé : {{count}} enregistrement(s).",
-      "error": "Import impossible : {{reason}}"
+      "error": "Import impossible : {{reason}}",
+      "importQuestion": "{{file}} contient {{count}} vin(s). Que voulez-vous faire ?",
+      "merge": "Fusionner avec mes données",
+      "mergeHint": "Ajoute les vins du fichier et met à jour ceux qui existent déjà. Rien n'est supprimé.",
+      "replace": "Remplacer toutes mes données",
+      "replaceHint": "Efface les données de ce téléphone, puis charge le fichier.",
+      "cancel": "Annuler"
     },
     "storage": {
       "title": "Stockage",
@@ -74,5 +114,87 @@
       "upToDate": "Vous avez la dernière version.",
       "unavailable": "Mises à jour gérées uniquement par l'application installée."
     }
+  },
+  "wine": {
+    "color": {
+      "rouge": "Rouge",
+      "blanc": "Blanc",
+      "rose": "Rosé",
+      "bulles": "Bulles"
+    },
+    "colorPlural": {
+      "rouge": "Rouges",
+      "blanc": "Blancs",
+      "rose": "Rosés",
+      "bulles": "Bulles"
+    },
+    "sweetness": {
+      "sec": "Sec",
+      "demi-sec": "Demi-sec",
+      "doux": "Doux"
+    }
+  },
+  "form": {
+    "name": "Nom du vin",
+    "producer": "Domaine · producteur",
+    "vintage": "Millésime",
+    "color": "Couleur",
+    "quantity": "Quantité",
+    "quantityLess": "Une bouteille de moins",
+    "quantityMore": "Une bouteille de plus",
+    "price": "Prix par bouteille (CHF)",
+    "optional": "facultatif",
+    "details": "Plus de détails",
+    "country": "Pays",
+    "region": "Région",
+    "appellation": "Appellation",
+    "grapes": "Cépages",
+    "grapesHint": "Séparés par des virgules",
+    "drinkFrom": "À boire dès",
+    "drinkUntil": "À boire jusqu'en",
+    "alcohol": "Degré (% vol.)",
+    "sweetness": "Douceur",
+    "sweetnessNone": "Non précisée",
+    "location": "Emplacement",
+    "locationPlaceholder": "Ex. Rayon B · 2",
+    "notes": "Notes",
+    "errors": {
+      "invalid": "Vérifiez les champs signalés.",
+      "nameRequired": "Indiquez le nom du vin.",
+      "vintage": "Millésime entre 1900 et {{max}}.",
+      "quantity": "Quantité entre 1 et 999.",
+      "price": "Prix invalide.",
+      "years": "Années entre 1900 et 2100.",
+      "yearsOrder": "« Dès » doit précéder « jusqu'en ».",
+      "alcohol": "Degré entre 0 et 25."
+    }
+  },
+  "fiche": {
+    "back": "Cave",
+    "edit": "Modifier la fiche",
+    "photo": "Photo de l'étiquette dès l'itération 2",
+    "grape": "Cépage",
+    "keep": "Garde",
+    "paid": "Payé",
+    "unknown": "—",
+    "bottles": {
+      "one": "bouteille en cave",
+      "other": "bouteilles en cave"
+    },
+    "open": "J'en ouvre une",
+    "buy": "+ 1 achetée",
+    "opened": "Bouteille ouverte. La notation arrive à l'itération 3.",
+    "bought": "Une bouteille ajoutée.",
+    "undo": "Annuler",
+    "notFound": "Ce vin n'existe plus.",
+    "drinkNow": "À boire maintenant",
+    "notes": "Notes"
+  },
+  "modifier": {
+    "title": "Modifier",
+    "back": "Fiche",
+    "submit": "Enregistrer",
+    "delete": "Supprimer ce vin",
+    "deleteConfirm": "Supprimer « {{name}} » et tout son historique ? Cette action est définitive."
   }
 }

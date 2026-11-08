@@ -70,3 +70,24 @@ app-page-header ::ng-deep .header {
     color: var(--color-accent);
   }
 }
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.choice__question {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.choice__hint {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}

@@ -1,0 +1,91 @@
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ColorDotComponent } from '../../components/color-dot/color-dot';
+import { WineDatastore } from '../../datastore/wine.datastore';
+import { ChfPipe } from '../../pipes/chf.pipe';
+import { formatDrinkWindow, pluralKey } from '../../utils/format';
+
+interface Toast {
+  key: string;
+  movementId: string;
+}
+
+const TOAST_DURATION_MS = 6000;
+
+@Component({
+  selector: 'app-fiche-page',
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, ChfPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './fiche-page.scss',
+  templateUrl: './fiche-page.html',
+})
+export class FichePage {
+  readonly id = input.required<string>();
+
+  private readonly store = inject(WineDatastore);
+  private readonly destroyRef = inject(DestroyRef);
+  private toastTimer: ReturnType<typeof setTimeout> | undefined;
+
+  protected readonly detail = computed(() => this.store.detail(this.id()));
+  protected readonly drinkWindow = computed(() => {
+    const wine = this.detail()?.wine;
+    return wine ? formatDrinkWindow(wine.drinkFrom, wine.drinkUntil) : null;
+  });
+  protected readonly bottlesKey = computed(() => pluralKey('fiche.bottles', this.detail()?.bottles ?? 0));
+  protected readonly subtitle = computed(() => {
+    const wine = this.detail()?.wine;
+    return wine ? [wine.appellation || wine.region, wine.country].filter(Boolean).join(' · ') : '';
+  });
+  protected readonly toast = signal<Toast | null>(null);
+  protected readonly busy = signal(false);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.toastTimer));
+  }
+
+  protected async open(): Promise<void> {
+    await this.run(async () => {
+      const movement = await this.store.open(this.id());
+      if (movement) {
+        this.showToast({ key: 'fiche.opened', movementId: movement.id });
+      }
+    });
+  }
+
+  protected async buy(): Promise<void> {
+    await this.run(async () => {
+      const movement = await this.store.buy(this.id());
+      this.showToast({ key: 'fiche.bought', movementId: movement.id });
+    });
+  }
+
+  protected async undo(): Promise<void> {
+    const toast = this.toast();
+    if (!toast) {
+      return;
+    }
+    this.hideToast();
+    await this.run(() => this.store.undoMovement(toast.movementId));
+  }
+
+  private async run(action: () => Promise<void>): Promise<void> {
+    this.busy.set(true);
+    try {
+      await action();
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  private showToast(toast: Toast): void {
+    clearTimeout(this.toastTimer);
+    this.toast.set(toast);
+    this.toastTimer = setTimeout(() => this.toast.set(null), TOAST_DURATION_MS);
+  }
+
+  private hideToast(): void {
+    clearTimeout(this.toastTimer);
+    this.toast.set(null);
+  }
+}

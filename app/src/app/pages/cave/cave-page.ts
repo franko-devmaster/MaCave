@@ -1,34 +1,67 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EmptyStateComponent } from '../../components/empty-state/empty-state';
+import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
+import { WineRowComponent } from '../../components/wine-row/wine-row';
+import { SettingsDatastore } from '../../datastore/settings.datastore';
+import { WineDatastore } from '../../datastore/wine.datastore';
+import { WINE_COLORS } from '../../models/wine';
+import { CellarFilter, daysWithoutExport, groupByColor, isExportDue, matchesFilter, matchesSearch } from '../../utils/cellar';
+import { pluralKey } from '../../utils/format';
 
 @Component({
   selector: 'app-cave-page',
-  imports: [PageHeaderComponent, EmptyStateComponent, RouterLink, TranslatePipe],
+  imports: [PageHeaderComponent, WineRowComponent, ColorDotComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
-    .settings {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: var(--touch-target);
-      height: var(--touch-target);
-      margin-right: calc(-1 * var(--space-3));
-      color: var(--color-ink);
-    }
-  `,
-  template: `
-    <app-page-header [title]="'cave.title' | translate">
-      <a headerAction class="settings" routerLink="/reglages" [attr.aria-label]="'cave.settings' | translate">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
-        </svg>
-      </a>
-    </app-page-header>
-    <app-empty-state [title]="'cave.empty.title' | translate" [text]="'cave.empty.text' | translate" />
-  `,
+  styleUrl: './cave-page.scss',
+  templateUrl: './cave-page.html',
 })
-export class CavePage {}
+export class CavePage {
+  private readonly store = inject(WineDatastore);
+  private readonly settings = inject(SettingsDatastore);
+
+  protected readonly colors = WINE_COLORS;
+  protected readonly query = signal('');
+  protected readonly filter = signal<CellarFilter>('tous');
+  protected readonly showEmptied = signal(false);
+
+  protected readonly summary = this.store.summary;
+  protected readonly isEmpty = computed(() => this.store.wines().length === 0);
+  protected readonly summaryParts = computed(() => {
+    const { bottles, wines, drinkNow } = this.summary();
+    const parts = [
+      { key: pluralKey('cave.summary.bottles', bottles), count: bottles, accent: false },
+      { key: pluralKey('cave.summary.wines', wines), count: wines, accent: false },
+    ];
+    if (drinkNow > 0) {
+      parts.push({ key: pluralKey('cave.summary.drinkNow', drinkNow), count: drinkNow, accent: true });
+    }
+    return parts;
+  });
+
+  private readonly visible = computed(() =>
+    this.store.entries().filter((e) => matchesSearch(e.wine, this.query()) && matchesFilter(e, this.filter())),
+  );
+  protected readonly groups = computed(() => groupByColor(this.visible().filter((e) => e.bottles > 0)));
+  protected readonly emptied = computed(() =>
+    this.visible()
+      .filter((e) => e.bottles === 0)
+      .sort((a, b) => a.wine.name.localeCompare(b.wine.name, 'fr')),
+  );
+  protected readonly noResult = computed(() => !this.isEmpty() && this.groups().length === 0 && this.emptied().length === 0);
+
+  protected readonly exportReminder = computed(() => {
+    const wines = this.store.wines();
+    const lastExportAt = this.settings.lastExportAt();
+    const now = new Date();
+    if (!isExportDue(lastExportAt, wines, now)) {
+      return null;
+    }
+    return { key: lastExportAt ? 'cave.reminder.since' : 'cave.reminder.never', days: daysWithoutExport(lastExportAt, wines, now) };
+  });
+
+  protected onSearch(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+}

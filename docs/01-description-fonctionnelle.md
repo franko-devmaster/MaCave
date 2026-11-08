@@ -233,7 +233,16 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 
 | It. | État |
 |---|---|
-| 0 — Socle | Livrée, en recette |
-| 1 à 7 | À faire |
+| 0 — Socle | Livrée, recette validée |
+| 1 — Cave | Livrée, en recette |
+| 2 à 7 | À faire |
+
+Choix faits pendant l'itération 1, à confirmer en recette :
+
+- L'écran Ajouter reste ouvert après un enregistrement et se vide, pour enchaîner la saisie initiale de la cave.
+- Le formulaire montre six champs ; pays, région, cépages, garde, degré, douceur, emplacement et notes sont sous « Plus de détails ».
+- Les vins épuisés sortent de la liste mais restent consultables, pour retrouver un vin à racheter.
+- Le rappel d'export compte depuis le premier vin saisi tant qu'aucun export n'a été fait.
+- Un référentiel de 16 pays, environ 140 régions et 80 cépages est chargé au premier lancement, puis enrichi par les saisies.
 
 Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.

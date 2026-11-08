@@ -13,7 +13,7 @@
   <h2 id="backup-title" class="label section__title">{{ 'reglages.backup.title' | translate }}</h2>
   <p class="section__text">{{ 'reglages.backup.text' | translate }}</p>
   <p class="section__meta">
-    @if (lastExportAt(); as date) {
+    @if (settings.lastExportAt(); as date) {
       {{ 'reglages.backup.lastExport' | translate: { date: (date | date: 'dd.MM.yyyy, HH:mm') } }}
     } @else {
       {{ 'reglages.backup.neverExported' | translate }}
@@ -25,9 +25,27 @@
     </button>
     <label class="btn" [class.btn--disabled]="busy()">
       {{ 'reglages.backup.import' | translate }}
-      <input class="visually-hidden" type="file" accept=".json,application/json" [disabled]="busy()" (change)="importData($event)" />
+      <input class="visually-hidden" type="file" accept=".json,application/json" [disabled]="busy()" (change)="selectImportFile($event)" />
     </label>
   </div>
+  @if (pendingImport(); as pending) {
+    <div class="choice" role="group" aria-labelledby="import-question">
+      <p id="import-question" class="choice__question">
+        {{ 'reglages.backup.importQuestion' | translate: { file: pending.fileName, count: pending.wines } }}
+      </p>
+      <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="confirmImport('merge')">
+        {{ 'reglages.backup.merge' | translate }}
+      </button>
+      <p class="choice__hint">{{ 'reglages.backup.mergeHint' | translate }}</p>
+      <button type="button" class="btn btn--accent" [disabled]="busy()" (click)="confirmImport('replace')">
+        {{ 'reglages.backup.replace' | translate }}
+      </button>
+      <p class="choice__hint">{{ 'reglages.backup.replaceHint' | translate }}</p>
+      <button type="button" class="btn btn--quiet" [disabled]="busy()" (click)="cancelImport()">
+        {{ 'reglages.backup.cancel' | translate }}
+      </button>
+    </div>
+  }
   @if (backupFeedback(); as feedback) {
     <p class="feedback" [class.feedback--error]="feedback.kind === 'error'" role="status">{{ feedback.text }}</p>
   }

@@ -1,6 +1,6 @@
 // Remplacé en CI par scripts/write-build-info.mjs.
 export const BUILD_INFO = {
-  version: '0.0.1',
+  version: '0.1.0',
   commit: 'local',
   builtAt: '',
 } as const;

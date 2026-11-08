@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { DB_VERSION, MACAVE_DB, TABLE_NAMES, TableName } from '../db/schema';
-import { DEVICE_ONLY_SETTINGS, SETTINGS_KEYS } from '../constants/settings-keys';
+import { DEVICE_ONLY_SETTINGS } from '../constants/settings-keys';
 import { Setting } from '../models/reference';
 
 export const BACKUP_APP_ID = 'ma-cave';
@@ -11,6 +11,9 @@ export interface BackupFile {
   exportedAt: string;
   data: Record<TableName, unknown[]>;
 }
+
+/** Remplacer : vide l'application puis charge le fichier. Fusionner : ajoute ou met à jour par identifiant. */
+export type RestoreMode = 'replace' | 'merge';
 
 export class BackupFormatError extends Error {}
 
@@ -32,34 +35,31 @@ export class BackupService {
 
   async exportToFile(now: Date = new Date()): Promise<File> {
     const backup = await this.createBackup(now);
-    const file = new File([JSON.stringify(backup, null, 2)], backupFileName(now), {
-      type: 'application/json',
-    });
-    await this.db.settings.put({ key: SETTINGS_KEYS.lastExportAt, value: now.toISOString() });
-    return file;
+    return new File([JSON.stringify(backup, null, 2)], backupFileName(now), { type: 'application/json' });
   }
 
-  async lastExportAt(): Promise<string | null> {
-    const setting = await this.db.settings.get(SETTINGS_KEYS.lastExportAt);
-    return typeof setting?.value === 'string' ? setting.value : null;
-  }
-
-  /** Remplace toutes les données par celles du fichier. Les réglages propres à l'appareil sont conservés. */
-  async importFromText(text: string): Promise<number> {
-    const backup = parseBackup(text);
+  /** Écrit le contenu d'une sauvegarde déjà validée. Les réglages propres à l'appareil sont toujours conservés. */
+  async restore(backup: BackupFile, mode: RestoreMode): Promise<number> {
     const tables = TABLE_NAMES.map((name) => this.db.table(name));
     let count = 0;
     await this.db.transaction('rw', tables, async () => {
       const kept = await this.db.settings.where('key').anyOf([...DEVICE_ONLY_SETTINGS]).toArray();
       for (const name of TABLE_NAMES) {
         const rows = name === 'settings' ? withoutDeviceOnly(backup.data[name]) : backup.data[name];
-        await this.db.table(name).clear();
-        await this.db.table(name).bulkAdd(rows);
+        const table = this.db.table(name);
+        if (mode === 'replace') {
+          await table.clear();
+        }
+        await table.bulkPut(rows);
         count += rows.length;
       }
       await this.db.settings.bulkPut(kept);
     });
     return count;
+  }
+
+  async importFromText(text: string, mode: RestoreMode = 'replace'): Promise<number> {
+    return this.restore(parseBackup(text), mode);
   }
 }
 

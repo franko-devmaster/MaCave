@@ -40,17 +40,17 @@ app/                         Projet Angular (racine du workspace Angular)
   src/build-info.ts          Version, commit, date de build (réécrit en CI par scripts/write-build-info.mjs)
   src/i18n/fr.json           Traductions
   src/app/
-    pages/                   Un dossier par écran : cave/, fiche/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, wine-row, color-dot, score-picker, chip-group, ai-hint
+    pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
+    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, score-picker, chip-group, ai-hint
     datastore/               Classes signal-based : WineDatastore, TastingDatastore, ProfileDatastore, SettingsDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (capture + redimensionnement)
-    db/                      Dexie : schema.ts (tables, versions), repositories
+    db/                      Dexie : schema.ts (tables, versions), repositories (wine, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
-    testing/                 Utilitaires de test (base Dexie isolée)
+    testing/                 Utilitaires de test (base Dexie isolée, fixtures)
     pipes/ directives/ utils/ constants/
   src/styles/                tokens.scss (couleurs, typographie, espacements), base.scss
-  e2e/                       Tests Playwright + static-server.mjs (sert le build sous /MaCave/ comme Pages)
+  e2e/                       Tests Playwright, un fichier par itération, helpers.ts, static-server.mjs (sert le build sous /MaCave/ comme Pages)
   scripts/                   write-build-info.mjs, generate-icons.mjs
 docs/                        Description fonctionnelle et décisions
 .github/workflows/           ci.yml (lint + tests + build + déploiement Pages)
@@ -116,6 +116,7 @@ Application personnelle, un seul utilisateur, mais la clé API a une valeur mon�
 - DRY — extraire la duplication quand elle est prouvée (règle de trois)
 - Changements minimaux — ne toucher que ce qui est strictement nécessaire
 - Une itération = une tranche verticale testable sur le téléphone. Voir le plan dans `docs/01-description-fonctionnelle.md` § 10
+- Version : `0.<itération>.<correctif>` dans `app/package.json`, affichée dans Réglages
 
 ## Tests
 

@@ -11,7 +11,6 @@ test.describe('Itération 0 — socle', () => {
     await expect(nav.getByRole('link', { name: 'Cave' })).toHaveAttribute('aria-current', 'page');
 
     for (const [tab, heading, path] of [
-      ['Ajouter', 'Ajouter', 'ajouter'],
       ['Accords', 'Accords', 'accords'],
       ['Goûts', 'Mes goûts', 'gouts'],
       ['Cave', 'Ma cave', 'cave'],
@@ -21,6 +20,12 @@ test.describe('Itération 0 — socle', () => {
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading);
       await expect(nav.getByRole('link', { name: tab })).toHaveAttribute('aria-current', 'page');
     }
+
+    await nav.getByRole('link', { name: 'Ajouter' }).tap();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ajouter un vin');
+    await expect(nav).toHaveCount(0);
+    await page.getByRole('link', { name: 'Fermer' }).tap();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ma cave');
   });
 
   test('ouvre directement une route profonde', async ({ page }) => {
@@ -60,15 +65,14 @@ test.describe('Itération 0 — socle', () => {
     expect(backup.data.wines).toEqual([]);
     await expect(page.getByText(/Dernier export : \d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}/)).toBeVisible();
 
-    page.once('dialog', (dialog) => dialog.accept());
     await page.getByLabel('Importer une sauvegarde').setInputFiles({
       name: 'sauvegarde.json',
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(backup)),
     });
+    await page.getByRole('button', { name: 'Remplacer toutes mes données' }).tap();
     await expect(page.getByRole('status')).toHaveText(/^Import terminé : \d+ enregistrement\(s\)\.$/);
 
-    page.once('dialog', (dialog) => dialog.accept());
     await page.getByLabel('Importer une sauvegarde').setInputFiles({
       name: 'autre.json',
       mimeType: 'application/json',

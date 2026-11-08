@@ -1,10 +1,13 @@
-import { ApplicationConfig, isDevMode, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, isDevMode, LOCALE_ID, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFrCh from '@angular/common/locales/fr-CH';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { routes } from './app.routes';
+import { ReferenceDatastore } from './datastore/reference.datastore';
+import { SettingsDatastore } from './datastore/settings.datastore';
+import { WineDatastore } from './datastore/wine.datastore';
 import { BundledTranslateLoader } from './utils/bundled-translate-loader';
 
 registerLocaleData(localeFrCh);
@@ -23,5 +26,8 @@ export const appConfig: ApplicationConfig = {
       lang: 'fr',
     }),
     { provide: LOCALE_ID, useValue: 'fr-CH' },
+    provideAppInitializer(() =>
+      Promise.all([inject(WineDatastore).load(), inject(ReferenceDatastore).load(), inject(SettingsDatastore).load()]),
+    ),
   ],
 };
