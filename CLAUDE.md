@@ -23,19 +23,22 @@ Documents de référence :
 
 ## Tech Stack
 
-- Frontend : Angular 22 (standalone + signals + OnPush), TypeScript strict, SCSS, PWA (`@angular/pwa`, service worker)
-- UI : CSS maison à partir des tokens de la maquette. Pas d'Angular Material, pas de Bootstrap
+- Frontend : Angular 22 zoneless (standalone + signals + OnPush), TypeScript 6 strict, SCSS, PWA (`@angular/pwa`, service worker). Node 22.22.3 ou plus récent
+- UI : CSS maison à partir des tokens de la maquette. Pas d'Angular Material, pas de Bootstrap. Polices auto-hébergées via `@fontsource` (disponibles hors ligne)
 - Forms : Reactive Forms typés. Pas de ngx-formly
 - Stockage : IndexedDB via Dexie 4, une base `macave`, export / import JSON complet (vins, mouvements, dégustations, profil, verdicts, accords, photos en base64)
 - IA : `@anthropic-ai/sdk` appelé depuis le navigateur (`dangerouslyAllowBrowser: true`), modèle `claude-opus-5-5`, sorties structurées (`output_config.format` + schéma JSON strict), vision pour les étiquettes et les plats
-- i18n : `@ngx-translate`, français complet en v1, clés prêtes pour de / en, locale fr-CH
-- Tests : Vitest pour la logique (datastore, calculs de stock, construction des prompts, parsing des réponses) ; Playwright pour les parcours critiques sur le viewport iPhone 16 Pro (402 × 874, deviceScaleFactor 3)
+- i18n : `@ngx-translate` 18, traductions embarquées dans le bundle (`src/i18n/fr.json`, chargeur `BundledTranslateLoader`), français complet en v1, clés prêtes pour de / en, locale fr-CH
+- Tests : Vitest via `ng test` (jsdom, `fake-indexeddb`) pour la logique ; Playwright pour les parcours, avec le profil `iPhone 16 Pro` rendu par Chromium (viewport, user agent, tactile). WebKit n'est pas utilisé : le vrai Safari est validé sur le téléphone
+- Lint : angular-eslint, OnPush et `no-explicit-any` en erreur
 - Build / déploiement : GitHub Actions → GitHub Pages (site statique). Aucun conteneur, aucune base serveur
 
 ## Solution Structure
 
 ```
 app/                         Projet Angular (racine du workspace Angular)
+  src/build-info.ts          Version, commit, date de build (réécrit en CI par scripts/write-build-info.mjs)
+  src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
     components/              Composants partagés : tab-bar, wine-row, color-dot, score-picker, chip-group, ai-hint
@@ -44,9 +47,11 @@ app/                         Projet Angular (racine du workspace Angular)
     db/                      Dexie : schema.ts (tables, versions), repositories
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
+    testing/                 Utilitaires de test (base Dexie isolée)
     pipes/ directives/ utils/ constants/
   src/styles/                tokens.scss (couleurs, typographie, espacements), base.scss
-  e2e/                       Tests Playwright
+  e2e/                       Tests Playwright + static-server.mjs (sert le build sous /MaCave/ comme Pages)
+  scripts/                   write-build-info.mjs, generate-icons.mjs
 docs/                        Description fonctionnelle et décisions
 .github/workflows/           ci.yml (lint + tests + build + déploiement Pages)
 ```
@@ -117,26 +122,28 @@ Application personnelle, un seul utilisateur, mais la clé API a une valeur mon�
 - Vitest obligatoire sur datastores, repositories, services, utilitaires et toute la couche `ai/`. Pas de logique sans test
 - Nommage : `<méthode> should <attendu>` ou `<méthode> when <condition> should <attendu>`
 - Sujet sous test : `sut`
-- Playwright : un parcours par itération au minimum, sur le device `iPhone 16 Pro` de Playwright, `--trace off` sauf pour déboguer
+- Playwright : un parcours par itération au minimum, profil `iPhone 16 Pro`, contre le build de production servi sous `/MaCave/` ; `npm run e2e` désactive les traces
 - Vérification manuelle de l'UI sur le vrai téléphone via l'URL GitHub Pages à la fin de chaque itération
 
 ## Déploiements
 
 | Cible | URL | Build | Data |
 |---|---|---|---|
-| localhost | http://localhost:4200 | `cd app && npm start` | IndexedDB du navigateur |
+| localhost (dev) | http://localhost:4200 | `cd app && npm start` (service worker inactif) | IndexedDB du navigateur |
+| localhost (comme Pages) | http://localhost:4310/MaCave/ | `npm run build:pages && node e2e/static-server.mjs` | IndexedDB du navigateur |
 | Téléphone en local | http://<ip-du-mac>:4200 (même Wi-Fi), ou tunnel HTTPS pour tester la PWA | `npm start -- --host 0.0.0.0` | IndexedDB de Safari |
 | GitHub Pages | https://franko-devmaster.github.io/MaCave/ | push sur `main` → `.github/workflows/ci.yml` | IndexedDB du téléphone |
 
-Angular doit être construit avec `--base-href /MaCave/` pour Pages.
+`npm run build:pages` construit avec `--base-href /MaCave/` et copie `index.html` en `404.html` pour les routes profondes. Pages doit être activé une fois dans les réglages du dépôt, source « GitHub Actions ».
 
 ### Workflow typique
 
 ```bash
 # 1. Dev local
 cd app && npm start
-# 2. Tests
-npm test && npx playwright test --trace off
+# 2. Lint et tests
+npm run lint && npm test
+npm run build:pages && npm run e2e
 # 3. Commit + push
 git add ...
 git commit -m "feat(cave): ..."
@@ -172,7 +179,7 @@ Pour une itération :
 
 1. Relire la tranche dans `docs/01-description-fonctionnelle.md` § 10 et la maquette
 2. Écrire le code Angular et les tests Vitest ; un parcours Playwright
-3. Lancer `npm test`, `npx playwright test --trace off`, `npm run build`
+3. Lancer `npm run lint`, `npm test`, `npm run build:pages`, `npm run e2e`
 4. Commit + push, pull request vers `main`
 5. Test manuel sur l'iPhone, retours dans la conversation, corrections
 
