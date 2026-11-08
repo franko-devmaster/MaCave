@@ -1,0 +1,46 @@
+// Design system « Étiquette » — seule source des couleurs, typographies et espacements.
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f3f1ec;
+  --color-ink: #17120f;
+  --color-muted: #6b625b;
+  --color-rule: #ece8e1;
+  --color-border: #e3ded6;
+  --color-accent: #7a1f2e;
+  --color-on-ink: #ffffff;
+  --color-on-ink-muted: rgb(255 255 255 / 72%);
+
+  --wine-rouge: #7a1f2e;
+  --wine-blanc: #d4a72c;
+  --wine-rose: #e08a9b;
+  --wine-bulles: #4f7f96;
+
+  --font-display: 'Barlow Condensed', 'Inter', system-ui, sans-serif;
+  --font-text: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --text-display: 46px;
+  --text-title: 30px;
+  --text-body: 15px;
+  --text-small: 13px;
+  --text-label: 11px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --touch-target: 44px;
+  --button-height: 52px;
+  --gutter: var(--space-5);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

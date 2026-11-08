@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "Ma Cave",
+    "update": {
+      "message": "Une nouvelle version est prête.",
+      "action": "Mettre à jour"
+    }
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "cave": "Cave",
+    "ajouter": "Ajouter",
+    "accords": "Accords",
+    "gouts": "Goûts"
+  },
+  "cave": {
+    "title": "Ma cave",
+    "settings": "Réglages",
+    "empty": {
+      "title": "Votre cave est vide.",
+      "text": "La saisie des vins arrive à l'itération 1."
+    }
+  },
+  "ajouter": {
+    "title": "Ajouter",
+    "subtitle": "Un vin acheté, par photo ou à la main.",
+    "empty": {
+      "title": "Bientôt ici.",
+      "text": "Ajout manuel à l'itération 1, par photo d'étiquette à l'itération 2."
+    }
+  },
+  "accords": {
+    "title": "Accords",
+    "subtitle": "Dites ce que vous cuisinez. On cherche dans votre cave.",
+    "empty": {
+      "title": "Bientôt ici.",
+      "text": "Les accords mets et vins arrivent à l'itération 5."
+    }
+  },
+  "gouts": {
+    "title": "Mes goûts",
+    "subtitle": "Déduits de vos dégustations notées.",
+    "empty": {
+      "title": "Bientôt ici.",
+      "text": "Votre profil de goûts arrive à l'itération 4."
+    }
+  },
+  "reglages": {
+    "title": "Réglages",
+    "back": "Cave",
+    "backup": {
+      "title": "Sauvegarde",
+      "text": "Vos données restent sur ce téléphone. Exportez-les régulièrement vers Fichiers ou iCloud Drive.",
+      "export": "Exporter mes données",
+      "import": "Importer une sauvegarde",
+      "lastExport": "Dernier export : {{date}}",
+      "neverExported": "Aucun export pour l'instant.",
+      "exported": "Export prêt : {{file}}",
+      "importConfirm": "L'import remplace toutes les données de l'application. Continuer ?",
+      "imported": "Import terminé : {{count}} enregistrement(s).",
+      "error": "Import impossible : {{reason}}"
+    },
+    "storage": {
+      "title": "Stockage",
+      "persisted": "Stockage persistant accordé. Le système ne videra pas vos données.",
+      "notPersisted": "Stockage non garanti. Installez l'application sur l'écran d'accueil et exportez régulièrement.",
+      "unsupported": "Ce navigateur ne permet pas de garantir le stockage."
+    },
+    "version": {
+      "title": "Version",
+      "value": "v{{version}} · {{commit}}",
+      "builtAt": "Construite le {{date}}",
+      "check": "Rechercher une mise à jour",
+      "upToDate": "Vous avez la dernière version.",
+      "unavailable": "Mises à jour gérées uniquement par l'application installée."
+    }
+  }
+}

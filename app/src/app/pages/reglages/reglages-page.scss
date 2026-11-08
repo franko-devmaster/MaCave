@@ -1,0 +1,72 @@
+:host {
+  display: block;
+  padding-bottom: calc(var(--safe-bottom) + var(--space-8));
+}
+
+.top {
+  padding: calc(var(--safe-top) + var(--space-3)) var(--space-3) 0;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  font-weight: 500;
+}
+
+app-page-header ::ng-deep .header {
+  padding-top: var(--space-2);
+}
+
+.section {
+  margin: var(--space-6) var(--gutter) 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.section__title {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.section__text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.section__meta {
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}
+
+.section__value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.section__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.btn--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.feedback {
+  font-size: 14px;
+  color: var(--color-ink);
+
+  &--error {
+    color: var(--color-accent);
+  }
+}

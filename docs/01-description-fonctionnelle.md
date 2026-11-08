@@ -229,6 +229,11 @@ Tranches verticales, chacune utilisable seule sur le téléphone.
 
 Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur arrive en 2 parce qu'il conditionne tout le reste ; le profil (4) précède accords et magasin qui en dépendent. Les itérations 5 et 6 sont permutables.
 
-## 11. Prochaine étape
+## 11. Avancement
 
-Itération 0 : socle Angular, PWA installable, CI et GitHub Pages.
+| It. | État |
+|---|---|
+| 0 — Socle | Livrée, en recette |
+| 1 à 7 | À faire |
+
+Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.

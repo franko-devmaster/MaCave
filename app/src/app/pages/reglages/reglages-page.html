@@ -1,0 +1,61 @@
+<div class="top">
+  <a class="back" routerLink="/cave">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 5-7 7 7 7" />
+    </svg>
+    {{ 'reglages.back' | translate }}
+  </a>
+</div>
+
+<app-page-header [title]="'reglages.title' | translate" />
+
+<section class="section" aria-labelledby="backup-title">
+  <h2 id="backup-title" class="label section__title">{{ 'reglages.backup.title' | translate }}</h2>
+  <p class="section__text">{{ 'reglages.backup.text' | translate }}</p>
+  <p class="section__meta">
+    @if (lastExportAt(); as date) {
+      {{ 'reglages.backup.lastExport' | translate: { date: (date | date: 'dd.MM.yyyy, HH:mm') } }}
+    } @else {
+      {{ 'reglages.backup.neverExported' | translate }}
+    }
+  </p>
+  <div class="section__actions">
+    <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="exportData()">
+      {{ 'reglages.backup.export' | translate }}
+    </button>
+    <label class="btn" [class.btn--disabled]="busy()">
+      {{ 'reglages.backup.import' | translate }}
+      <input class="visually-hidden" type="file" accept=".json,application/json" [disabled]="busy()" (change)="importData($event)" />
+    </label>
+  </div>
+  @if (backupFeedback(); as feedback) {
+    <p class="feedback" [class.feedback--error]="feedback.kind === 'error'" role="status">{{ feedback.text }}</p>
+  }
+</section>
+
+<section class="section" aria-labelledby="storage-title">
+  <h2 id="storage-title" class="label section__title">{{ 'reglages.storage.title' | translate }}</h2>
+  <p class="section__text">
+    @switch (storage.status()) {
+      @case ('persisted') { {{ 'reglages.storage.persisted' | translate }} }
+      @case ('unsupported') { {{ 'reglages.storage.unsupported' | translate }} }
+      @default { {{ 'reglages.storage.notPersisted' | translate }} }
+    }
+  </p>
+</section>
+
+<section class="section" aria-labelledby="version-title">
+  <h2 id="version-title" class="label section__title">{{ 'reglages.version.title' | translate }}</h2>
+  <p class="section__value" data-testid="app-version">
+    {{ 'reglages.version.value' | translate: { version: build.version, commit: build.commit } }}
+  </p>
+  @if (build.builtAt) {
+    <p class="section__meta">{{ 'reglages.version.builtAt' | translate: { date: (build.builtAt | date: 'dd.MM.yyyy, HH:mm') } }}</p>
+  }
+  <div class="section__actions">
+    <button type="button" class="btn" (click)="checkForUpdate()">{{ 'reglages.version.check' | translate }}</button>
+  </div>
+  @if (updateFeedback(); as message) {
+    <p class="feedback" role="status">{{ message }}</p>
+  }
+</section>
