@@ -27,7 +27,7 @@ Documents de référence :
 - UI : CSS maison à partir des tokens de la maquette. Pas d'Angular Material, pas de Bootstrap. Polices auto-hébergées via `@fontsource` (disponibles hors ligne)
 - Forms : Reactive Forms typés. Pas de ngx-formly
 - Stockage : IndexedDB via Dexie 4, une base `macave`, export / import JSON complet (vins, mouvements, dégustations, profil, verdicts, accords, photos en base64)
-- IA : `@anthropic-ai/sdk` appelé depuis le navigateur (`dangerouslyAllowBrowser: true`), modèle `claude-opus-5-5`, sorties structurées (`output_config.format` + schéma JSON strict), vision pour les étiquettes et les plats
+- IA : `@anthropic-ai/sdk` chargé à la demande (import dynamique) et appelé depuis le navigateur (`dangerouslyAllowBrowser: true`), modèle `claude-opus-5-5`, sorties structurées (`output_config.format` + schéma JSON strict), vision pour les étiquettes et les plats
 - i18n : `@ngx-translate` 18, traductions embarquées dans le bundle (`src/i18n/fr.json`, chargeur `BundledTranslateLoader`), français complet en v1, clés prêtes pour de / en, locale fr-CH
 - Tests : Vitest via `ng test` (jsdom, `fake-indexeddb`) pour la logique ; Playwright pour les parcours, avec le profil `iPhone 16 Pro` rendu par Chromium (viewport, user agent, tactile). WebKit n'est pas utilisé : le vrai Safari est validé sur le téléphone
 - Lint : angular-eslint, OnPush et `no-explicit-any` en erreur
@@ -41,16 +41,16 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, score-picker, chip-group, ai-hint
-    datastore/               Classes signal-based : WineDatastore, TastingDatastore, ProfileDatastore, SettingsDatastore
-    services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (capture + redimensionnement)
-    db/                      Dexie : schema.ts (tables, versions), repositories (wine, reference, settings)
+    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, ai-hint
+    datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore
+    services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture)
+    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
     testing/                 Utilitaires de test (base Dexie isolée, fixtures)
     pipes/ directives/ utils/ constants/
   src/styles/                tokens.scss (couleurs, typographie, espacements), base.scss
-  e2e/                       Tests Playwright, un fichier par itération, helpers.ts, static-server.mjs (sert le build sous /MaCave/ comme Pages)
+  e2e/                       Tests Playwright, un fichier par itération, helpers.ts, claude-mock.ts (API simulée), static-server.mjs (sert le build sous /MaCave/ comme Pages)
   scripts/                   write-build-info.mjs, generate-icons.mjs
 docs/                        Description fonctionnelle et décisions
 .github/workflows/           ci.yml (lint + tests + build + déploiement Pages)
@@ -91,13 +91,18 @@ docs/                        Description fonctionnelle et décisions
 
 ## Intégration Claude
 
-- Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`
+- Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`. Chaque fichier expose une fonction `xxxRequest()` qui renvoie un `StructuredRequest` (système, contenu, schéma, effort, parseur)
+- Appels via `client.beta.messages.create` avec `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) : un refus est rejoué côté serveur sur un modèle de repli
+- Effort `low` pour l'extraction (étiquettes, descriptions) ; à relever seulement si la qualité le justifie, mesures à l'appui
+- Schémas stricts : toutes les propriétés dans `required`, `additionalProperties: false`, nullabilité par `anyOf` avec `{ "type": "null" }`, pas de `minimum` / `maximum` (bornes contrôlées par le parseur, qui met à null une valeur hors bornes)
+- Test de clé par `models.retrieve` : aucun texte généré, rien de facturé
+- Erreurs classées par les classes typées du SDK (`classifyError`), jamais par le texte du message
 - Toujours `output_config.format` avec un schéma JSON strict ; jamais de parsing de texte libre
 - Contexte envoyé : inventaire résumé + profil, placés en tête comme préfixe stable ; la requête variable en fin
 - Images : JPEG base64 redimensionné, jamais l'original
 - Gérer `stop_reason`, les erreurs réseau, les erreurs 401 (clé invalide → renvoi vers Réglages) et 429
 - Le profil de goûts n'est recalculé qu'après une nouvelle dégustation ou une correction, jamais à l'ouverture
-- Tester la logique autour des appels (construction des prompts, parsing, erreurs) avec des réponses fixtures ; aucun appel réel dans les tests
+- Tester la logique autour des appels (construction des prompts, parsing, erreurs) avec des réponses fixtures ; aucun appel réel dans les tests. Vitest : `testing/fake-claude.ts` (client factice, vraies classes d'erreurs). Playwright : `e2e/claude-mock.ts` intercepte `api.anthropic.com`, avec `serviceWorkers: 'block'` car le service worker relaie les requêtes hors de portée de l'interception
 
 ## Sécurité
 

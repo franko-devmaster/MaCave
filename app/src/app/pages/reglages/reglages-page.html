@@ -9,6 +9,41 @@
 
 <app-page-header [title]="'reglages.title' | translate" />
 
+<section class="section" aria-labelledby="claude-title">
+  <h2 id="claude-title" class="label section__title">{{ 'reglages.claude.title' | translate }}</h2>
+  @if (settings.maskedApiKey(); as masked) {
+    <p class="section__value section__value--key" data-testid="api-key">{{ masked }}</p>
+    <p class="section__meta">{{ 'reglages.claude.active' | translate }}</p>
+    <div class="section__actions">
+      <button type="button" class="btn" [disabled]="keyBusy()" (click)="testSavedKey()">{{ 'reglages.claude.test' | translate }}</button>
+      <button type="button" class="btn btn--quiet" [disabled]="keyBusy()" (click)="removeKey()">{{ 'reglages.claude.remove' | translate }}</button>
+    </div>
+  } @else {
+    <p class="section__text">{{ 'reglages.claude.text' | translate }}</p>
+    <label class="visually-hidden" for="api-key-input">{{ 'reglages.claude.inputLabel' | translate }}</label>
+    <input
+      id="api-key-input"
+      class="key-input"
+      type="password"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      placeholder="sk-ant-…"
+      [value]="keyInput()"
+      (input)="onKeyInput($event)"
+    />
+    <div class="section__actions">
+      <button type="button" class="btn btn--primary" [disabled]="keyBusy() || !keyInput().trim()" (click)="saveKey()">
+        {{ (keyBusy() ? 'reglages.claude.testing' : 'reglages.claude.save') | translate }}
+      </button>
+    </div>
+    <p class="section__meta">{{ 'reglages.claude.help' | translate }}</p>
+  }
+  @if (keyFeedback(); as feedback) {
+    <p class="feedback" [class.feedback--error]="feedback.kind === 'error'" role="status">{{ feedback.text }}</p>
+  }
+</section>
+
 <section class="section" aria-labelledby="backup-title">
   <h2 id="backup-title" class="label section__title">{{ 'reglages.backup.title' | translate }}</h2>
   <p class="section__text">{{ 'reglages.backup.text' | translate }}</p>

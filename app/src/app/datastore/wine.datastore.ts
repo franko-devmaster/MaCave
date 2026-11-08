@@ -1,8 +1,8 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ReferenceRepository } from '../db/reference.repository';
 import { Purchase, WineRepository } from '../db/wine.repository';
-import { StockMovement, Wine, WineInput } from '../models/wine';
-import { buildEntries, CellarEntry, lastPricePaid, summarize } from '../utils/cellar';
+import { PhotoInput, StockMovement, Wine, WineInput } from '../models/wine';
+import { buildEntries, CellarEntry, findDuplicate, lastPricePaid, summarize } from '../utils/cellar';
 
 export interface WineDetail extends CellarEntry {
   lastPrice: number | null;
@@ -33,8 +33,13 @@ export class WineDatastore {
     return entry ? { ...entry, lastPrice: lastPricePaid(this.movementsSignal(), id) } : null;
   }
 
-  async create(input: WineInput, purchase: Purchase): Promise<Wine> {
-    const { wine, movement } = await this.repository.create(input, purchase);
+  /** Vin déjà en cave correspondant à la saisie (même nom, producteur et millésime), ou null. */
+  findDuplicate(input: Pick<WineInput, 'name' | 'producer' | 'vintage'>): Wine | null {
+    return findDuplicate(input, this.winesSignal());
+  }
+
+  async create(input: WineInput, purchase: Purchase, photo: PhotoInput | null = null): Promise<Wine> {
+    const { wine, movement } = await this.repository.create(input, purchase, photo);
     await this.references.remember(input.country, input.region, input.grapes);
     this.winesSignal.update((wines) => [...wines, wine]);
     this.movementsSignal.update((movements) => [...movements, movement]);
@@ -62,8 +67,13 @@ export class WineDatastore {
     return this.addMovement(id, -1, 'ouverture');
   }
 
-  async buy(id: string, pricePaid: number | null = null): Promise<StockMovement> {
-    return this.addMovement(id, 1, 'achat', pricePaid);
+  async buy(id: string, pricePaid: number | null = null, quantity = 1): Promise<StockMovement> {
+    return this.addMovement(id, quantity, 'achat', pricePaid);
+  }
+
+  async setPhoto(id: string, photo: PhotoInput): Promise<void> {
+    const wine = await this.repository.attachPhoto(id, photo);
+    this.winesSignal.update((wines) => wines.map((w) => (w.id === id ? wine : w)));
   }
 
   async undoMovement(movementId: string): Promise<void> {

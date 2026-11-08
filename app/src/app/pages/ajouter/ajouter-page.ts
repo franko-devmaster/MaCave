@@ -1,56 +1,148 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineFormComponent } from '../../components/wine-form/wine-form';
+import { AddWineDatastore } from '../../datastore/add-wine.datastore';
+import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
-import { WineFormResult } from '../../utils/wine-form';
+import { Wine } from '../../models/wine';
+import { readingToFormValue, uncertainFormFields, WineFormResult } from '../../utils/wine-form';
 
 interface Added {
   id: string;
   label: string;
+  key: 'ajouter.added' | 'ajouter.addedBottles';
+  count: number;
 }
 
-/** Ajout manuel. Après enregistrement, le formulaire se vide pour enchaîner les saisies. */
+interface PendingDuplicate {
+  wine: Wine;
+  result: WineFormResult;
+}
+
+/**
+ * Ajout d'un vin : photo d'étiquette ou description lue par Claude, ou saisie manuelle.
+ * Après enregistrement, tout se vide pour enchaîner les saisies.
+ */
 @Component({
   selector: 'app-ajouter-page',
   imports: [PageHeaderComponent, WineFormComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './ajouter-page.scss',
-  template: `
-    <div class="top">
-      <a class="close" routerLink="/cave" [attr.aria-label]="'ajouter.close' | translate">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-      </a>
-    </div>
-    <app-page-header [title]="'ajouter.title' | translate" [subtitle]="'ajouter.subtitle' | translate" />
-    @if (added(); as wine) {
-      <div class="added" role="status">
-        <span>{{ 'ajouter.added' | translate: { name: wine.label } }}</span>
-        <a class="added__link" [routerLink]="['/cave', wine.id]">{{ 'ajouter.view' | translate }}</a>
-      </div>
-    }
-    <app-wine-form mode="create" [submitLabel]="'ajouter.submit' | translate" [busy]="busy()" (submitted)="save($event)" />
-  `,
+  templateUrl: './ajouter-page.html',
 })
-export class AjouterPage {
-  private readonly store = inject(WineDatastore);
+export class AjouterPage implements OnDestroy {
+  private readonly wines = inject(WineDatastore);
   private readonly document = inject(DOCUMENT);
   private readonly form = viewChild.required(WineFormComponent);
 
+  protected readonly flow = inject(AddWineDatastore);
+  protected readonly settings = inject(SettingsDatastore);
   protected readonly busy = signal(false);
   protected readonly added = signal<Added | null>(null);
+  protected readonly duplicate = signal<PendingDuplicate | null>(null);
+  protected readonly description = signal('');
+
+  ngOnDestroy(): void {
+    this.flow.reset();
+  }
+
+  protected async onPhoto(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) {
+      await this.read(() => this.flow.readPhoto(file));
+    }
+  }
+
+  protected async onDescribe(): Promise<void> {
+    await this.read(() => this.flow.readDescription(this.description()));
+  }
+
+  protected onDescriptionInput(event: Event): void {
+    this.description.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected restart(): void {
+    this.flow.reset();
+    this.form().reset();
+    this.description.set('');
+  }
 
   protected async save(result: WineFormResult): Promise<void> {
+    const readingDuplicate = this.flow.reading()?.possibleDuplicateId;
+    const existing = (readingDuplicate ? this.wines.detail(readingDuplicate)?.wine : null) ?? this.wines.findDuplicate(result.input);
+    if (existing) {
+      this.duplicate.set({ wine: existing, result });
+      return;
+    }
+    await this.create(result);
+  }
+
+  protected async addToExisting(): Promise<void> {
+    const pending = this.duplicate();
+    if (!pending) {
+      return;
+    }
+    await this.run(async () => {
+      const { wine, result } = pending;
+      await this.wines.buy(wine.id, result.pricePaid, result.quantity);
+      const photo = this.flow.photoToSave();
+      if (photo && !wine.labelPhotoId) {
+        await this.wines.setPhoto(wine.id, photo);
+      }
+      this.done({ id: wine.id, label: wineLabel(wine), key: 'ajouter.addedBottles', count: result.quantity });
+    });
+  }
+
+  protected async createAnyway(): Promise<void> {
+    const pending = this.duplicate();
+    if (pending) {
+      await this.create(pending.result);
+    }
+  }
+
+  protected cancelDuplicate(): void {
+    this.duplicate.set(null);
+  }
+
+  private async read(action: () => Promise<void>): Promise<void> {
+    this.added.set(null);
+    this.duplicate.set(null);
+    await action();
+    const reading = this.flow.reading();
+    if (reading) {
+      this.form().fill(readingToFormValue(reading), uncertainFormFields(reading));
+    }
+  }
+
+  private async create(result: WineFormResult): Promise<void> {
+    await this.run(async () => {
+      const wine = await this.wines.create(result.input, { quantity: result.quantity, pricePaid: result.pricePaid }, this.flow.photoToSave());
+      this.done({ id: wine.id, label: wineLabel(wine), key: 'ajouter.added', count: result.quantity });
+    });
+  }
+
+  private async run(action: () => Promise<void>): Promise<void> {
     this.busy.set(true);
     try {
-      const wine = await this.store.create(result.input, { quantity: result.quantity, pricePaid: result.pricePaid });
-      this.added.set({ id: wine.id, label: [wine.name, wine.vintage].filter(Boolean).join(' ') });
-      this.form().reset();
-      this.document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+      await action();
     } finally {
       this.busy.set(false);
     }
   }
+
+  private done(added: Added): void {
+    this.added.set(added);
+    this.duplicate.set(null);
+    this.restart();
+    this.document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function wineLabel(wine: Wine): string {
+  return [wine.name, wine.vintage].filter(Boolean).join(' ');
 }

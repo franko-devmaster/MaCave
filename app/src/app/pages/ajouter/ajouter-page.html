@@ -1,0 +1,78 @@
+<div class="top">
+  <a class="close" routerLink="/cave" [attr.aria-label]="'ajouter.close' | translate">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+  </a>
+</div>
+<app-page-header [title]="'ajouter.title' | translate" [subtitle]="(settings.hasApiKey() ? 'ajouter.subtitle' : 'ajouter.subtitleManual') | translate" />
+
+@if (added(); as wine) {
+  <div class="banner" role="status">
+    <span>{{ wine.key | translate: { name: wine.label, count: wine.count } }}</span>
+    <a class="banner__link" [routerLink]="['/cave', wine.id]">{{ 'ajouter.view' | translate }}</a>
+  </div>
+}
+
+@if (!settings.hasApiKey()) {
+  <p class="notice">
+    {{ 'ajouter.noKey' | translate }}
+    <a routerLink="/reglages">{{ 'ajouter.noKeyLink' | translate }}</a>
+  </p>
+} @else {
+  @switch (flow.status()) {
+    @case ('reading') {
+      <div class="reading" role="status" aria-live="polite">
+        @if (flow.preview(); as src) {
+          <img class="reading__photo" [src]="src" alt="" />
+        }
+        <span class="spinner" aria-hidden="true"></span>
+        <span>{{ (flow.preview() ? 'ajouter.readingPhoto' : 'ajouter.readingText') | translate }}</span>
+      </div>
+    }
+    @case ('done') {
+      <div class="result">
+        @if (flow.preview(); as src) {
+          <img class="result__photo" [src]="src" [alt]="'photo.alt' | translate" />
+        }
+        <p class="result__text">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6" /></svg>
+          {{ 'ajouter.read' | translate }}
+        </p>
+        <button type="button" class="result__restart" (click)="restart()">{{ 'ajouter.restart' | translate }}</button>
+      </div>
+    }
+    @default {
+      <section class="capture" [attr.aria-label]="'ajouter.captureLabel' | translate">
+        @if (flow.error(); as error) {
+          <p class="error" role="alert">{{ 'ai.errors.' + error.kind | translate: { detail: error.detail ?? '' } }}</p>
+        }
+        <label class="btn btn--accent capture__photo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+          {{ 'ajouter.photo' | translate }}
+          <input class="visually-hidden" type="file" accept="image/*" capture="environment" (change)="onPhoto($event)" />
+        </label>
+        <div class="describe">
+          <label class="label" for="describe-input">{{ 'ajouter.describeLabel' | translate }}</label>
+          <textarea id="describe-input" rows="2" [value]="description()" (input)="onDescriptionInput($event)" [placeholder]="'ajouter.describePlaceholder' | translate"></textarea>
+          <button type="button" class="btn" [disabled]="!description().trim()" (click)="onDescribe()">{{ 'ajouter.describe' | translate }}</button>
+        </div>
+        <p class="capture__or">{{ 'ajouter.orManual' | translate }}</p>
+      </section>
+    }
+  }
+}
+
+<app-wine-form mode="create" [submitLabel]="'ajouter.submit' | translate" [busy]="busy() || flow.status() === 'reading'" (submitted)="save($event)">
+  @if (duplicate(); as pending) {
+    <div class="duplicate" role="alertdialog" aria-labelledby="duplicate-title" aria-describedby="duplicate-text">
+      <p id="duplicate-title" class="duplicate__title">{{ 'ajouter.duplicate.title' | translate }}</p>
+      <p id="duplicate-text" class="duplicate__text">
+        {{ 'ajouter.duplicate.text' | translate: { name: pending.wine.name, vintage: pending.wine.vintage ?? '', producer: pending.wine.producer } }}
+      </p>
+      <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="addToExisting()">
+        {{ 'ajouter.duplicate.add' | translate: { count: pending.result.quantity } }}
+      </button>
+      <button type="button" class="btn" [disabled]="busy()" (click)="createAnyway()">{{ 'ajouter.duplicate.create' | translate }}</button>
+      <button type="button" class="btn btn--quiet" (click)="cancelDuplicate()">{{ 'ajouter.duplicate.cancel' | translate }}</button>
+    </div>
+  }
+</app-wine-form>

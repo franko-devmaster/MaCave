@@ -7,7 +7,9 @@ import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { ReferenceDatastore } from '../../datastore/reference.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
+import { ClaudeFailure } from '../../ai/claude-errors';
 import { AppUpdateService } from '../../services/app-update.service';
+import { ClaudeService } from '../../services/claude.service';
 import { BackupFile, BackupFormatError, BackupService, parseBackup, RestoreMode } from '../../services/backup.service';
 import { FileShareService } from '../../services/file-share.service';
 import { StoragePersistenceService } from '../../services/storage-persistence.service';
@@ -39,12 +41,74 @@ export class ReglagesPage {
   protected readonly settings = inject(SettingsDatastore);
   protected readonly storage = inject(StoragePersistenceService);
   protected readonly update = inject(AppUpdateService);
+  private readonly claude = inject(ClaudeService);
 
   protected readonly build = BUILD_INFO;
   protected readonly busy = signal(false);
   protected readonly pendingImport = signal<PendingImport | null>(null);
   protected readonly backupFeedback = signal<Feedback | null>(null);
   protected readonly updateFeedback = signal<string | null>(null);
+  protected readonly keyInput = signal('');
+  protected readonly keyBusy = signal(false);
+  protected readonly keyFeedback = signal<Feedback | null>(null);
+
+  protected onKeyInput(event: Event): void {
+    this.keyInput.set((event.target as HTMLInputElement).value);
+  }
+
+  /** Enregistre la clé seulement si l'API l'accepte. */
+  protected async saveKey(): Promise<void> {
+    const key = this.keyInput().trim();
+    if (!key.startsWith('sk-ant-')) {
+      this.keyFeedback.set({ kind: 'error', text: this.translate.instant('reglages.claude.format') });
+      return;
+    }
+    await this.withKeyBusy(async () => {
+      const result = await this.claude.testKey(key);
+      if (result.ok) {
+        await this.settings.setApiKey(key);
+        this.keyInput.set('');
+        this.keyFeedback.set({ kind: 'success', text: this.translate.instant('reglages.claude.valid') });
+      } else {
+        this.keyFeedback.set({ kind: 'error', text: this.errorText(result) });
+      }
+    });
+  }
+
+  protected async testSavedKey(): Promise<void> {
+    const key = this.settings.apiKey();
+    if (!key) {
+      return;
+    }
+    await this.withKeyBusy(async () => {
+      const result = await this.claude.testKey(key);
+      this.keyFeedback.set(
+        result.ok ? { kind: 'success', text: this.translate.instant('reglages.claude.valid') } : { kind: 'error', text: this.errorText(result) },
+      );
+    });
+  }
+
+  protected async removeKey(): Promise<void> {
+    if (!confirm(this.translate.instant('reglages.claude.removeConfirm'))) {
+      return;
+    }
+    await this.settings.clearApiKey();
+    this.keyFeedback.set({ kind: 'success', text: this.translate.instant('reglages.claude.removed') });
+  }
+
+  private async withKeyBusy(action: () => Promise<void>): Promise<void> {
+    this.keyBusy.set(true);
+    this.keyFeedback.set(null);
+    try {
+      await action();
+    } finally {
+      this.keyBusy.set(false);
+    }
+  }
+
+  private errorText(error: ClaudeFailure): string {
+    return this.translate.instant(`ai.errors.${error.kind}`, { detail: error.detail ?? '' });
+  }
 
   protected async exportData(): Promise<void> {
     this.busy.set(true);

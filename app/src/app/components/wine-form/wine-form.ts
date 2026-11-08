@@ -6,6 +6,7 @@ import { ReferenceDatastore } from '../../datastore/reference.datastore';
 import { SWEETNESS_LEVELS, Sweetness, WINE_COLORS, WineColor, WineInput } from '../../models/wine';
 import {
   emptyWineForm,
+  WineFormField,
   toFormValue,
   toWineFormResult,
   validateWineForm,
@@ -63,6 +64,9 @@ export class WineFormComponent implements OnInit {
   protected readonly sweetnessLevels = SWEETNESS_LEVELS;
   protected readonly form = buildForm(emptyWineForm());
   protected readonly errors = signal<WineFormErrors>({});
+  /** Champs préremplis par Claude qu'il faut relire. */
+  protected readonly uncertain = signal<ReadonlySet<WineFormField>>(new Set());
+  protected readonly detailsOpen = signal(false);
   protected readonly hasErrors = computed(() => Object.keys(this.errors()).length > 0);
   protected readonly countries = this.references.countries;
   protected readonly grapes = this.references.grapes;
@@ -70,6 +74,7 @@ export class WineFormComponent implements OnInit {
   protected readonly regions = computed(() => this.references.regionsFor(this.country()));
 
   ngOnInit(): void {
+    this.detailsOpen.set(this.mode() === 'edit');
     const initial = this.initial();
     if (initial) {
       this.form.reset(toFormValue(initial));
@@ -80,6 +85,20 @@ export class WineFormComponent implements OnInit {
   reset(): void {
     this.form.reset(emptyWineForm());
     this.errors.set({});
+    this.uncertain.set(new Set());
+    this.detailsOpen.set(false);
+  }
+
+  /** Remplit le formulaire à partir d'une lecture ; les détails s'ouvrent pour être relus. */
+  fill(patch: Partial<WineFormValue>, uncertain: readonly WineFormField[]): void {
+    this.form.reset({ ...emptyWineForm(), ...patch });
+    this.errors.set({});
+    this.uncertain.set(new Set(uncertain));
+    this.detailsOpen.set(true);
+  }
+
+  protected isUncertain(field: WineFormField): boolean {
+    return this.uncertain().has(field);
   }
 
   protected stepQuantity(delta: number): void {

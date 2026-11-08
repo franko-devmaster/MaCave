@@ -128,6 +128,18 @@ describe('BackupService', () => {
     expect(wines.find((w) => w.id === 'shared')?.name).toBe('Nouveau nom');
   });
 
+  it('createBackup should encode photos in base64 and the round trip should restore the bytes', async () => {
+    await db.photos.put({ id: 'p1', bytes: new Uint8Array([65, 66, 67]).buffer, mediaType: 'image/jpeg', width: 3, height: 1, createdAt: NOW.toISOString() });
+
+    const backup = await sut.createBackup(NOW);
+    expect(backup.data.photos).toEqual([{ id: 'p1', mediaType: 'image/jpeg', width: 3, height: 1, createdAt: NOW.toISOString(), base64: 'QUJD' }]);
+
+    await db.photos.clear();
+    await sut.restore(parseBackup(JSON.stringify(backup)), 'replace');
+    const photo = await db.photos.get('p1');
+    expect(new Uint8Array(photo?.bytes ?? new ArrayBuffer(0))).toEqual(new Uint8Array([65, 66, 67]));
+  });
+
   it('round trip export then import should restore the same data', async () => {
     await db.wines.bulkPut([wine('a'), wine('b')]);
     const exported = JSON.stringify(await sut.createBackup(NOW));

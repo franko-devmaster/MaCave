@@ -1,5 +1,5 @@
 import { wineInput } from '../testing/fixtures';
-import { emptyWineForm, toFormValue, toWineFormResult, validateWineForm, WineFormValue } from './wine-form';
+import { emptyWineForm, readingToFormValue, toFormValue, toWineFormResult, uncertainFormFields, validateWineForm, WineFormValue } from './wine-form';
 
 function form(overrides: Partial<WineFormValue>): WineFormValue {
   return { ...emptyWineForm(), name: 'Cornalin', ...overrides };
@@ -76,5 +76,30 @@ describe('wine-form', () => {
     const input = wineInput();
 
     expect(toWineFormResult(toFormValue(input)).input).toEqual(input);
+  });
+});
+
+describe('readingToFormValue', () => {
+  const reading = {
+    name: 'Petite Arvine', producer: 'Chappaz', vintage: 2022, color: 'blanc' as const, country: 'Suisse',
+    region: 'Valais', appellation: '', grapes: ['Petite Arvine'], alcohol: 13.5, sweetness: null,
+    drinkFrom: 2024, drinkUntil: 2032, quantity: null, pricePaid: null,
+    uncertainFields: ['drinkFrom' as const, 'price' as const], possibleDuplicateId: null, notReadable: false,
+  };
+
+  it('readingToFormValue should fill the form without touching quantity and price when unknown', () => {
+    const patch = readingToFormValue(reading);
+
+    expect(patch).toMatchObject({ name: 'Petite Arvine', vintage: '2022', color: 'blanc', grapes: 'Petite Arvine', alcohol: '13.5', sweetness: '' });
+    expect('quantity' in patch).toBe(false);
+    expect('price' in patch).toBe(false);
+  });
+
+  it('readingToFormValue should fill quantity and price found in a description', () => {
+    expect(readingToFormValue({ ...reading, quantity: 6, pricePaid: 34.5 })).toMatchObject({ quantity: '6', price: '34.5' });
+  });
+
+  it('uncertainFormFields should keep the field names', () => {
+    expect(uncertainFormFields(reading)).toEqual(['drinkFrom', 'price']);
   });
 });

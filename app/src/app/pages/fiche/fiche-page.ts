@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
+import { LabelPhotoComponent } from '../../components/label-photo/label-photo';
+import { PhotoService } from '../../services/photo.service';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ChfPipe } from '../../pipes/chf.pipe';
 import { formatDrinkWindow, pluralKey } from '../../utils/format';
@@ -15,7 +17,7 @@ const TOAST_DURATION_MS = 6000;
 
 @Component({
   selector: 'app-fiche-page',
-  imports: [RouterLink, TranslatePipe, ColorDotComponent, ChfPipe],
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, ChfPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './fiche-page.scss',
   templateUrl: './fiche-page.html',
@@ -24,6 +26,7 @@ export class FichePage {
   readonly id = input.required<string>();
 
   private readonly store = inject(WineDatastore);
+  private readonly photos = inject(PhotoService);
   private readonly destroyRef = inject(DestroyRef);
   private toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -39,6 +42,7 @@ export class FichePage {
   });
   protected readonly toast = signal<Toast | null>(null);
   protected readonly busy = signal(false);
+  protected readonly photoError = signal(false);
 
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.toastTimer));
@@ -57,6 +61,17 @@ export class FichePage {
     await this.run(async () => {
       const movement = await this.store.buy(this.id());
       this.showToast({ key: 'fiche.bought', movementId: movement.id });
+    });
+  }
+
+  protected async changePhoto(file: File): Promise<void> {
+    this.photoError.set(false);
+    await this.run(async () => {
+      try {
+        await this.store.setPhoto(this.id(), await this.photos.prepare(file));
+      } catch {
+        this.photoError.set(true);
+      }
     });
   }
 

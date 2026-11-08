@@ -28,17 +28,10 @@
   padding: var(--space-2) var(--gutter) 0;
 }
 
-.photo {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 96px;
-  height: 136px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--tint);
+.photo-error {
+  padding: var(--space-3) var(--gutter) 0;
+  font-size: 14px;
+  color: var(--color-accent);
 }
 
 .identity {

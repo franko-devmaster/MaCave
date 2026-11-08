@@ -58,11 +58,32 @@
   },
   "ajouter": {
     "title": "Ajouter un vin",
-    "subtitle": "Saisie manuelle. La lecture d'étiquette par photo arrive à l'itération 2.",
+    "subtitle": "Photographiez l'étiquette ou décrivez le vin. Claude remplit la fiche, vous vérifiez.",
     "close": "Fermer",
     "added": "{{name}} ajouté à la cave.",
     "view": "Voir la fiche",
-    "submit": "Ajouter à ma cave"
+    "submit": "Ajouter à ma cave",
+    "subtitleManual": "Saisie manuelle.",
+    "noKey": "Pour lire une étiquette avec Claude, ajoutez votre clé API.",
+    "noKeyLink": "Ouvrir les Réglages",
+    "captureLabel": "Lecture par Claude",
+    "photo": "Photographier l'étiquette",
+    "describeLabel": "Ou décrivez le vin",
+    "describePlaceholder": "Ex. Cornalin Germanier 2019, 6 bouteilles à 34 francs",
+    "describe": "Compléter avec Claude",
+    "orManual": "Ou remplissez directement le formulaire ci-dessous.",
+    "readingPhoto": "Lecture de l'étiquette…",
+    "readingText": "Claude complète la fiche…",
+    "read": "Fiche remplie par Claude. Relisez les champs marqués d'un point.",
+    "restart": "Recommencer",
+    "addedBottles": "{{count}} bouteille(s) ajoutée(s) à {{name}}.",
+    "duplicate": {
+      "title": "Ce vin est déjà dans votre cave.",
+      "text": "{{name}} {{vintage}}, {{producer}}.",
+      "add": "Ajouter {{count}} bouteille(s) à ce vin",
+      "create": "Créer une nouvelle fiche",
+      "cancel": "Annuler"
+    }
   },
   "accords": {
     "title": "Accords",
@@ -113,6 +134,21 @@
       "check": "Rechercher une mise à jour",
       "upToDate": "Vous avez la dernière version.",
       "unavailable": "Mises à jour gérées uniquement par l'application installée."
+    },
+    "claude": {
+      "title": "Claude",
+      "text": "Collez votre clé API pour activer la lecture d'étiquettes et les conseils.",
+      "inputLabel": "Clé API Claude",
+      "save": "Enregistrer et tester",
+      "testing": "Vérification…",
+      "format": "Une clé Claude commence par sk-ant-.",
+      "valid": "Clé valide. Les fonctions Claude sont actives.",
+      "active": "Clé enregistrée sur ce téléphone. Elle n'est jamais exportée.",
+      "test": "Tester la clé",
+      "remove": "Supprimer la clé",
+      "removeConfirm": "Supprimer la clé API de ce téléphone ?",
+      "removed": "Clé supprimée.",
+      "help": "Créez une clé dédiée sur console.anthropic.com et fixez-lui une limite de dépense mensuelle. Elle reste sur ce téléphone et ne figure jamais dans l'export."
     }
   },
   "wine": {
@@ -167,12 +203,12 @@
       "years": "Années entre 1900 et 2100.",
       "yearsOrder": "« Dès » doit précéder « jusqu'en ».",
       "alcohol": "Degré entre 0 et 25."
-    }
+    },
+    "toCheck": "à vérifier"
   },
   "fiche": {
     "back": "Cave",
     "edit": "Modifier la fiche",
-    "photo": "Photo de l'étiquette dès l'itération 2",
     "grape": "Cépage",
     "keep": "Garde",
     "paid": "Payé",
@@ -188,7 +224,8 @@
     "undo": "Annuler",
     "notFound": "Ce vin n'existe plus.",
     "drinkNow": "À boire maintenant",
-    "notes": "Notes"
+    "notes": "Notes",
+    "photoError": "Photo illisible. Réessayez."
   },
   "modifier": {
     "title": "Modifier",
@@ -196,5 +233,26 @@
     "submit": "Enregistrer",
     "delete": "Supprimer ce vin",
     "deleteConfirm": "Supprimer « {{name}} » et tout son historique ? Cette action est définitive."
+  },
+  "photo": {
+    "alt": "Photo de l'étiquette",
+    "add": "Ajouter une photo",
+    "change": "Changer"
+  },
+  "ai": {
+    "errors": {
+      "missing-key": "Ajoutez votre clé API Claude dans les Réglages.",
+      "offline": "Pas de réseau. Claude a besoin d'une connexion.",
+      "invalid-key": "Clé API refusée. Vérifiez-la dans les Réglages.",
+      "forbidden": "Cette clé n'a pas accès au modèle Claude utilisé.",
+      "rate-limit": "Limite de requêtes ou de dépense atteinte. Réessayez dans un moment.",
+      "unavailable": "Claude est momentanément indisponible. Réessayez.",
+      "bad-request": "Requête refusée par l'API : {{detail}}",
+      "network": "Connexion à Claude impossible. Vérifiez le réseau et réessayez.",
+      "refusal": "Claude n'a pas pu traiter cette demande.",
+      "not-readable": "Étiquette illisible. Reprenez la photo de plus près, bien droite et sans reflet.",
+      "invalid-response": "Réponse inattendue de Claude. Réessayez ou saisissez le vin à la main.",
+      "unknown": "Erreur inattendue : {{detail}}"
+    }
   }
 }
