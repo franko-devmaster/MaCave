@@ -234,8 +234,9 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 | It. | État |
 |---|---|
 | 0 — Socle | Livrée, recette validée |
-| 1 — Cave | Livrée, en recette |
-| 2 à 7 | À faire |
+| 1 — Cave | Livrée, recette validée |
+| 2 — Connecteur Claude et lecture d'étiquette | Livrée, en recette |
+| 3 à 7 | À faire |
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -244,5 +245,14 @@ Choix faits pendant l'itération 1, à confirmer en recette :
 - Les vins épuisés sortent de la liste mais restent consultables, pour retrouver un vin à racheter.
 - Le rappel d'export compte depuis le premier vin saisi tant qu'aucun export n'a été fait.
 - Un référentiel de 16 pays, environ 140 régions et 80 cépages est chargé au premier lancement, puis enrichi par les saisies.
+
+Choix faits pendant l'itération 2, à confirmer en recette :
+
+- La clé API n'est enregistrée qu'après un test réussi auprès de l'API. Ce test lit la fiche du modèle et ne coûte rien.
+- Claude estime aussi la fenêtre de garde ; elle est toujours signalée « à vérifier ».
+- Une description peut contenir la quantité et le prix (« 6 bouteilles à 34 francs ») : ils sont repris dans le formulaire.
+- Un doublon est détecté par Claude ou, à défaut, par nom, producteur et millésime identiques. La proposition apparaît au moment d'enregistrer, y compris pour une saisie manuelle.
+- La photo d'un vin saisi à la main peut être ajoutée ou changée depuis sa fiche.
+- La photo est réduite à 1 280 px en JPEG avant l'envoi et le stockage ; l'export JSON contient les photos en base64.
 
 Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.

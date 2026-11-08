@@ -28,13 +28,17 @@ export interface Wine {
 /** Champs saisis par l'utilisateur ; l'identifiant et les dates sont gérés par le dépôt. */
 export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt'>;
 
+/** Photo d'étiquette, stockée en octets (portable entre Safari, export JSON et tests). */
 export interface Photo {
   id: string;
-  blob: Blob;
+  bytes: ArrayBuffer;
+  mediaType: string;
   width: number;
   height: number;
   createdAt: string;
 }
+
+export type PhotoInput = Omit<Photo, 'id' | 'createdAt'>;
 
 export type StockReason = 'achat' | 'ouverture' | 'casse' | 'cadeau';
 

@@ -1,3 +1,4 @@
+import { LabelReading } from '../ai/label-reading';
 import { Sweetness, WineColor, WineInput } from '../models/wine';
 import { parseList, parseNumber } from './format';
 
@@ -127,4 +128,34 @@ function isYear(value: number | null, min: number, max: number): boolean {
 
 function numberText(value: number | null): string {
   return value === null ? '' : String(value);
+}
+
+/** Champs du formulaire préremplis par une lecture d'étiquette ou une description. */
+export function readingToFormValue(reading: LabelReading): Partial<WineFormValue> {
+  const patch: Partial<WineFormValue> = {
+    name: reading.name,
+    producer: reading.producer,
+    vintage: numberText(reading.vintage),
+    color: reading.color,
+    country: reading.country,
+    region: reading.region,
+    appellation: reading.appellation,
+    grapes: reading.grapes.join(', '),
+    drinkFrom: numberText(reading.drinkFrom),
+    drinkUntil: numberText(reading.drinkUntil),
+    alcohol: numberText(reading.alcohol),
+    sweetness: reading.sweetness ?? '',
+  };
+  if (reading.quantity !== null) {
+    patch.quantity = String(reading.quantity);
+  }
+  if (reading.pricePaid !== null) {
+    patch.price = String(reading.pricePaid);
+  }
+  return patch;
+}
+
+/** Champs signalés comme incertains par Claude, dans le vocabulaire du formulaire. */
+export function uncertainFormFields(reading: LabelReading): WineFormField[] {
+  return reading.uncertainFields.map((field) => field);
 }

@@ -1,4 +1,4 @@
-import { StockMovement, Wine, WineInput } from '../models/wine';
+import { PhotoInput, StockMovement, Wine, WineInput } from '../models/wine';
 
 export const FIXED_NOW = new Date('2026-11-08T20:00:00.000Z');
 
@@ -43,4 +43,8 @@ export function movement(wineId: string, delta: number, overrides: Partial<Stock
     date: FIXED_NOW.toISOString(),
     ...overrides,
   };
+}
+
+export function photoInput(): PhotoInput {
+  return { bytes: new Uint8Array([1, 2, 3]).buffer, mediaType: 'image/jpeg', width: 640, height: 480 };
 }

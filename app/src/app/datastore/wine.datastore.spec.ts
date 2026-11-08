@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MaCaveDb } from '../db/schema';
-import { wineInput } from '../testing/fixtures';
+import { photoInput, wineInput } from '../testing/fixtures';
 import { createTestDb, provideTestDb } from '../testing/test-db';
 import { WineDatastore } from './wine.datastore';
 
@@ -69,5 +69,27 @@ describe('WineDatastore', () => {
     await fresh.load();
 
     expect(fresh.detail(wine.id)?.bottles).toBe(5);
+  });
+
+  it('buy with a quantity should add several bottles at once', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 1, pricePaid: null });
+
+    await sut.buy(wine.id, 30, 6);
+
+    expect(sut.detail(wine.id)).toMatchObject({ bottles: 7, lastPrice: 30 });
+  });
+
+  it('setPhoto should link the new photo in state', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 1, pricePaid: null });
+
+    await sut.setPhoto(wine.id, photoInput());
+
+    expect(sut.detail(wine.id)?.wine.labelPhotoId).not.toBeNull();
+  });
+
+  it('findDuplicate should find a wine already in the cellar', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 1, pricePaid: null });
+
+    expect(sut.findDuplicate({ name: 'cornalin', producer: 'germanier', vintage: 2019 })?.id).toBe(wine.id);
   });
 });

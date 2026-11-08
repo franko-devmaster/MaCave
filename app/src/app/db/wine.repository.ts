@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { StockMovement, StockReason, Wine, WineInput } from '../models/wine';
+import { Photo, PhotoInput, StockMovement, StockReason, Wine, WineInput } from '../models/wine';
 import { MACAVE_DB } from './schema';
 
 export interface Purchase {
@@ -19,16 +19,43 @@ export class WineRepository {
     return this.db.stockMovements.toArray();
   }
 
-  /** Crée le vin et son mouvement d'achat initial dans une seule transaction. */
-  async create(input: WineInput, purchase: Purchase, now: Date = new Date()): Promise<{ wine: Wine; movement: StockMovement }> {
+  /** Crée le vin, sa photo éventuelle et son mouvement d'achat initial dans une seule transaction. */
+  async create(
+    input: WineInput,
+    purchase: Purchase,
+    photo: PhotoInput | null = null,
+    now: Date = new Date(),
+  ): Promise<{ wine: Wine; movement: StockMovement }> {
     const timestamp = now.toISOString();
-    const wine: Wine = { ...input, id: crypto.randomUUID(), labelPhotoId: null, createdAt: timestamp, updatedAt: timestamp };
+    const photoRecord = photo ? buildPhoto(photo, now) : null;
+    const wine: Wine = { ...input, id: crypto.randomUUID(), labelPhotoId: photoRecord?.id ?? null, createdAt: timestamp, updatedAt: timestamp };
     const movement = buildMovement(wine.id, purchase.quantity, 'achat', purchase.pricePaid, now);
-    await this.db.transaction('rw', this.db.wines, this.db.stockMovements, async () => {
+    await this.db.transaction('rw', this.db.wines, this.db.stockMovements, this.db.photos, async () => {
+      if (photoRecord) {
+        await this.db.photos.add(photoRecord);
+      }
       await this.db.wines.add(wine);
       await this.db.stockMovements.add(movement);
     });
     return { wine, movement };
+  }
+
+  /** Remplace la photo d'étiquette du vin ; l'ancienne est supprimée. */
+  async attachPhoto(wineId: string, photo: PhotoInput, now: Date = new Date()): Promise<Wine> {
+    return this.db.transaction('rw', this.db.wines, this.db.photos, async () => {
+      const existing = await this.db.wines.get(wineId);
+      if (!existing) {
+        throw new Error(`Vin introuvable : ${wineId}`);
+      }
+      const record = buildPhoto(photo, now);
+      await this.db.photos.add(record);
+      if (existing.labelPhotoId) {
+        await this.db.photos.delete(existing.labelPhotoId);
+      }
+      const wine: Wine = { ...existing, labelPhotoId: record.id, updatedAt: now.toISOString() };
+      await this.db.wines.put(wine);
+      return wine;
+    });
   }
 
   async update(id: string, input: WineInput, now: Date = new Date()): Promise<Wine> {
@@ -63,6 +90,17 @@ export class WineRepository {
   deleteMovement(id: string): Promise<void> {
     return this.db.stockMovements.delete(id);
   }
+}
+
+function buildPhoto(photo: PhotoInput, now: Date): Photo {
+  return {
+    id: crypto.randomUUID(),
+    bytes: photo.bytes,
+    mediaType: photo.mediaType,
+    width: photo.width,
+    height: photo.height,
+    createdAt: now.toISOString(),
+  };
 }
 
 function buildMovement(wineId: string, delta: number, reason: StockReason, pricePaid: number | null, now: Date): StockMovement {

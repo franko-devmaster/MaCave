@@ -13,4 +13,8 @@ export class SettingsRepository {
   async set(key: string, value: unknown): Promise<void> {
     await this.db.settings.put({ key, value });
   }
+
+  async delete(key: string): Promise<void> {
+    await this.db.settings.delete(key);
+  }
 }

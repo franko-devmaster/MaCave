@@ -12,11 +12,7 @@
 
 @if (detail(); as d) {
   <header class="hero">
-    <div class="photo" role="img" [attr.aria-label]="'fiche.photo' | translate" [style.--tint]="'var(--wine-' + d.wine.color + ')'">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
-        <path d="M10 2h4v4l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3z" /><path d="M8 13h8" />
-      </svg>
-    </div>
+    <app-label-photo [photoId]="d.wine.labelPhotoId" [color]="d.wine.color" [busy]="busy()" (picked)="changePhoto($event)" />
     <div class="identity" [style.--bar]="'var(--wine-' + d.wine.color + ')'">
       <div class="identity__names">
         @if (d.wine.vintage) {
@@ -33,6 +29,10 @@
       </p>
     </div>
   </header>
+
+  @if (photoError()) {
+    <p class="photo-error" role="alert">{{ 'fiche.photoError' | translate }}</p>
+  }
 
   <dl class="facts">
     <div class="fact">

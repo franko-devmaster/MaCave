@@ -149,3 +149,12 @@ select {
   gap: var(--space-3);
   padding-bottom: calc(var(--safe-bottom) + var(--space-6));
 }
+
+.uncertain {
+  color: var(--color-accent);
+}
+
+.uncertain__tag {
+  font-size: 9px;
+  vertical-align: 1px;
+}

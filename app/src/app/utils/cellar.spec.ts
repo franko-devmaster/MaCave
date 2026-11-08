@@ -2,6 +2,7 @@ import { FIXED_NOW, movement, wine } from '../testing/fixtures';
 import {
   buildEntries,
   daysWithoutExport,
+  findDuplicate,
   groupByColor,
   isDrinkNow,
   isExportDue,
@@ -124,5 +125,13 @@ describe('cellar', () => {
 
     expect(isExportDue('2026-10-09T20:00:00Z', wines, FIXED_NOW)).toBe(false);
     expect(isExportDue('2026-10-08T19:00:00Z', wines, FIXED_NOW)).toBe(true);
+  });
+
+  it('findDuplicate should match name, producer and vintage regardless of accents and case', () => {
+    const wines = [wine('a', { name: 'Dézaley Grand Cru', producer: 'Massy', vintage: 2023 })];
+
+    expect(findDuplicate({ name: 'dezaley grand cru ', producer: 'MASSY', vintage: 2023 }, wines)?.id).toBe('a');
+    expect(findDuplicate({ name: 'Dézaley Grand Cru', producer: 'Massy', vintage: 2022 }, wines)).toBeNull();
+    expect(findDuplicate({ name: 'Dézaley Grand Cru', producer: 'Fonjallaz', vintage: 2023 }, wines)).toBeNull();
   });
 });

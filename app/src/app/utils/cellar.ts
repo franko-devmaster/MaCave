@@ -113,3 +113,10 @@ export function isExportDue(lastExportAt: string | null, wines: readonly Wine[],
   const days = daysWithoutExport(lastExportAt, wines, now);
   return days !== null && days > EXPORT_REMINDER_DAYS;
 }
+
+/** Même vin : nom et producteur identiques sans tenir compte des accents ni de la casse, même millésime. */
+export function findDuplicate(input: Pick<Wine, 'name' | 'producer' | 'vintage'>, wines: readonly Wine[]): Wine | null {
+  const name = normalize(input.name);
+  const producer = normalize(input.producer);
+  return wines.find((w) => normalize(w.name) === name && normalize(w.producer) === producer && w.vintage === input.vintage) ?? null;
+}
