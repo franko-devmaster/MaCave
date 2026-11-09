@@ -7,6 +7,7 @@ import { provideTranslateLoader, provideTranslateService } from '@ngx-translate/
 import { routes } from './app.routes';
 import { ReferenceDatastore } from './datastore/reference.datastore';
 import { SettingsDatastore } from './datastore/settings.datastore';
+import { TastingDatastore } from './datastore/tasting.datastore';
 import { WineDatastore } from './datastore/wine.datastore';
 import { BundledTranslateLoader } from './utils/bundled-translate-loader';
 
@@ -27,7 +28,12 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'fr-CH' },
     provideAppInitializer(() =>
-      Promise.all([inject(WineDatastore).load(), inject(ReferenceDatastore).load(), inject(SettingsDatastore).load()]),
+      Promise.all([
+        inject(WineDatastore).load(),
+        inject(TastingDatastore).load(),
+        inject(ReferenceDatastore).load(),
+        inject(SettingsDatastore).load(),
+      ]),
     ),
   ],
 };

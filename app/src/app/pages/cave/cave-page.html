@@ -79,7 +79,7 @@
         <section aria-labelledby="group-emptied">
           <h2 class="group" id="group-emptied"><span class="label group__name">{{ 'cave.emptied.title' | translate }}</span></h2>
           @for (entry of emptied(); track entry.wine.id) {
-            <app-wine-row [entry]="entry" />
+            <app-wine-row [entry]="entry" [rebuy]="rebuyIds().has(entry.wine.id)" />
           }
         </section>
       }

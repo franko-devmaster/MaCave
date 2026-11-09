@@ -5,6 +5,7 @@ import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineRowComponent } from '../../components/wine-row/wine-row';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
+import { TastingDatastore } from '../../datastore/tasting.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { WINE_COLORS } from '../../models/wine';
 import { CellarFilter, daysWithoutExport, groupByColor, isExportDue, matchesFilter, matchesSearch } from '../../utils/cellar';
@@ -20,6 +21,7 @@ import { pluralKey } from '../../utils/format';
 export class CavePage {
   private readonly store = inject(WineDatastore);
   private readonly settings = inject(SettingsDatastore);
+  protected readonly rebuyIds = inject(TastingDatastore).rebuyWineIds;
 
   protected readonly colors = WINE_COLORS;
   protected readonly query = signal('');

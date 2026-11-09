@@ -1,3 +1,4 @@
+import { TastingInput } from '../models/tasting';
 import { PhotoInput, StockMovement, Wine, WineInput } from '../models/wine';
 
 export const FIXED_NOW = new Date('2026-11-08T20:00:00.000Z');
@@ -47,4 +48,17 @@ export function movement(wineId: string, delta: number, overrides: Partial<Stock
 
 export function photoInput(): PhotoInput {
   return { bytes: new Uint8Array([1, 2, 3]).buffer, mediaType: 'image/jpeg', width: 640, height: 480 };
+}
+
+export function tastingInput(wineId: string, overrides: Partial<TastingInput> = {}): TastingInput {
+  return {
+    wineId,
+    score: 4,
+    likedDescriptors: ['fruite'],
+    dislikedDescriptors: [],
+    comment: 'Très fruité.',
+    context: 'entrecôte',
+    rebuy: true,
+    ...overrides,
+  };
 }

@@ -41,10 +41,10 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, ai-hint
+    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list, ai-hint
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture)
-    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, reference, settings)
+    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
     testing/                 Utilitaires de test (base Dexie isolée, fixtures)
@@ -71,6 +71,7 @@ docs/                        Description fonctionnelle et décisions
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants
+- Contrôles de saisie réutilisables (score-picker, chip-group) en `ControlValueAccessor`, branchés par `formControlName` ; boutons radio et cases natifs masqués visuellement, le libellé sert de cible tactile (en Playwright, toucher le `label`, pas l'`input`)
 
 ### Design system « Étiquette »
 

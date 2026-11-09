@@ -235,8 +235,9 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 |---|---|
 | 0 — Socle | Livrée, recette validée |
 | 1 — Cave | Livrée, recette validée |
-| 2 — Connecteur Claude et lecture d'étiquette | Livrée, en recette |
-| 3 à 7 | À faire |
+| 2 — Connecteur Claude et lecture d'étiquette | Livrée, recette validée |
+| 3 — Dégustations | Livrée, en recette |
+| 4 à 7 | À faire |
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -254,5 +255,14 @@ Choix faits pendant l'itération 2, à confirmer en recette :
 - Un doublon est détecté par Claude ou, à défaut, par nom, producteur et millésime identiques. La proposition apparaît au moment d'enregistrer, y compris pour une saisie manuelle.
 - La photo d'un vin saisi à la main peut être ajoutée ou changée depuis sa fiche.
 - La photo est réduite à 1 280 px en JPEG avant l'envoi et le stockage ; l'export JSON contient les photos en base64.
+
+Choix faits pendant l'itération 3, à confirmer en recette :
+
+- « J'en ouvre une » retire la bouteille et ouvre directement l'écran Noter. L'ouverture s'y annule si elle était involontaire ; « Fiche » permet de noter plus tard.
+- On peut aussi noter sans ouvrir de bouteille, depuis « Noter » sur la fiche, par exemple pour un vin bu ailleurs.
+- Une note se modifie ou se supprime en touchant la ligne dans l'historique ; la date d'origine est conservée.
+- Les descripteurs prédéfinis sont stockés par identifiant, les descripteurs ajoutés avec « + Autre » en texte libre.
+- Un vin épuisé dont la dernière note est « à racheter » le signale dans la liste des vins épuisés.
+- Le champ « Avec quoi, avec qui » est séparé du commentaire : il servira aux accords mets et vins.
 
 Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.

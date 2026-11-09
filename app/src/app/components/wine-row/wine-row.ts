@@ -14,7 +14,9 @@ import { CellarEntry } from '../../utils/cellar';
       <span class="row__vintage">{{ wine.vintage ?? '—' }}</span>
       <span class="row__text">
         <span class="row__name">{{ wine.name }}</span>
-        @if (entry().drinkNow) {
+        @if (rebuy() && entry().bottles === 0) {
+          <span class="row__meta row__meta--accent">{{ origin() }}{{ origin() ? ' · ' : '' }}{{ 'cave.rebuy' | translate }}</span>
+        } @else if (entry().drinkNow) {
           <span class="row__meta row__meta--accent">{{ origin() }}{{ origin() ? ' · ' : '' }}{{ 'cave.drinkNow' | translate }}</span>
         } @else if (origin()) {
           <span class="row__meta">{{ origin() }}</span>
@@ -26,6 +28,8 @@ import { CellarEntry } from '../../utils/cellar';
 })
 export class WineRowComponent {
   readonly entry = input.required<CellarEntry>();
+  /** La dernière dégustation demande de racheter ce vin. */
+  readonly rebuy = input(false);
 
   protected readonly origin = computed(() => {
     const { producer, region, country } = this.entry().wine;

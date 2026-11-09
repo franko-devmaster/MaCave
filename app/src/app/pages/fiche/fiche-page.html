@@ -77,6 +77,8 @@
     </section>
   }
 
+  <app-tasting-list [wineId]="id()" />
+
   @if (toast(); as t) {
     <div class="toast" role="status">
       <span>{{ t.key | translate }}</span>
