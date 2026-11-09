@@ -20,6 +20,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/modifier/modifier-page').then((m) => m.ModifierPage),
   },
   {
+    path: 'cave/:id/noter',
+    title: 'Noter · Ma Cave',
+    data: { hideTabBar: true },
+    loadComponent: () => import('./pages/noter/noter-page').then((m) => m.NoterPage),
+  },
+  {
     path: 'ajouter',
     title: 'Ajouter · Ma Cave',
     data: { hideTabBar: true },

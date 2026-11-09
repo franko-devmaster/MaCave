@@ -54,7 +54,8 @@
       "title": "Votre cave est vide.",
       "text": "Ajoutez votre premier vin : le nom, la couleur et la quantité suffisent.",
       "action": "Ajouter un vin"
-    }
+    },
+    "rebuy": "à racheter"
   },
   "ajouter": {
     "title": "Ajouter un vin",
@@ -219,13 +220,16 @@
     },
     "open": "J'en ouvre une",
     "buy": "+ 1 achetée",
-    "opened": "Bouteille ouverte. La notation arrive à l'itération 3.",
     "bought": "Une bouteille ajoutée.",
     "undo": "Annuler",
     "notFound": "Ce vin n'existe plus.",
     "drinkNow": "À boire maintenant",
     "notes": "Notes",
-    "photoError": "Photo illisible. Réessayez."
+    "photoError": "Photo illisible. Réessayez.",
+    "tastings": "Vos dégustations",
+    "addTasting": "Noter",
+    "noTasting": "Pas encore de dégustation notée.",
+    "rebuy": "à racheter"
   },
   "modifier": {
     "title": "Modifier",
@@ -254,5 +258,45 @@
       "invalid-response": "Réponse inattendue de Claude. Réessayez ou saisissez le vin à la main.",
       "unknown": "Erreur inattendue : {{detail}}"
     }
+  },
+  "descriptors": {
+    "fruite": "Fruité",
+    "epice": "Épicé",
+    "boise": "Boisé",
+    "tanins-souples": "Tanins souples",
+    "mineral": "Minéral",
+    "puissant": "Puissant",
+    "leger": "Léger",
+    "long": "Long",
+    "trop-acide": "Trop acide",
+    "trop-boise": "Trop boisé",
+    "finale-courte": "Finale courte",
+    "alcool-marque": "Alcool marqué",
+    "bouchonne": "Bouchonné"
+  },
+  "noter": {
+    "back": "Fiche",
+    "opened": "Bouteille ouverte",
+    "remaining": {
+      "one": "il en reste {{count}}",
+      "other": "il en reste {{count}}"
+    },
+    "score": "Votre note",
+    "scoreMin": "Pas pour moi",
+    "scoreMax": "J'en veux encore",
+    "scoreRequired": "Choisissez une note de 1 à 5.",
+    "liked": "Ce que j'ai aimé",
+    "disliked": "Ce qui m'a gêné",
+    "other": "Autre",
+    "comment": "En deux mots",
+    "commentPlaceholder": "Ce que vous en retenez…",
+    "context": "Avec quoi, avec qui",
+    "contextPlaceholder": "Ex. une entrecôte, soirée entre amis",
+    "rebuy": "À racheter",
+    "save": "Enregistrer",
+    "delete": "Supprimer cette dégustation",
+    "deleteConfirm": "Supprimer cette dégustation ?",
+    "cancelOpening": "Annuler l'ouverture, la bouteille retourne en cave",
+    "hint": "Chaque note affine votre profil de goûts, calculé à l'itération 4."
   }
 }

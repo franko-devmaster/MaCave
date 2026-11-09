@@ -1,0 +1,82 @@
+:host {
+  display: block;
+  margin: var(--space-6) var(--gutter) 0;
+}
+
+.tastings__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+}
+
+.tastings__title {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.tastings__add {
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.tasting {
+  display: flex;
+  gap: 14px;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.tasting__score {
+  width: 44px;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.tasting__max {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.tasting__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tasting__comment {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.tasting__descriptors {
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}
+
+.tasting__meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.tastings__empty {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-rule);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+

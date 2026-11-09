@@ -1,7 +1,10 @@
+export const SCORES = [1, 2, 3, 4, 5] as const;
+export type Score = (typeof SCORES)[number];
+
 export interface Tasting {
   id: string;
   wineId: string;
-  score: 1 | 2 | 3 | 4 | 5;
+  score: Score;
   likedDescriptors: string[];
   dislikedDescriptors: string[];
   comment: string;
@@ -9,6 +12,9 @@ export interface Tasting {
   rebuy: boolean;
   date: string;
 }
+
+/** Champs saisis ; l'identifiant et la date sont gérés par le dépôt. */
+export type TastingInput = Omit<Tasting, 'id' | 'date'>;
 
 export interface TasteAxes {
   fruit: number;

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { LabelPhotoComponent } from '../../components/label-photo/label-photo';
+import { TastingListComponent } from '../../components/tasting-list/tasting-list';
 import { PhotoService } from '../../services/photo.service';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ChfPipe } from '../../pipes/chf.pipe';
@@ -17,7 +18,7 @@ const TOAST_DURATION_MS = 6000;
 
 @Component({
   selector: 'app-fiche-page',
-  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, ChfPipe],
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, ChfPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './fiche-page.scss',
   templateUrl: './fiche-page.html',
@@ -27,6 +28,7 @@ export class FichePage {
 
   private readonly store = inject(WineDatastore);
   private readonly photos = inject(PhotoService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -48,11 +50,12 @@ export class FichePage {
     this.destroyRef.onDestroy(() => clearTimeout(this.toastTimer));
   }
 
+  /** −1 bouteille, puis l'écran Noter ; l'ouverture y reste annulable. */
   protected async open(): Promise<void> {
     await this.run(async () => {
       const movement = await this.store.open(this.id());
       if (movement) {
-        this.showToast({ key: 'fiche.opened', movementId: movement.id });
+        await this.router.navigate(['/cave', this.id(), 'noter'], { queryParams: { ouverture: movement.id } });
       }
     });
   }

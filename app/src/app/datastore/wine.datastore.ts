@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ReferenceRepository } from '../db/reference.repository';
 import { Purchase, WineRepository } from '../db/wine.repository';
 import { PhotoInput, StockMovement, Wine, WineInput } from '../models/wine';
+import { TastingDatastore } from './tasting.datastore';
 import { buildEntries, CellarEntry, findDuplicate, lastPricePaid, summarize } from '../utils/cellar';
 
 export interface WineDetail extends CellarEntry {
@@ -13,6 +14,7 @@ export interface WineDetail extends CellarEntry {
 export class WineDatastore {
   private readonly repository = inject(WineRepository);
   private readonly references = inject(ReferenceRepository);
+  private readonly tastings = inject(TastingDatastore);
 
   private readonly winesSignal = signal<Wine[]>([]);
   private readonly movementsSignal = signal<StockMovement[]>([]);
@@ -55,6 +57,7 @@ export class WineDatastore {
 
   async remove(id: string): Promise<void> {
     await this.repository.remove(id);
+    this.tastings.forgetWine(id);
     this.winesSignal.update((wines) => wines.filter((w) => w.id !== id));
     this.movementsSignal.update((movements) => movements.filter((m) => m.wineId !== id));
   }

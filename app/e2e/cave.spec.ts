@@ -60,9 +60,8 @@ test.describe('Itération 1 — cave', () => {
     await expect(page.getByText('CHF 34.–')).toBeVisible();
 
     await page.getByRole('button', { name: "J'en ouvre une" }).tap();
-    await expect(page.getByTestId('bottles')).toHaveText('2');
-    await expect(page.getByRole('status')).toContainText('Bouteille ouverte.');
-    await page.getByRole('button', { name: 'Annuler' }).tap();
+    await expect(page.getByText('Bouteille ouverte · il en reste 2')).toBeVisible();
+    await page.getByRole('button', { name: /Annuler l'ouverture/ }).tap();
     await expect(page.getByTestId('bottles')).toHaveText('3');
 
     await page.getByRole('button', { name: '+ 1 achetée' }).tap();
@@ -86,6 +85,7 @@ test.describe('Itération 1 — cave', () => {
     await addWine(page, { name: 'Dézaley', color: 'Blanc', quantity: 1 });
     await page.getByRole('link', { name: 'Voir la fiche' }).tap();
     await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('link', { name: 'Fiche' }).tap();
     await expect(page.getByRole('button', { name: "J'en ouvre une" })).toBeDisabled();
     await page.getByRole('link', { name: 'Cave' }).tap();
 

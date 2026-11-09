@@ -1,0 +1,140 @@
+:host {
+  display: block;
+  padding-bottom: calc(var(--safe-bottom) + var(--space-6));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: calc(var(--safe-top) + var(--space-3)) var(--gutter) 0 var(--space-3);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  font-weight: 500;
+}
+
+.wine {
+  margin: var(--space-3) var(--gutter) 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--bar);
+}
+
+.wine__name {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.wine__producer {
+  margin-top: var(--space-1);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--gutter) 0;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.block__title {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+textarea,
+input[type='text'] {
+  width: 100%;
+  min-height: 46px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: 400 16px var(--font-text);
+  line-height: 1.4;
+  resize: none;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  font-size: var(--text-body);
+  font-weight: 500;
+  cursor: pointer;
+
+  input {
+    position: relative;
+    width: 52px;
+    height: 32px;
+    margin: 0;
+    border-radius: 16px;
+    background: var(--color-border);
+    appearance: none;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--color-bg);
+      transition: transform 0.15s;
+    }
+
+    &:checked {
+      background: var(--color-accent);
+    }
+
+    &:checked::after {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.delete,
+.error {
+  color: var(--color-accent);
+}
+
+.error {
+  font-size: 14px;
+}
+
+.hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.not-found {
+  padding: var(--space-6) var(--gutter);
+  color: var(--color-muted);
+}

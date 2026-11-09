@@ -1,0 +1,70 @@
+<div class="top">
+  <a class="back" [routerLink]="['/cave', id()]" [replaceUrl]="true">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+    {{ 'noter.back' | translate }}
+  </a>
+  @if (ouverture() && detail(); as d) {
+    <span class="label">{{ 'noter.opened' | translate }} · {{ remainingKey() | translate: { count: d.bottles } }}</span>
+  }
+</div>
+
+@if (detail(); as d) {
+  <header class="wine" [style.--bar]="'var(--wine-' + d.wine.color + ')'">
+    <h1 class="wine__name">{{ d.wine.name }}{{ d.wine.vintage ? ' ' + d.wine.vintage : '' }}</h1>
+    @if (d.wine.producer) {
+      <p class="wine__producer">{{ d.wine.producer }}</p>
+    }
+  </header>
+
+  <form class="form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <section class="block">
+      <h2 class="label block__title">{{ 'noter.score' | translate }}</h2>
+      <app-score-picker
+        formControlName="score"
+        [label]="'noter.score' | translate"
+        [minLabel]="'noter.scoreMin' | translate"
+        [maxLabel]="'noter.scoreMax' | translate"
+      />
+      @if (scoreMissing()) {
+        <p class="error" role="alert">{{ 'noter.scoreRequired' | translate }}</p>
+      }
+    </section>
+
+    <section class="block">
+      <h2 class="label block__title">{{ 'noter.liked' | translate }}</h2>
+      <app-chip-group formControlName="liked" [options]="liked" [label]="'noter.liked' | translate" [addLabel]="'noter.other' | translate" />
+    </section>
+
+    <section class="block">
+      <h2 class="label block__title">{{ 'noter.disliked' | translate }}</h2>
+      <app-chip-group formControlName="disliked" [options]="disliked" [negative]="true" [label]="'noter.disliked' | translate" [addLabel]="'noter.other' | translate" />
+    </section>
+
+    <section class="block">
+      <label class="label block__title" for="noter-comment">{{ 'noter.comment' | translate }}</label>
+      <textarea id="noter-comment" rows="2" formControlName="comment" [placeholder]="'noter.commentPlaceholder' | translate"></textarea>
+    </section>
+
+    <section class="block">
+      <label class="label block__title" for="noter-context">{{ 'noter.context' | translate }}</label>
+      <input id="noter-context" type="text" formControlName="context" autocomplete="off" [placeholder]="'noter.contextPlaceholder' | translate" />
+    </section>
+
+    <label class="switch">
+      <span>{{ 'noter.rebuy' | translate }}</span>
+      <input type="checkbox" role="switch" formControlName="rebuy" />
+    </label>
+
+    <div class="actions">
+      <button type="submit" class="btn btn--primary" [disabled]="busy()">{{ 'noter.save' | translate }}</button>
+      @if (editing()) {
+        <button type="button" class="btn btn--quiet delete" [disabled]="busy()" (click)="remove()">{{ 'noter.delete' | translate }}</button>
+      } @else if (ouverture()) {
+        <button type="button" class="btn btn--quiet" [disabled]="busy()" (click)="cancelOpening()">{{ 'noter.cancelOpening' | translate }}</button>
+      }
+      <p class="hint">{{ 'noter.hint' | translate }}</p>
+    </div>
+  </form>
+} @else {
+  <p class="not-found">{{ 'fiche.notFound' | translate }}</p>
+}
