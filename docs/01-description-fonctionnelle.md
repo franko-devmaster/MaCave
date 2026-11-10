@@ -244,6 +244,20 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 
 Le plan de la v1 est entièrement livré.
 
+### Évolutions après la v1
+
+| Version | Évolution | État |
+|---|---|---|
+| 0.8.0 | Fiche info et photo Bouteille | Livrée, en recette |
+
+0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
+
+- Deux emplacements par vin : « Bouteille » (la photo affichée sur la fiche) et « Fiche info » (photo ou PDF, par exemple un descriptif QoQa).
+- Aucune de ces opérations n'appelle Claude ni ne modifie la fiche descriptive.
+- En remplaçant la photo Bouteille, l'application propose de garder l'ancienne comme fiche info si le vin n'en a pas encore : la photo prise à l'achat pour ses informations n'est pas perdue quand on photographie ensuite l'étiquette de face.
+- La fiche info s'ouvre en plein écran ; un PDF peut aussi être partagé ou enregistré dans Fichiers.
+- Correctif : changer une photo ne fait plus recalculer le conseil de la fiche.
+
 Choix faits pendant l'itération 1, à confirmer en recette :
 
 - L'écran Ajouter reste ouvert après un enregistrement et se vide, pour enchaîner la saisie initiale de la cave.

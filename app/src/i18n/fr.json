@@ -285,7 +285,8 @@
     "tastings": "Vos dégustations",
     "addTasting": "Noter",
     "noTasting": "Pas encore de dégustation notée.",
-    "rebuy": "à racheter"
+    "rebuy": "à racheter",
+    "keepAsInfo": "Garder l'ancienne photo comme fiche info ?\n\nOK : elle devient la fiche info.\nAnnuler : elle est remplacée."
   },
   "modifier": {
     "title": "Modifier",
@@ -296,7 +297,7 @@
   },
   "photo": {
     "alt": "Photo de l'étiquette",
-    "add": "Ajouter une photo",
+    "add": "Photo bouteille",
     "change": "Changer"
   },
   "ai": {
@@ -397,5 +398,20 @@
       "apogee": "À son apogée",
       "declin": "À boire sans tarder"
     }
+  },
+  "info": {
+    "title": "Fiche info",
+    "add": "Ajouter une fiche info",
+    "addHint": "Photo ou PDF, par exemple le descriptif QoQa. Claude n'est pas sollicité.",
+    "photo": "Photo · {{size}}",
+    "pdf": "PDF · {{size}}",
+    "view": "Voir",
+    "replace": "Remplacer",
+    "remove": "Supprimer",
+    "removeConfirm": "Supprimer la fiche info de ce vin ?",
+    "close": "Fermer",
+    "share": "Partager ou enregistrer",
+    "pdfFallback": "Ce PDF ne s'affiche pas ici. Utilisez « Partager ou enregistrer » pour l'ouvrir.",
+    "error": "Fichier illisible ou trop volumineux (10 Mo au plus pour un PDF)."
   }
 }

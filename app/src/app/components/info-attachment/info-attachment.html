@@ -1,0 +1,49 @@
+<section class="info" aria-labelledby="info-title">
+  <h2 id="info-title" class="label info__title">{{ 'info.title' | translate }}</h2>
+
+  @if (file(); as f) {
+    <button type="button" class="tile" (click)="open()" data-testid="info-tile">
+      @if (isPdf()) {
+        <span class="tile__pdf" aria-hidden="true">PDF</span>
+      } @else if (url(); as src) {
+        <img class="tile__thumb" [src]="src" alt="" />
+      }
+      <span class="tile__text">
+        <span class="tile__kind">{{ (isPdf() ? 'info.pdf' : 'info.photo') | translate: { size: size() } }}</span>
+        <span class="tile__view">{{ 'info.view' | translate }}</span>
+      </span>
+    </button>
+    <div class="actions">
+      <label class="actions__link">
+        {{ 'info.replace' | translate }}
+        <input class="visually-hidden" type="file" accept="image/*,application/pdf,.pdf" [disabled]="busy()" (change)="onPick($event)" />
+      </label>
+      <button type="button" class="actions__link actions__link--danger" [disabled]="busy()" (click)="remove()">{{ 'info.remove' | translate }}</button>
+    </div>
+  } @else {
+    <label class="add">
+      <span class="add__title">+ {{ 'info.add' | translate }}</span>
+      <span class="add__hint">{{ 'info.addHint' | translate }}</span>
+      <input class="visually-hidden" type="file" accept="image/*,application/pdf,.pdf" [disabled]="busy()" (change)="onPick($event)" />
+    </label>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ 'info.error' | translate }}</p>
+  }
+</section>
+
+<dialog #viewer class="viewer" [attr.aria-label]="'info.title' | translate">
+  <div class="viewer__bar">
+    <button type="button" class="viewer__button" (click)="close()">{{ 'info.close' | translate }}</button>
+    <button type="button" class="viewer__button" (click)="shareFile()">{{ 'info.share' | translate }}</button>
+  </div>
+  <div class="viewer__body">
+    @if (isPdf()) {
+      <object #pdf class="viewer__pdf" type="application/pdf" [attr.aria-label]="'info.title' | translate">
+        <p class="viewer__fallback">{{ 'info.pdfFallback' | translate }}</p>
+      </object>
+    } @else if (url(); as src) {
+      <img class="viewer__image" [src]="src" [alt]="'info.title' | translate" />
+    }
+  </div>
+</dialog>

@@ -41,7 +41,7 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list, wine-advice
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, info-attachment, score-picker, chip-group, tasting-list, wine-advice
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore, AdviceDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture), ScrollService (défilement), NetworkService (en ligne / hors ligne), AppUpdateService, StoragePersistenceService, FileShareService
     db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
@@ -89,6 +89,7 @@ docs/                        Description fonctionnelle et décisions
 
 - Installable sur l'écran d'accueil (manifest, icônes, `apple-mobile-web-app-capable`, `viewport-fit=cover`, safe areas via `env(safe-area-inset-*)`). Écran de lancement `apple-touch-startup-image` pour l'iPhone 16 Pro (1206 × 2622), généré par `scripts/generate-icons.mjs` ; un autre modèle d'iPhone demande sa propre taille
 - Photo via `<input type="file" accept="image/*" capture="environment">`, redimensionnée côté client à 1 280 px de grand côté en JPEG avant stockage et envoi
+- Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt` et n'appelle jamais Claude
 - Service worker activé, y compris sur Safari iOS : vérifier à chaque itération que l'installation et la mise à jour fonctionnent ; en cas de problème, désactiver par userAgent comme sur AquaPlan et le documenter ici
 - IndexedDB est la source de vérité. Demander `navigator.storage.persist()` au premier lancement. Rappeler l'export si le dernier remonte à plus de 30 jours
 - Consultation de la cave hors ligne ; les fonctions IA affichent un état explicite sans réseau

@@ -1,4 +1,4 @@
-import { formatChf, formatDrinkWindow, parseList, parseNumber, pluralKey } from './format';
+import { formatBytes, formatChf, formatDrinkWindow, parseList, parseNumber, pluralKey } from './format';
 
 describe('format', () => {
   it.each([
@@ -40,5 +40,15 @@ describe('formatDrinkWindow', () => {
     [null, null, null],
   ])('formatDrinkWindow(%s, %s) should be %s', (from, until, expected) => {
     expect(formatDrinkWindow(from, until)).toBe(expected);
+  });
+});
+
+describe('formatBytes', () => {
+  it.each([
+    [200, '1 Ko'],
+    [870_400, '850 Ko'],
+    [1_258_291, '1,2 Mo'],
+  ])('formatBytes(%s) should be %s', (bytes, expected) => {
+    expect(formatBytes(bytes)).toBe(expected);
   });
 });

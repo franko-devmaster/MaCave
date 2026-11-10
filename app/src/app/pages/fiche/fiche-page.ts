@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { LabelPhotoComponent } from '../../components/label-photo/label-photo';
+import { InfoAttachmentComponent } from '../../components/info-attachment/info-attachment';
 import { TastingListComponent } from '../../components/tasting-list/tasting-list';
 import { WineAdviceComponent } from '../../components/wine-advice/wine-advice';
 import { PhotoService } from '../../services/photo.service';
@@ -19,7 +20,7 @@ const TOAST_DURATION_MS = 6000;
 
 @Component({
   selector: 'app-fiche-page',
-  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, WineAdviceComponent, ChfPipe],
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, WineAdviceComponent, InfoAttachmentComponent, ChfPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './fiche-page.scss',
   templateUrl: './fiche-page.html',
@@ -31,6 +32,7 @@ export class FichePage {
 
   private readonly store = inject(WineDatastore);
   private readonly photos = inject(PhotoService);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -70,11 +72,17 @@ export class FichePage {
     });
   }
 
+  /**
+   * Remplace la photo Bouteille sans appel à Claude. Si le vin n'a pas encore de fiche info,
+   * l'ancienne photo peut y être conservée (cas d'une photo prise pour ses informations).
+   */
   protected async changePhoto(file: File): Promise<void> {
     this.photoError.set(false);
+    const wine = this.detail()?.wine;
+    const keepPrevious = !!wine?.labelPhotoId && !wine.infoAttachmentId && confirm(this.translate.instant('fiche.keepAsInfo'));
     await this.run(async () => {
       try {
-        await this.store.setPhoto(this.id(), await this.photos.prepare(file));
+        await this.store.setPhoto(this.id(), await this.photos.prepare(file), keepPrevious);
       } catch {
         this.photoError.set(true);
       }

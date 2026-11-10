@@ -40,32 +40,70 @@ export class WineRepository {
     return { wine, movement };
   }
 
-  /** Remplace la photo d'étiquette du vin ; l'ancienne est supprimée. */
-  async attachPhoto(wineId: string, photo: PhotoInput, now: Date = new Date()): Promise<Wine> {
+  async update(id: string, input: WineInput, now: Date = new Date()): Promise<Wine> {
+    const existing = await this.getOrThrow(id);
+    const wine: Wine = { ...existing, ...input, updatedAt: now.toISOString() };
+    await this.db.wines.put(wine);
+    return wine;
+  }
+
+  private async getOrThrow(id: string): Promise<Wine> {
+    const wine = await this.db.wines.get(id);
+    if (!wine) {
+      throw new Error(`Vin introuvable : ${id}`);
+    }
+    return wine;
+  }
+
+  /**
+   * Remplace la photo Bouteille. L'ancienne est supprimée, ou conservée comme fiche info si demandé
+   * et si le vin n'en a pas. Ne modifie pas `updatedAt` : une photo ne change pas la fiche descriptive
+   * et ne doit pas faire recalculer le conseil.
+   */
+  async attachPhoto(wineId: string, photo: PhotoInput, keepPreviousAsInfo = false, now: Date = new Date()): Promise<Wine> {
     return this.db.transaction('rw', this.db.wines, this.db.photos, async () => {
-      const existing = await this.db.wines.get(wineId);
-      if (!existing) {
-        throw new Error(`Vin introuvable : ${wineId}`);
-      }
+      const existing = await this.getOrThrow(wineId);
       const record = buildPhoto(photo, now);
       await this.db.photos.add(record);
+      let infoAttachmentId = existing.infoAttachmentId ?? null;
       if (existing.labelPhotoId) {
-        await this.db.photos.delete(existing.labelPhotoId);
+        if (keepPreviousAsInfo && !infoAttachmentId) {
+          infoAttachmentId = existing.labelPhotoId;
+        } else {
+          await this.db.photos.delete(existing.labelPhotoId);
+        }
       }
-      const wine: Wine = { ...existing, labelPhotoId: record.id, updatedAt: now.toISOString() };
+      const wine: Wine = { ...existing, labelPhotoId: record.id, infoAttachmentId };
       await this.db.wines.put(wine);
       return wine;
     });
   }
 
-  async update(id: string, input: WineInput, now: Date = new Date()): Promise<Wine> {
-    const existing = await this.db.wines.get(id);
-    if (!existing) {
-      throw new Error(`Vin introuvable : ${id}`);
-    }
-    const wine: Wine = { ...existing, ...input, updatedAt: now.toISOString() };
-    await this.db.wines.put(wine);
-    return wine;
+  /** Ajoute ou remplace la fiche info (photo ou PDF). Ne modifie pas `updatedAt`. */
+  async attachInfo(wineId: string, file: PhotoInput, now: Date = new Date()): Promise<Wine> {
+    return this.db.transaction('rw', this.db.wines, this.db.photos, async () => {
+      const existing = await this.getOrThrow(wineId);
+      const record = buildPhoto(file, now);
+      await this.db.photos.add(record);
+      if (existing.infoAttachmentId) {
+        await this.db.photos.delete(existing.infoAttachmentId);
+      }
+      const wine: Wine = { ...existing, infoAttachmentId: record.id };
+      await this.db.wines.put(wine);
+      return wine;
+    });
+  }
+
+  async removeInfo(wineId: string): Promise<Wine> {
+    return this.db.transaction('rw', this.db.wines, this.db.photos, async () => {
+      const existing = await this.getOrThrow(wineId);
+      if (existing.infoAttachmentId) {
+        await this.db.photos.delete(existing.infoAttachmentId);
+      }
+      const wine: Wine = { ...existing, infoAttachmentId: null };
+      await this.db.wines.put(wine);
+      return wine;
+    });
   }
 
   /** Mémorise le conseil sans toucher à la date de modification du vin. */
@@ -81,6 +119,9 @@ export class WineRepository {
       await this.db.tastings.where('wineId').equals(id).delete();
       if (wine?.labelPhotoId) {
         await this.db.photos.delete(wine.labelPhotoId);
+      }
+      if (wine?.infoAttachmentId) {
+        await this.db.photos.delete(wine.infoAttachmentId);
       }
       await this.db.wines.delete(id);
     });

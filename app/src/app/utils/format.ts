@@ -41,3 +41,11 @@ export function formatDrinkWindow(from: number | null, until: number | null): st
   }
   return null;
 }
+
+/** Taille de fichier lisible : « 850 Ko », « 1,2 Mo ». */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} Ko`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} Mo`;
+}
