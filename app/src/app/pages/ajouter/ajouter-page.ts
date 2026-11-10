@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -7,6 +6,7 @@ import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineFormComponent } from '../../components/wine-form/wine-form';
 import { AddWineDatastore } from '../../datastore/add-wine.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
+import { ScrollService } from '../../services/scroll.service';
 import { VerdictDatastore } from '../../datastore/verdict.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { Wine } from '../../models/wine';
@@ -37,7 +37,7 @@ interface PendingDuplicate {
 })
 export class AjouterPage implements AfterViewInit, OnDestroy {
   private readonly wines = inject(WineDatastore);
-  private readonly document = inject(DOCUMENT);
+  private readonly scroll = inject(ScrollService);
   private readonly verdicts = inject(VerdictDatastore);
   private readonly form = viewChild.required(WineFormComponent);
 
@@ -159,7 +159,7 @@ export class AjouterPage implements AfterViewInit, OnDestroy {
     this.added.set(added);
     this.duplicate.set(null);
     this.restart();
-    this.document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+    this.scroll.toTop();
   }
 }
 

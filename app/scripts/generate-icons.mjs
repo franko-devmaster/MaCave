@@ -33,4 +33,13 @@ for (const [name, size] of targets) {
   await page.locator('svg').screenshot({ path: new URL(name, outDir).pathname, omitBackground: false });
   console.log(`icons/${name}`);
 }
+// Écran de lancement iOS, iPhone 16 Pro (402 × 874 points, échelle 3).
+const SPLASH = { name: 'splash-1206x2622.png', width: 1206, height: 2622 };
+await page.setViewportSize({ width: SPLASH.width, height: SPLASH.height });
+await page.setContent(`<html><body style="margin:0;width:${SPLASH.width}px;height:${SPLASH.height}px;background:#FFFFFF;display:flex;align-items:center;justify-content:center">
+  <svg width="240" height="240" viewBox="0 0 24 24" fill="none" stroke="${BORDEAUX}" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M10 2h4v4l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3z"/><path d="M8 13h8"/>
+  </svg></body></html>`);
+await page.screenshot({ path: new URL(SPLASH.name, outDir).pathname });
+console.log(`icons/${SPLASH.name}`);
 await browser.close();

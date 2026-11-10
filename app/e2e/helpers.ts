@@ -32,7 +32,9 @@ export async function addWine(page: Page, wine: NewWine): Promise<void> {
     if (wine.drinkUntil) await page.getByLabel("À boire jusqu'en").fill(wine.drinkUntil);
   }
   await page.getByRole('button', { name: 'Ajouter à ma cave' }).tap();
-  await expect(page.getByRole('status')).toContainText('ajouté à la cave');
+  // Attendre la confirmation de CE vin : celle du vin précédent peut encore être affichée.
+  const label = [wine.name, wine.vintage].filter(Boolean).join(' ');
+  await expect(page.getByRole('status')).toContainText(`${label} ajouté à la cave`);
 }
 
 /** Charge un jeu de données par l'import des Réglages (mode remplacement). */

@@ -239,8 +239,10 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 | 3 — Dégustations | Livrée, recette validée |
 | 4 — Profil de goûts | Livrée, recette validée |
 | 5 — Accords | Livrée, recette validée |
-| 6 — Magasin | Livrée, en recette |
-| 7 — Finitions | À faire |
+| 6 — Magasin | Livrée, recette validée |
+| 7 — Finitions | Livrée, en recette |
+
+Le plan de la v1 est entièrement livré.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -291,5 +293,14 @@ Choix faits pendant l'itération 6, à confirmer en recette :
 - Calibration (F5.5) : un verdict est relié au vin quand on l'achète via « J'achète, l'ajouter » ; dès que ce vin est noté, l'écart entre l'affinité prédite et la note réelle est envoyé avec les verdicts suivants.
 - « J'achète, l'ajouter » ouvre l'écran Ajouter prérempli (lecture, photo, prix affiché, une bouteille) sans nouvel appel.
 - Tous les verdicts sont conservés avec leur issue (acheté, passé ou sans suite) ; ils ne sont pas affichés en liste, faute de besoin exprimé.
+
+Choix faits pendant l'itération 7, à confirmer en recette :
+
+- Retour de recette traité : après un ajout, l'écran revient en haut sur la confirmation, clavier fermé, sans défilement animé (iOS l'interrompait pendant que le formulaire se vide).
+- Entre écrans : un écran s'ouvre en haut ; un retour arrière rend la position dans la liste.
+- Conseil sur la fiche (F1.4) : état de garde et conseil de service et de plats, demandé une fois par vin quand une clé est présente, mémorisé, renouvelé après modification du vin ou au changement d'année, ou à la demande.
+- Hors ligne : un bandeau le signale ; la cave et les fiches restent consultables.
+- Écran de lancement pour l'iPhone 16 Pro, transitions brèves entre écrans, supprimées si « Réduire les animations » est activé sur l'iPhone.
+- F1.3 (à boire) était déjà livré à l'itération 1.
 
 Décision prise avant l'itération 6 : « Vérifier en magasin » s'ouvre depuis l'onglet Ajouter, par une bascule « Je l'ai acheté » / « Je suis en magasin ». La barre reste à quatre onglets.

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Photo, PhotoInput, StockMovement, StockReason, Wine, WineInput } from '../models/wine';
+import { Photo, PhotoInput, StockMovement, StockReason, Wine, WineAdvice, WineInput } from '../models/wine';
 import { MACAVE_DB } from './schema';
 
 export interface Purchase {
@@ -66,6 +66,11 @@ export class WineRepository {
     const wine: Wine = { ...existing, ...input, updatedAt: now.toISOString() };
     await this.db.wines.put(wine);
     return wine;
+  }
+
+  /** Mémorise le conseil sans toucher à la date de modification du vin. */
+  async setAdvice(id: string, advice: WineAdvice): Promise<void> {
+    await this.db.wines.update(id, { advice });
   }
 
   /** Supprime le vin et tout ce qui s'y rattache. */

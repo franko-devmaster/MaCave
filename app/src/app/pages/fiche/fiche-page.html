@@ -70,6 +70,8 @@
     <button type="button" class="btn actions__buy" [disabled]="busy()" (click)="buy()">{{ 'fiche.buy' | translate }}</button>
   </div>
 
+  <app-wine-advice [wineId]="id()" />
+
   @if (d.wine.notes) {
     <section class="notes">
       <h2 class="label notes__title">{{ 'fiche.notes' | translate }}</h2>

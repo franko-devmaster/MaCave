@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { LabelPhotoComponent } from '../../components/label-photo/label-photo';
 import { TastingListComponent } from '../../components/tasting-list/tasting-list';
+import { WineAdviceComponent } from '../../components/wine-advice/wine-advice';
 import { PhotoService } from '../../services/photo.service';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ChfPipe } from '../../pipes/chf.pipe';
@@ -18,7 +19,7 @@ const TOAST_DURATION_MS = 6000;
 
 @Component({
   selector: 'app-fiche-page',
-  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, ChfPipe],
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, WineAdviceComponent, ChfPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './fiche-page.scss',
   templateUrl: './fiche-page.html',
