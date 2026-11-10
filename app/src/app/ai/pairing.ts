@@ -4,6 +4,7 @@ import { PairingAnswer, PairingChoice } from '../models/advice';
 import { TasteProfile, Tasting } from '../models/tasting';
 import { CellarEntry } from '../utils/cellar';
 import { InvalidResponseError } from './claude-errors';
+import { currentInfoSummary } from './wine-advice';
 
 export const MAX_ALTERNATIVES = 2;
 export const MAX_REJECTED = 3;
@@ -98,6 +99,7 @@ export function cellarText(entries: readonly CellarEntry[], tastings: readonly T
       keepingText(wine.drinkFrom, wine.drinkUntil, drinkNow, year),
       own.length ? `ses notes : ${own.map((t) => `${t.score}/5`).join(', ')}` : '',
       contexts.length ? `déjà bu avec : ${contexts.join(', ')}` : '',
+      currentInfoSummary(wine) ? `fiche info : ${currentInfoSummary(wine)}` : '',
     ];
     return `- ${parts.filter(Boolean).join(' | ')}`;
   });

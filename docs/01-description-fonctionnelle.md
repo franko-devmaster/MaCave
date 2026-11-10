@@ -248,7 +248,8 @@ Le plan de la v1 est entièrement livré.
 
 | Version | Évolution | État |
 |---|---|---|
-| 0.8.0 | Fiche info et photo Bouteille | Livrée, en recette |
+| 0.8.0 | Fiche info et photo Bouteille | Livrée, recette validée |
+| 0.9.0 | Conseil enrichi par la fiche info, photo en plein écran | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -257,6 +258,14 @@ Le plan de la v1 est entièrement livré.
 - En remplaçant la photo Bouteille, l'application propose de garder l'ancienne comme fiche info si le vin n'en a pas encore : la photo prise à l'achat pour ses informations n'est pas perdue quand on photographie ensuite l'étiquette de face.
 - La fiche info s'ouvre en plein écran ; un PDF peut aussi être partagé ou enregistré dans Fichiers.
 - Correctif : changer une photo ne fait plus recalculer le conseil de la fiche.
+
+0.9.0 — Conseil enrichi par la fiche info, photo en plein écran, à la demande de l'utilisateur :
+
+- La fiche info (PDF ou photo) est envoyée à Claude avec la demande de conseil. Ses informations (garde, service, accords du producteur) priment sur les estimations générales, jamais sur les dégustations.
+- Claude en tire un résumé d'une ligne, affiché sous le conseil (« D'après la fiche info : … ») et mémorisé sur le vin. Les accords le reçoivent avec l'inventaire, sans renvoyer le fichier.
+- Ajouter, remplacer ou supprimer la fiche info redemande le conseil ; changer la photo Bouteille ne le redemande toujours pas.
+- Toucher la photo Bouteille l'affiche en plein écran. « Remplacer la photo » se trouve dans la visionneuse. Sans photo, toucher l'emplacement ouvre l'appareil photo.
+- La visionneuse plein écran est partagée entre la photo Bouteille et la fiche info.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

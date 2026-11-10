@@ -298,7 +298,7 @@
   "photo": {
     "alt": "Photo de l'étiquette",
     "add": "Photo bouteille",
-    "change": "Changer"
+    "replace": "Remplacer la photo"
   },
   "ai": {
     "errors": {
@@ -397,12 +397,13 @@
       "pret": "Prêt à boire",
       "apogee": "À son apogée",
       "declin": "À boire sans tarder"
-    }
+    },
+    "fromInfo": "D'après la fiche info : {{summary}}"
   },
   "info": {
     "title": "Fiche info",
     "add": "Ajouter une fiche info",
-    "addHint": "Photo ou PDF, par exemple le descriptif QoQa. Claude n'est pas sollicité.",
+    "addHint": "Photo ou PDF, par exemple le descriptif QoQa. Claude s'en sert pour le conseil et les accords.",
     "photo": "Photo · {{size}}",
     "pdf": "PDF · {{size}}",
     "view": "Voir",

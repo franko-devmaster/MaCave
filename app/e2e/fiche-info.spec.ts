@@ -12,10 +12,33 @@ async function wineWithBottlePhoto(page: Page): Promise<void> {
   await addWine(page, { name: 'Cornalin', vintage: '2019', quantity: 2 });
   await page.getByRole('link', { name: 'Voir la fiche' }).tap();
   await page.getByLabel('Photo bouteille').setInputFiles({ name: 'infos.png', mimeType: 'image/png', buffer: LABEL_PNG });
-  await expect(page.getByRole('img', { name: "Photo de l'étiquette" })).toBeVisible();
+  await expect(page.getByRole('button', { name: "Photo de l'étiquette" })).toBeVisible();
+}
+
+/** Ouvre la photo Bouteille en grand et la remplace depuis la visionneuse. */
+async function replaceBottlePhoto(page: Page): Promise<void> {
+  await page.getByRole('button', { name: "Photo de l'étiquette" }).tap();
+  const viewer = page.getByRole('dialog', { name: "Photo de l'étiquette" });
+  await expect(viewer).toBeVisible();
+  await viewer.getByLabel('Remplacer la photo').setInputFiles({ name: 'face.png', mimeType: 'image/png', buffer: LABEL_PNG });
+  await expect(viewer).toBeHidden();
 }
 
 test.describe('Fiche info et photo bouteille', () => {
+  test('toucher la photo bouteille l’affiche en plein écran', async ({ page }) => {
+    await wineWithBottlePhoto(page);
+
+    await page.getByRole('button', { name: "Photo de l'étiquette" }).tap();
+    const viewer = page.getByRole('dialog', { name: "Photo de l'étiquette" });
+    await expect(viewer).toBeVisible();
+    await expect(viewer.getByRole('img', { name: "Photo de l'étiquette" })).toHaveAttribute('src', /^blob:/);
+    const box = await viewer.boundingBox();
+    expect(box?.width).toBe(page.viewportSize()?.width);
+
+    await viewer.getByRole('button', { name: 'Fermer' }).tap();
+    await expect(viewer).toBeHidden();
+  });
+
   test('ajoute un PDF, l’affiche, le remplace par une photo puis le supprime', async ({ page }) => {
     await wineWithBottlePhoto(page);
     const info = page.getByRole('region', { name: 'Fiche info' });
@@ -45,7 +68,7 @@ test.describe('Fiche info et photo bouteille', () => {
       expect(dialog.message()).toContain("Garder l'ancienne photo comme fiche info ?");
       void dialog.accept();
     });
-    await page.getByLabel(/Changer/).setInputFiles({ name: 'face.png', mimeType: 'image/png', buffer: LABEL_PNG });
+    await replaceBottlePhoto(page);
 
     await expect(page.getByTestId('info-tile')).toContainText(/Photo · \d+ Ko/);
   });
@@ -54,7 +77,7 @@ test.describe('Fiche info et photo bouteille', () => {
     await wineWithBottlePhoto(page);
 
     page.once('dialog', (dialog) => void dialog.dismiss());
-    await page.getByLabel(/Changer/).setInputFiles({ name: 'face.png', mimeType: 'image/png', buffer: LABEL_PNG });
+    await replaceBottlePhoto(page);
 
     await expect(page.getByRole('region', { name: 'Fiche info' }).getByText(/Ajouter une fiche info/)).toBeVisible();
   });
@@ -62,8 +85,12 @@ test.describe('Fiche info et photo bouteille', () => {
   test.describe('sans appel à Claude', () => {
     test.use({ serviceWorkers: 'block' });
 
-    test('changer la photo ou la fiche info ne relance pas le conseil', async ({ page }) => {
-      const mock = await mockClaude(page, { models: () => MODEL_OK, messages: () => message({ status: 'pret', text: 'Servez-le à 16 °C.' }) });
+    test('changer la photo bouteille ne relance pas le conseil, ajouter la fiche info le relance', async ({ page }) => {
+      const replies = [
+        message({ status: 'pret', text: 'Servez-le à 16 °C.', infoSummary: null }),
+        message({ status: 'garde', text: 'Attendez 2027, comme le conseille le producteur.', infoSummary: 'Garde 2027-2035 selon le producteur' }),
+      ];
+      const mock = await mockClaude(page, { models: () => MODEL_OK, messages: () => replies[Math.min(mock.messageBodies.length, replies.length) - 1] });
       await page.goto('reglages');
       await page.getByLabel('Clé API Claude').fill('sk-ant-api03-test-0123456789abcdef');
       await page.getByRole('button', { name: 'Enregistrer et tester' }).tap();
@@ -72,16 +99,18 @@ test.describe('Fiche info et photo bouteille', () => {
       await expect(page.getByTestId('wine-advice')).toContainText('Servez-le à 16 °C.');
       expect(mock.messageBodies).toHaveLength(1);
 
-      page.once('dialog', (dialog) => void dialog.accept());
-      await page.getByLabel(/Changer/).setInputFiles({ name: 'face.png', mimeType: 'image/png', buffer: LABEL_PNG });
-      await expect(page.getByTestId('info-tile')).toBeVisible();
-      await page.getByRole('region', { name: 'Fiche info' }).getByLabel('Remplacer').setInputFiles({ name: 'qoqa.pdf', mimeType: 'application/pdf', buffer: PDF });
-      await expect(page.getByTestId('info-tile')).toContainText('PDF');
-
+      page.once('dialog', (dialog) => void dialog.dismiss());
+      await replaceBottlePhoto(page);
       await page.getByRole('link', { name: 'Cave' }).tap();
       await page.getByRole('link', { name: /Cornalin/ }).tap();
       await expect(page.getByTestId('wine-advice')).toContainText('Servez-le à 16 °C.');
       expect(mock.messageBodies).toHaveLength(1);
+
+      await page.getByRole('region', { name: 'Fiche info' }).getByLabel(/Ajouter une fiche info/).setInputFiles({ name: 'qoqa.pdf', mimeType: 'application/pdf', buffer: PDF });
+      await expect(page.getByTestId('wine-advice')).toContainText('Attendez 2027');
+      await expect(page.getByTestId('wine-advice')).toContainText("D'après la fiche info : Garde 2027-2035 selon le producteur");
+      expect(mock.messageBodies).toHaveLength(2);
+      expect(JSON.stringify(mock.messageBodies[1])).toContain('"type":"document"');
     });
   });
 });

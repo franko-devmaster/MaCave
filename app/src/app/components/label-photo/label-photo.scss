@@ -1,4 +1,6 @@
 .photo {
+  padding: 0;
+  font: inherit;
   position: relative;
   display: flex;
   align-items: center;
@@ -30,4 +32,18 @@
   font-size: var(--text-label);
   font-weight: 500;
   text-align: center;
+}
+
+.photo__zoom {
+  position: absolute;
+  right: var(--space-1);
+  bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgb(23 18 15 / 72%);
+  color: var(--color-on-ink);
 }
