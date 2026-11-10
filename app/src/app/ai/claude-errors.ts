@@ -11,6 +11,7 @@ export type ClaudeErrorKind =
   | 'network'
   | 'refusal'
   | 'not-readable'
+  | 'not-a-dish'
   | 'invalid-response'
   | 'unknown';
 

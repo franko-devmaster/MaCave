@@ -28,6 +28,8 @@ export class NoterPage implements OnInit {
   readonly ouverture = input<string>();
   /** Dégustation à modifier. */
   readonly degustation = input<string>();
+  /** Plat venant d'Accords, repris dans « Avec quoi, avec qui ». */
+  readonly plat = input<string>();
 
   private readonly wines = inject(WineDatastore);
   private readonly tastings = inject(TastingDatastore);
@@ -56,6 +58,9 @@ export class NoterPage implements OnInit {
 
   ngOnInit(): void {
     const tasting = this.tastings.get(this.degustation() ?? '');
+    if (!tasting && this.plat()) {
+      this.form.controls.context.setValue(this.plat() ?? '');
+    }
     if (tasting) {
       this.form.reset({
         score: tasting.score,

@@ -89,10 +89,22 @@
   "accords": {
     "title": "Accords",
     "subtitle": "Dites ce que vous cuisinez. On cherche dans votre cave.",
-    "empty": {
-      "title": "Bientôt ici.",
-      "text": "Les accords mets et vins arrivent à l'itération 5."
-    }
+    "noKey": "Pour trouver le bon vin avec Claude, ajoutez votre clé API.",
+    "dishLabel": "Le plat",
+    "placeholder": "Ex. risotto aux bolets, parmesan",
+    "photo": "Photographier le plat ou la recette",
+    "find": "Trouver le vin",
+    "asking": "Claude cherche dans votre cave…",
+    "pickTitle": "Notre choix dans votre cave",
+    "noPickTitle": "Rien d'idéal dans votre cave",
+    "for": "Pour : {{dish}}",
+    "bottles": "{{count}} btl",
+    "openFiche": "Voir la fiche, puis J'en ouvre une",
+    "buyTitle": "À acheter pour ce plat",
+    "alternatives": "Aussi possible",
+    "rejected": "Écarté :",
+    "newDish": "Nouveau plat",
+    "history": "Accords précédents"
   },
   "gouts": {
     "title": "Mes goûts",
@@ -299,7 +311,8 @@
       "refusal": "Claude n'a pas pu traiter cette demande.",
       "not-readable": "Étiquette illisible. Reprenez la photo de plus près, bien droite et sans reflet.",
       "invalid-response": "Réponse inattendue de Claude. Réessayez ou saisissez le vin à la main.",
-      "unknown": "Erreur inattendue : {{detail}}"
+      "unknown": "Erreur inattendue : {{detail}}",
+      "not-a-dish": "La photo ne montre ni un plat ni une recette. Décrivez le plat en quelques mots."
     }
   },
   "descriptors": {

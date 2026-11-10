@@ -1,0 +1,116 @@
+<app-page-header [title]="'accords.title' | translate" [subtitle]="'accords.subtitle' | translate" />
+
+@if (!settings.hasApiKey()) {
+  <p class="notice">
+    {{ 'accords.noKey' | translate }}
+    <a routerLink="/reglages">{{ 'ajouter.noKeyLink' | translate }}</a>
+  </p>
+} @else {
+  <form class="ask" (submit)="$event.preventDefault(); submit()">
+    <label class="visually-hidden" for="dish-input">{{ 'accords.dishLabel' | translate }}</label>
+    <div class="ask__field">
+      <input
+        id="dish-input"
+        type="text"
+        enterkeyhint="search"
+        autocomplete="off"
+        [value]="dish()"
+        (input)="onDishInput($event)"
+        [placeholder]="'accords.placeholder' | translate"
+        [disabled]="store.status() === 'asking'"
+      />
+      <label class="ask__camera" [attr.aria-label]="'accords.photo' | translate">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+        <input class="visually-hidden" type="file" accept="image/*" capture="environment" [disabled]="store.status() === 'asking'" (change)="onPhoto($event)" />
+      </label>
+    </div>
+    <button type="submit" class="btn btn--accent" [disabled]="!dish().trim() || store.status() === 'asking'">{{ 'accords.find' | translate }}</button>
+  </form>
+}
+
+@switch (store.status()) {
+  @case ('asking') {
+    <div class="asking" role="status" aria-live="polite">
+      @if (store.preview(); as src) {
+        <img class="asking__photo" [src]="src" alt="" />
+      }
+      <span class="spinner" aria-hidden="true"></span>
+      <span>{{ 'accords.asking' | translate }}</span>
+    </div>
+  }
+  @case ('error') {
+    @if (store.error(); as error) {
+      <p class="error" role="alert">{{ 'ai.errors.' + error.kind | translate: { detail: error.detail ?? '' } }}</p>
+    }
+  }
+}
+
+@if (result(); as r) {
+  <section class="result" aria-labelledby="result-title">
+    <p id="result-title" class="result__label">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6" /></svg>
+      {{ (r.pick ? 'accords.pickTitle' : 'accords.noPickTitle') | translate }}
+    </p>
+    <p class="result__dish">{{ 'accords.for' | translate: { dish: r.request.dish } }}</p>
+
+    @if (r.pick; as pick) {
+      <a class="pick" [routerLink]="['/cave', pick.detail.wine.id]" [queryParams]="{ plat: r.request.dish }" data-testid="top-pick">
+        <span class="pick__head">
+          <span class="pick__name">{{ pick.detail.wine.name }}{{ pick.detail.wine.vintage ? ' ' + pick.detail.wine.vintage : '' }}</span>
+          <app-color-dot [color]="pick.detail.wine.color" [size]="12" />
+        </span>
+        <span class="pick__meta">
+          {{ pick.detail.wine.producer }}{{ pick.detail.wine.region ? ' · ' + pick.detail.wine.region : '' }} · {{ 'accords.bottles' | translate: { count: pick.detail.bottles } }}
+        </span>
+        <span class="pick__reason">{{ pick.reason }}</span>
+        @if (pick.service) {
+          <span class="pick__service">{{ pick.service }}</span>
+        }
+        <span class="pick__open">{{ 'accords.openFiche' | translate }}</span>
+      </a>
+    }
+
+    @if (r.request.buyAdvice) {
+      <div class="buy">
+        <p class="buy__title">{{ 'accords.buyTitle' | translate }}</p>
+        <p class="buy__text">{{ r.request.buyAdvice }}</p>
+      </div>
+    }
+
+    @if (r.alternatives.length) {
+      <h2 class="label block-title">{{ 'accords.alternatives' | translate }}</h2>
+      @for (alt of r.alternatives; track alt.detail.wine.id) {
+        <a class="alt" [routerLink]="['/cave', alt.detail.wine.id]" [queryParams]="{ plat: r.request.dish }" [style.--bar]="'var(--wine-' + alt.detail.wine.color + ')'">
+          <span class="alt__vintage">{{ alt.detail.wine.vintage ?? '—' }}</span>
+          <span class="alt__text">
+            <span class="alt__name">{{ alt.detail.wine.name }}</span>
+            <span class="alt__reason">{{ alt.reason }}</span>
+          </span>
+        </a>
+      }
+    }
+
+    @if (r.rejected.length) {
+      <p class="rejected">
+        {{ 'accords.rejected' | translate }}
+        @for (rej of r.rejected; track rej.detail.wine.id; let last = $last) {
+          <strong>{{ rej.detail.wine.name }}{{ rej.detail.wine.vintage ? ' ' + rej.detail.wine.vintage : '' }}</strong>, {{ rej.reason }}{{ last ? '' : ' ' }}
+        }
+      </p>
+    }
+
+    <button type="button" class="btn btn--quiet" (click)="restart()">{{ 'accords.newDish' | translate }}</button>
+  </section>
+}
+
+@if (store.status() !== 'asking' && history().length) {
+  <section class="history" aria-labelledby="history-title">
+    <h2 id="history-title" class="label block-title">{{ 'accords.history' | translate }}</h2>
+    @for (item of history(); track item.request.id) {
+      <button type="button" class="history__item" (click)="store.show(item.request.id)">
+        <span class="history__dish">{{ item.request.dish }}</span>
+        <span class="history__meta">{{ item.request.date | date: 'd MMM' }}{{ item.pickName ? ' · ' + item.pickName : '' }}</span>
+      </button>
+    }
+  </section>
+}

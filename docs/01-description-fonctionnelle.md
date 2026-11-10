@@ -237,8 +237,9 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 | 1 — Cave | Livrée, recette validée |
 | 2 — Connecteur Claude et lecture d'étiquette | Livrée, recette validée |
 | 3 — Dégustations | Livrée, recette validée |
-| 4 — Profil de goûts | Livrée, en recette |
-| 5 à 7 | À faire |
+| 4 — Profil de goûts | Livrée, recette validée |
+| 5 — Accords | Livrée, en recette |
+| 6 et 7 | À faire |
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -273,5 +274,13 @@ Choix faits pendant l'itération 4, à confirmer en recette :
 - Quatre corrections possibles : ajuster un axe (0 à 10), retirer un cépage favori, retirer un profil à éviter, ajouter une précision libre. Elles s'appliquent immédiatement à l'écran, restent prioritaires sur les déductions de Claude et se retirent depuis « Vos corrections ».
 - Les axes corrigés à la main sont soulignés.
 - Effort de réflexion « medium » pour la synthèse, plus exigeante que la lecture d'étiquette.
+
+Choix faits pendant l'itération 5, à confirmer en recette :
+
+- Claude reçoit le profil corrigé, les seuls vins en stock avec leur garde (« à boire maintenant », « trop jeune »), vos notes et les plats avec lesquels vous les avez déjà bus.
+- Un vin inventé ou épuisé dans la réponse est écarté par l'application ; si aucun vin ne convient, Claude le dit et propose un style de vin à acheter.
+- Le plat suit le vin choisi : depuis la carte, la fiche puis « J'en ouvre une » préremplissent « Avec quoi, avec qui » dans Noter. Le profil apprend ainsi de vos vrais accords.
+- La photo d'un plat n'est pas conservée ; les dix derniers accords le sont et se réaffichent sans nouvel appel.
+- Le profil utilisé est le dernier calculé ; il n'est pas recalculé avant un accord, pour ne pas ralentir la réponse.
 
 Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.
