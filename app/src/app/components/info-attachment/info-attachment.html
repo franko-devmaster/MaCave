@@ -32,18 +32,6 @@
   }
 </section>
 
-<dialog #viewer class="viewer" [attr.aria-label]="'info.title' | translate">
-  <div class="viewer__bar">
-    <button type="button" class="viewer__button" (click)="close()">{{ 'info.close' | translate }}</button>
-    <button type="button" class="viewer__button" (click)="shareFile()">{{ 'info.share' | translate }}</button>
-  </div>
-  <div class="viewer__body">
-    @if (isPdf()) {
-      <object #pdf class="viewer__pdf" type="application/pdf" [attr.aria-label]="'info.title' | translate">
-        <p class="viewer__fallback">{{ 'info.pdfFallback' | translate }}</p>
-      </object>
-    } @else if (url(); as src) {
-      <img class="viewer__image" [src]="src" [alt]="'info.title' | translate" />
-    }
-  </div>
-</dialog>
+<app-media-viewer #viewer [url]="url()" [mediaType]="file()?.mediaType ?? null" [title]="'info.title' | translate">
+  <button viewerAction type="button" (click)="shareFile()">{{ 'info.share' | translate }}</button>
+</app-media-viewer>

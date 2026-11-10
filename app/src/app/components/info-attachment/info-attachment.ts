@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { PDF_MEDIA_TYPE, Photo } from '../../models/wine';
 import { FileShareService } from '../../services/file-share.service';
 import { PhotoService } from '../../services/photo.service';
 import { formatBytes } from '../../utils/format';
+import { MediaViewerComponent } from '../media-viewer/media-viewer';
 
 /** Fiche info d'un vin : une photo ou un PDF (descriptif QoQa…), sans aucun appel à Claude. */
 @Component({
   selector: 'app-info-attachment',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, MediaViewerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './info-attachment.scss',
   templateUrl: './info-attachment.html',
@@ -22,8 +23,7 @@ export class InfoAttachmentComponent {
   private readonly photos = inject(PhotoService);
   private readonly share = inject(FileShareService);
   private readonly translate = inject(TranslateService);
-  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('viewer');
-  private readonly pdfFrame = viewChild<ElementRef<HTMLObjectElement>>('pdf');
+  private readonly viewer = viewChild.required(MediaViewerComponent);
 
   protected readonly file = signal<Photo | null>(null);
   protected readonly url = signal<string | null>(null);
@@ -56,15 +56,6 @@ export class InfoAttachmentComponent {
         }
       });
     });
-    // L'URL est un blob créé ici à partir du fichier de l'utilisateur ; Angular interdit de lier
-    // l'attribut data d'un <object>, on le pose donc directement sur l'élément.
-    effect(() => {
-      const frame = this.pdfFrame()?.nativeElement;
-      const url = this.url();
-      if (frame && url) {
-        frame.setAttribute('data', url);
-      }
-    });
   }
 
   protected async onPick(event: Event): Promise<void> {
@@ -92,11 +83,7 @@ export class InfoAttachmentComponent {
   }
 
   protected open(): void {
-    this.dialog()?.nativeElement.showModal();
-  }
-
-  protected close(): void {
-    this.dialog()?.nativeElement.close();
+    this.viewer().open();
   }
 
   protected async shareFile(): Promise<void> {

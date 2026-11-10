@@ -41,7 +41,7 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, info-attachment, score-picker, chip-group, tasting-list, wine-advice
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, info-attachment, media-viewer, score-picker, chip-group, tasting-list, wine-advice
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore, AdviceDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture), ScrollService (défilement), NetworkService (en ligne / hors ligne), AppUpdateService, StoragePersistenceService, FileShareService
     db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
@@ -89,7 +89,7 @@ docs/                        Description fonctionnelle et décisions
 
 - Installable sur l'écran d'accueil (manifest, icônes, `apple-mobile-web-app-capable`, `viewport-fit=cover`, safe areas via `env(safe-area-inset-*)`). Écran de lancement `apple-touch-startup-image` pour l'iPhone 16 Pro (1206 × 2622), généré par `scripts/generate-icons.mjs` ; un autre modèle d'iPhone demande sa propre taille
 - Photo via `<input type="file" accept="image/*" capture="environment">`, redimensionnée côté client à 1 280 px de grand côté en JPEG avant stockage et envoi
-- Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt` et n'appelle jamais Claude
+- Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt`. Toucher la photo Bouteille l'ouvre dans la visionneuse plein écran partagée (`media-viewer`), d'où on la remplace ; sans photo, toucher ouvre l'appareil photo
 - Service worker activé, y compris sur Safari iOS : vérifier à chaque itération que l'installation et la mise à jour fonctionnent ; en cas de problème, désactiver par userAgent comme sur AquaPlan et le documenter ici
 - IndexedDB est la source de vérité. Demander `navigator.storage.persist()` au premier lancement. Rappeler l'export si le dernier remonte à plus de 30 jours
 - Consultation de la cave hors ligne ; les fonctions IA affichent un état explicite sans réseau
@@ -106,7 +106,8 @@ docs/                        Description fonctionnelle et décisions
 - Contexte envoyé : inventaire résumé + profil, placés en tête comme préfixe stable ; la requête variable en fin
 - Images : JPEG base64 redimensionné, jamais l'original
 - Réutiliser plutôt que dupliquer : le verdict magasin imbrique `LABEL_READING_SCHEMA`, `parseLabelReading` et `LABEL_FIELD_RULES` ; `profileText` sert aux accords et au verdict
-- Conseil de fiche : demandé une fois par vin, mémorisé sur le vin (`advice`), redemandé seulement après modification du vin ou changement d'année (`isAdviceFresh`) ; `setAdvice` ne modifie pas `updatedAt`
+- Conseil de fiche : demandé une fois par vin, mémorisé sur le vin (`advice`), redemandé seulement après modification du vin, changement d'année ou changement de fiche info (`isAdviceFresh`) ; `setAdvice` ne modifie pas `updatedAt`. La photo Bouteille n'est jamais envoyée pour le conseil
+- Fiche info : envoyée avec la demande de conseil (bloc `document` pour un PDF, `image` sinon) ; Claude en rend un résumé (`infoSummary`) mémorisé avec le conseil. Les accords réutilisent ce résumé (`currentInfoSummary`) au lieu de renvoyer le fichier
 - Calibration : chaque verdict suivi d'un achat (`boughtWineId`) puis d'une note est renvoyé à Claude dans les verdicts suivants (`calibrationText`)
 - Le parseur ne garde que des identifiants de vins présents dans le contexte envoyé (en stock pour les accords) : un vin inventé ou épuisé est écarté sans erreur
 - Gérer `stop_reason`, les erreurs réseau, les erreurs 401 (clé invalide → renvoi vers Réglages) et 429

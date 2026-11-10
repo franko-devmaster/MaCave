@@ -17,7 +17,7 @@ describe('AdviceDatastore', () => {
   let sut: AdviceDatastore;
 
   beforeEach(async () => {
-    respond = () => textResponse(JSON.stringify({ status: 'apogee', text: 'À son apogée. Servez-le à 16 °C.' }));
+    respond = () => textResponse(JSON.stringify({ status: 'apogee', text: 'À son apogée. Servez-le à 16 °C.', infoSummary: null }));
     const fake = fakeSdk({ respond: () => respond() });
     calls = fake.calls;
     db = createTestDb();
@@ -77,5 +77,25 @@ describe('AdviceDatastore', () => {
 
     expect(sut.errors().get(wineId)?.kind).toBe('unavailable');
     expect(sut.loading().has(wineId)).toBe(false);
+  });
+
+  it('ensure with an info file should send it, keep its summary and ask again when it changes', async () => {
+    respond = () => textResponse(JSON.stringify({ status: 'pret', text: 'Carafez-le.', infoSummary: 'Élevé 12 mois en fût.' }));
+    await wines.setInfo(wineId, { bytes: new TextEncoder().encode('%PDF').buffer as ArrayBuffer, mediaType: 'application/pdf', width: 0, height: 0 });
+
+    await sut.ensure(wineId);
+    await sut.ensure(wineId);
+
+    expect(calls).toHaveLength(1);
+    const content = (calls[0].params['messages'] as { content: { type: string; source?: { data: string } }[] }[])[0].content;
+    expect(content.map((b) => b.type)).toEqual(['text', 'document', 'text']);
+    expect(content[1].source?.data).toBe('JVBERg==');
+    const advice = wines.detail(wineId)?.wine.advice;
+    expect(advice).toMatchObject({ infoSummary: 'Élevé 12 mois en fût.', infoAttachmentId: wines.detail(wineId)?.wine.infoAttachmentId });
+
+    await wines.setInfo(wineId, { bytes: new Uint8Array([1]).buffer, mediaType: 'image/jpeg', width: 1, height: 1 });
+    await sut.ensure(wineId);
+
+    expect(calls).toHaveLength(2);
   });
 });

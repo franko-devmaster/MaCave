@@ -1,7 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ClaudeFailure } from '../ai/claude-errors';
-import { isAdviceFresh, wineAdviceRequest } from '../ai/wine-advice';
+import { InfoFile, isAdviceFresh, wineAdviceRequest } from '../ai/wine-advice';
 import { ClaudeService } from '../services/claude.service';
+import { PhotoService } from '../services/photo.service';
+import { arrayBufferToBase64 } from '../utils/base64';
 import { ProfileDatastore } from './profile.datastore';
 import { SettingsDatastore } from './settings.datastore';
 import { TastingDatastore } from './tasting.datastore';
@@ -15,6 +17,7 @@ export class AdviceDatastore {
   private readonly tastings = inject(TastingDatastore);
   private readonly profile = inject(ProfileDatastore);
   private readonly settings = inject(SettingsDatastore);
+  private readonly photos = inject(PhotoService);
 
   private readonly loadingSignal = signal<ReadonlySet<string>>(new Set());
   private readonly errorsSignal = signal<ReadonlyMap<string, ClaudeFailure>>(new Map());
@@ -38,9 +41,13 @@ export class AdviceDatastore {
     }
     this.loadingSignal.update((set) => new Set(set).add(wineId));
     this.errorsSignal.update((map) => withoutKey(map, wineId));
-    const result = await this.claude.structured(wineAdviceRequest(detail.wine, detail.bottles, this.tastings.tastings(), this.profile.profile(), today));
+    const infoAttachmentId = detail.wine.infoAttachmentId ?? null;
+    const info = await this.loadInfo(infoAttachmentId);
+    const result = await this.claude.structured(
+      wineAdviceRequest(detail.wine, detail.bottles, this.tastings.tastings(), this.profile.profile(), today, info),
+    );
     if (result.ok) {
-      await this.wines.setAdvice(wineId, { ...result.value, generatedAt: new Date().toISOString() });
+      await this.wines.setAdvice(wineId, { ...result.value, infoAttachmentId: info ? infoAttachmentId : null, generatedAt: new Date().toISOString() });
     } else {
       this.errorsSignal.update((map) => new Map(map).set(wineId, result));
     }
@@ -49,6 +56,12 @@ export class AdviceDatastore {
       next.delete(wineId);
       return next;
     });
+  }
+
+  /** La fiche info du vin, prête à joindre à la demande ; null si elle n'existe pas. */
+  private async loadInfo(id: string | null): Promise<InfoFile | null> {
+    const file = id ? await this.photos.load(id) : undefined;
+    return file ? { mediaType: file.mediaType, base64: arrayBufferToBase64(file.bytes) } : null;
   }
 }
 

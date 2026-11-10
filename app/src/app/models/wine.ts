@@ -12,6 +12,10 @@ export interface WineAdvice {
   status: AdviceStatus;
   text: string;
   generatedAt: string;
+  /** Fiche info lue pour ce conseil ; un conseil est à refaire quand la fiche info change. */
+  infoAttachmentId?: string | null;
+  /** Résumé factuel de la fiche info, réutilisé par les accords sans relire le document. */
+  infoSummary?: string | null;
 }
 
 export interface Wine {

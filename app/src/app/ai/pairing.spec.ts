@@ -137,4 +137,11 @@ describe('pairing', () => {
   ])('parsePairing should reject an unusable answer (%#)', (raw, message) => {
     expect(() => parsePairing(raw, new Set(['w1']))).toThrow(new InvalidResponseError(message));
   });
+
+  it('cellarText should add the summary of the current info file', () => {
+    const advice = { status: 'pret' as const, text: 'x', generatedAt: '', infoAttachmentId: 'f1', infoSummary: 'Élevé 12 mois en fût, accords gibier.' };
+    const entries: CellarEntry[] = [{ wine: wine('w1', { advice, infoAttachmentId: 'f1', drinkFrom: null, drinkUntil: null }), bottles: 1, drinkNow: false }];
+
+    expect(cellarText(entries, [], 2026)).toContain('| fiche info : Élevé 12 mois en fût, accords gibier.');
+  });
 });

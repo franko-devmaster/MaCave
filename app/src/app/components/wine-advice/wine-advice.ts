@@ -27,6 +27,9 @@ import { WineDatastore } from '../../datastore/wine.datastore';
             <p class="advice__state">{{ 'advice.status.' + a.status | translate }}</p>
           }
           <p class="advice__text">{{ a.text }}</p>
+          @if (a.infoSummary) {
+            <p class="advice__source">{{ 'advice.fromInfo' | translate: { summary: a.infoSummary } }}</p>
+          }
           <button type="button" class="advice__action" (click)="refresh()">{{ 'advice.refresh' | translate }}</button>
         }
       </section>
@@ -41,12 +44,15 @@ export class WineAdviceComponent {
   protected readonly settings = inject(SettingsDatastore);
 
   protected readonly advice = computed(() => this.wines.detail(this.wineId())?.wine.advice ?? null);
+  /** Une nouvelle fiche info rend le conseil périmé : il est redemandé avec elle. */
+  private readonly infoId = computed(() => this.wines.detail(this.wineId())?.wine.infoAttachmentId ?? null);
   protected readonly loading = computed(() => this.store.loading().has(this.wineId()));
   protected readonly error = computed(() => this.store.errors().get(this.wineId()) ?? null);
 
   constructor() {
     effect(() => {
       const id = this.wineId();
+      this.infoId();
       untracked(() => void this.store.ensure(id));
     });
   }
