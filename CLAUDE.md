@@ -41,9 +41,9 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list
-    datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore
-    services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture)
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list, wine-advice
+    datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore, AdviceDatastore
+    services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture), ScrollService (défilement), NetworkService (en ligne / hors ligne), AppUpdateService, StoragePersistenceService, FileShareService
     db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
@@ -71,6 +71,8 @@ docs/                        Description fonctionnelle et décisions
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants
+- Le conteneur qui défile est `main.content`, pas la fenêtre : passer par `ScrollService` (`toTop()` après un enregistrement qui reste sur l'écran ; le service remet en haut à chaque navigation et rend la position au retour). Pas de défilement animé : iOS l'interrompt quand la hauteur du contenu change
+- Transitions entre écrans par `withViewTransitions()`, désactivées par `prefers-reduced-motion`
 - Un `<form>` sans `ReactiveFormsModule` n'a pas de `ngSubmit` : écouter `(submit)` avec `$event.preventDefault()`
 - Contrôles de saisie réutilisables (score-picker, chip-group) en `ControlValueAccessor`, branchés par `formControlName` ; boutons radio et cases natifs masqués visuellement, le libellé sert de cible tactile (en Playwright, toucher le `label`, pas l'`input`)
 
@@ -85,7 +87,7 @@ docs/                        Description fonctionnelle et décisions
 
 ### PWA / iOS
 
-- Installable sur l'écran d'accueil (manifest, icônes, `apple-mobile-web-app-capable`, `viewport-fit=cover`, safe areas via `env(safe-area-inset-*)`)
+- Installable sur l'écran d'accueil (manifest, icônes, `apple-mobile-web-app-capable`, `viewport-fit=cover`, safe areas via `env(safe-area-inset-*)`). Écran de lancement `apple-touch-startup-image` pour l'iPhone 16 Pro (1206 × 2622), généré par `scripts/generate-icons.mjs` ; un autre modèle d'iPhone demande sa propre taille
 - Photo via `<input type="file" accept="image/*" capture="environment">`, redimensionnée côté client à 1 280 px de grand côté en JPEG avant stockage et envoi
 - Service worker activé, y compris sur Safari iOS : vérifier à chaque itération que l'installation et la mise à jour fonctionnent ; en cas de problème, désactiver par userAgent comme sur AquaPlan et le documenter ici
 - IndexedDB est la source de vérité. Demander `navigator.storage.persist()` au premier lancement. Rappeler l'export si le dernier remonte à plus de 30 jours
@@ -93,9 +95,9 @@ docs/                        Description fonctionnelle et décisions
 
 ## Intégration Claude
 
-- Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`. Chaque fichier expose une fonction `xxxRequest()` qui renvoie un `StructuredRequest` (système, contenu, schéma, effort, parseur)
+- Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`, `wine-advice`. Chaque fichier expose une fonction `xxxRequest()` qui renvoie un `StructuredRequest` (système, contenu, schéma, effort, parseur)
 - Appels via `client.beta.messages.create` avec `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) : un refus est rejoué côté serveur sur un modèle de repli
-- Effort `low` pour l'extraction (étiquettes, descriptions), `medium` pour la synthèse et le raisonnement (profil de goûts, accords, verdict magasin) ; à relever seulement si la qualité le justifie, mesures à l'appui
+- Effort `low` pour l'extraction et les textes courts (étiquettes, descriptions, conseil de fiche), `medium` pour la synthèse et le raisonnement (profil de goûts, accords, verdict magasin) ; à relever seulement si la qualité le justifie, mesures à l'appui
 - Schémas stricts : toutes les propriétés dans `required`, `additionalProperties: false`, nullabilité par `anyOf` avec `{ "type": "null" }`, pas de `minimum` / `maximum` (bornes contrôlées par le parseur, qui met à null une valeur hors bornes)
 - Test de clé par `models.retrieve` : aucun texte généré, rien de facturé
 - Erreurs classées par les classes typées du SDK (`classifyError`), jamais par le texte du message
@@ -103,6 +105,7 @@ docs/                        Description fonctionnelle et décisions
 - Contexte envoyé : inventaire résumé + profil, placés en tête comme préfixe stable ; la requête variable en fin
 - Images : JPEG base64 redimensionné, jamais l'original
 - Réutiliser plutôt que dupliquer : le verdict magasin imbrique `LABEL_READING_SCHEMA`, `parseLabelReading` et `LABEL_FIELD_RULES` ; `profileText` sert aux accords et au verdict
+- Conseil de fiche : demandé une fois par vin, mémorisé sur le vin (`advice`), redemandé seulement après modification du vin ou changement d'année (`isAdviceFresh`) ; `setAdvice` ne modifie pas `updatedAt`
 - Calibration : chaque verdict suivi d'un achat (`boughtWineId`) puis d'une note est renvoyé à Claude dans les verdicts suivants (`calibrationText`)
 - Le parseur ne garde que des identifiants de vins présents dans le contexte envoyé (en stock pour les accords) : un vin inventé ou épuisé est écarté sans erreur
 - Gérer `stop_reason`, les erreurs réseau, les erreurs 401 (clé invalide → renvoi vers Réglages) et 429
@@ -134,6 +137,7 @@ Application personnelle, un seul utilisateur, mais la clé API a une valeur mon�
 - Nommage : `<méthode> should <attendu>` ou `<méthode> when <condition> should <attendu>`
 - Sujet sous test : `sut`
 - Playwright : un parcours par itération au minimum, profil `iPhone 16 Pro`, contre le build de production servi sous `/MaCave/` ; `npm run e2e` désactive les traces
+- Sélecteurs Playwright : viser un lien d'onglet dans `navigation "Navigation principale"`, utiliser `exact: true` quand un libellé est contenu dans un autre, et attendre la confirmation propre à l'action (pas un message générique déjà affiché)
 - Vérification manuelle de l'UI sur le vrai téléphone via l'URL GitHub Pages à la fin de chaque itération
 
 ## Déploiements

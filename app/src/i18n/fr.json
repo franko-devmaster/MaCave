@@ -4,7 +4,8 @@
     "update": {
       "message": "Une nouvelle version est prête.",
       "action": "Mettre à jour"
-    }
+    },
+    "offline": "Hors ligne : votre cave reste consultable, Claude est indisponible."
   },
   "nav": {
     "label": "Navigation principale",
@@ -385,5 +386,16 @@
     },
     "buy": "J'achète, l'ajouter",
     "pass": "Je passe"
+  },
+  "advice": {
+    "title": "Conseil",
+    "loading": "Claude prépare un conseil pour ce vin…",
+    "refresh": "Actualiser le conseil",
+    "status": {
+      "trop-jeune": "Trop jeune : patientez",
+      "pret": "Prêt à boire",
+      "apogee": "À son apogée",
+      "declin": "À boire sans tarder"
+    }
   }
 }

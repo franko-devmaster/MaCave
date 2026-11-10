@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ReferenceRepository } from '../db/reference.repository';
 import { Purchase, WineRepository } from '../db/wine.repository';
-import { PhotoInput, StockMovement, Wine, WineInput } from '../models/wine';
+import { PhotoInput, StockMovement, Wine, WineAdvice, WineInput } from '../models/wine';
 import { TastingDatastore } from './tasting.datastore';
 import { buildEntries, CellarEntry, findDuplicate, lastPricePaid, summarize } from '../utils/cellar';
 
@@ -72,6 +72,11 @@ export class WineDatastore {
 
   async buy(id: string, pricePaid: number | null = null, quantity = 1): Promise<StockMovement> {
     return this.addMovement(id, quantity, 'achat', pricePaid);
+  }
+
+  async setAdvice(id: string, advice: WineAdvice): Promise<void> {
+    await this.repository.setAdvice(id, advice);
+    this.winesSignal.update((wines) => wines.map((w) => (w.id === id ? { ...w, advice } : w)));
   }
 
   async setPhoto(id: string, photo: PhotoInput): Promise<void> {

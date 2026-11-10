@@ -96,3 +96,17 @@ p {
     cursor: default;
   }
 }
+
+/* Transitions entre écrans : un fondu bref, supprimé si l'utilisateur réduit les animations. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

@@ -5,6 +5,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 import { TabBarComponent } from './components/tab-bar/tab-bar';
 import { AppUpdateService } from './services/app-update.service';
+import { NetworkService } from './services/network.service';
+import { ScrollService } from './services/scroll.service';
 import { StoragePersistenceService } from './services/storage-persistence.service';
 
 @Component({
@@ -21,6 +23,9 @@ import { StoragePersistenceService } from './services/storage-persistence.servic
         </button>
       </div>
     }
+    @if (!network.online()) {
+      <div class="offline" role="status">{{ 'app.offline' | translate }}</div>
+    }
     <main class="content">
       <router-outlet />
     </main>
@@ -31,7 +36,9 @@ import { StoragePersistenceService } from './services/storage-persistence.servic
 })
 export class App implements OnInit {
   protected readonly update = inject(AppUpdateService);
+  protected readonly network = inject(NetworkService);
   private readonly storage = inject(StoragePersistenceService);
+  private readonly scroll = inject(ScrollService);
   private readonly router = inject(Router);
 
   private readonly navigationEnd = toSignal(
@@ -45,6 +52,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.update.start();
+    this.scroll.start();
     void this.storage.ensurePersisted();
   }
 }
