@@ -35,12 +35,19 @@ export interface Wine {
   updatedAt: string;
   /** Absent sur les vins créés avant l'itération 7. */
   advice?: WineAdvice | null;
+  /** Fiche info (photo ou PDF, par exemple un descriptif QoQa). Absent sur les vins plus anciens. */
+  infoAttachmentId?: string | null;
 }
 
 /** Champs saisis par l'utilisateur ; l'identifiant et les dates sont gérés par le dépôt. */
-export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt' | 'advice'>;
+export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt' | 'advice' | 'infoAttachmentId'>;
 
-/** Photo d'étiquette, stockée en octets (portable entre Safari, export JSON et tests). */
+export const PDF_MEDIA_TYPE = 'application/pdf';
+
+/**
+ * Fichier rattaché à un vin, stocké en octets (portable entre Safari, export JSON et tests) :
+ * photo de la bouteille (JPEG) ou fiche info (JPEG ou PDF ; largeur et hauteur à 0 pour un PDF).
+ */
 export interface Photo {
   id: string;
   bytes: ArrayBuffer;

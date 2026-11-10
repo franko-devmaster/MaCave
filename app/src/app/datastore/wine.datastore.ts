@@ -79,9 +79,20 @@ export class WineDatastore {
     this.winesSignal.update((wines) => wines.map((w) => (w.id === id ? { ...w, advice } : w)));
   }
 
-  async setPhoto(id: string, photo: PhotoInput): Promise<void> {
-    const wine = await this.repository.attachPhoto(id, photo);
-    this.winesSignal.update((wines) => wines.map((w) => (w.id === id ? wine : w)));
+  async setPhoto(id: string, photo: PhotoInput, keepPreviousAsInfo = false): Promise<void> {
+    this.replace(await this.repository.attachPhoto(id, photo, keepPreviousAsInfo));
+  }
+
+  async setInfo(id: string, file: PhotoInput): Promise<void> {
+    this.replace(await this.repository.attachInfo(id, file));
+  }
+
+  async removeInfo(id: string): Promise<void> {
+    this.replace(await this.repository.removeInfo(id));
+  }
+
+  private replace(wine: Wine): void {
+    this.winesSignal.update((wines) => wines.map((w) => (w.id === wine.id ? wine : w)));
   }
 
   async undoMovement(movementId: string): Promise<void> {

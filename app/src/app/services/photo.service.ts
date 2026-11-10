@@ -1,10 +1,13 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { PhotoRepository } from '../db/photo.repository';
-import { Photo, PhotoInput } from '../models/wine';
+import { PDF_MEDIA_TYPE, Photo, PhotoInput } from '../models/wine';
 import { arrayBufferToBase64 } from '../utils/base64';
 
 export const PHOTO_MAX_SIDE = 1280;
+/** Les fiches info contiennent du texte : plus de définition que la photo de bouteille. */
+export const INFO_MAX_SIDE = 2048;
+export const PDF_MAX_BYTES = 10 * 1024 * 1024;
 export const PHOTO_QUALITY = 0.85;
 
 export interface PreparedPhoto extends PhotoInput {
@@ -25,7 +28,19 @@ export class PhotoService {
   private readonly document = inject(DOCUMENT);
   private readonly repository = inject(PhotoRepository);
 
-  async prepare(file: File): Promise<PreparedPhoto> {
+  /** Fiche info : PDF conservé tel quel (10 Mo au plus), image réduite à 2048 px. */
+  async prepareInfo(file: File): Promise<PhotoInput> {
+    if (isPdf(file)) {
+      if (file.size > PDF_MAX_BYTES) {
+        throw new PhotoError('PDF trop volumineux');
+      }
+      return { bytes: await file.arrayBuffer(), mediaType: PDF_MEDIA_TYPE, width: 0, height: 0 };
+    }
+    const { bytes, mediaType, width, height } = await this.prepare(file, INFO_MAX_SIDE);
+    return { bytes, mediaType, width, height };
+  }
+
+  async prepare(file: File, maxSide: number = PHOTO_MAX_SIDE): Promise<PreparedPhoto> {
     let bitmap: ImageBitmap;
     try {
       bitmap = await createImageBitmap(file);
@@ -33,7 +48,7 @@ export class PhotoService {
       throw new PhotoError('image illisible');
     }
     try {
-      const size = fitWithin(bitmap.width, bitmap.height, PHOTO_MAX_SIDE);
+      const size = fitWithin(bitmap.width, bitmap.height, maxSide);
       const canvas = this.document.createElement('canvas');
       canvas.width = size.width;
       canvas.height = size.height;
@@ -56,4 +71,8 @@ export class PhotoService {
   load(id: string): Promise<Photo | undefined> {
     return this.repository.get(id);
   }
+}
+
+export function isPdf(file: File): boolean {
+  return file.type === PDF_MEDIA_TYPE || file.name.toLowerCase().endsWith('.pdf');
 }

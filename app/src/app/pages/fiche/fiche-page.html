@@ -72,6 +72,8 @@
 
   <app-wine-advice [wineId]="id()" />
 
+  <app-info-attachment [wineId]="id()" [attachmentId]="d.wine.infoAttachmentId ?? null" />
+
   @if (d.wine.notes) {
     <section class="notes">
       <h2 class="label notes__title">{{ 'fiche.notes' | translate }}</h2>

@@ -63,17 +63,52 @@ describe('WineRepository', () => {
     expect(new Uint8Array(photo?.bytes ?? new ArrayBuffer(0))).toEqual(new Uint8Array([1, 2, 3]));
   });
 
-  it('attachPhoto should replace the previous photo', async () => {
-    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, photoInput());
+  it('attachPhoto should replace the previous photo without touching updatedAt', async () => {
+    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, photoInput(), FIXED_NOW);
 
-    const updated = await sut.attachPhoto(wine.id, photoInput());
+    const updated = await sut.attachPhoto(wine.id, photoInput(), false, new Date('2026-12-01T00:00:00Z'));
 
     expect(updated.labelPhotoId).not.toBe(wine.labelPhotoId);
+    expect(updated.updatedAt).toBe(FIXED_NOW.toISOString());
     expect(await db.photos.count()).toBe(1);
   });
 
-  it('remove should also delete the photo', async () => {
+  it('attachPhoto asked to keep the previous photo should move it to the info slot', async () => {
     const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, photoInput());
+
+    const updated = await sut.attachPhoto(wine.id, photoInput(), true);
+
+    expect(updated.infoAttachmentId).toBe(wine.labelPhotoId);
+    expect(await db.photos.count()).toBe(2);
+  });
+
+  it('attachPhoto should not overwrite an existing info file', async () => {
+    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, photoInput());
+    const withInfo = await sut.attachInfo(wine.id, { ...photoInput(), mediaType: 'application/pdf', width: 0, height: 0 });
+
+    const updated = await sut.attachPhoto(wine.id, photoInput(), true);
+
+    expect(updated.infoAttachmentId).toBe(withInfo.infoAttachmentId);
+    expect(await db.photos.count()).toBe(2);
+  });
+
+  it('attachInfo should replace the previous info file and removeInfo should delete it', async () => {
+    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, null, FIXED_NOW);
+    const first = await sut.attachInfo(wine.id, { ...photoInput(), mediaType: 'application/pdf', width: 0, height: 0 });
+    const second = await sut.attachInfo(wine.id, photoInput());
+
+    expect(second.infoAttachmentId).not.toBe(first.infoAttachmentId);
+    expect(second.updatedAt).toBe(FIXED_NOW.toISOString());
+    expect(await db.photos.count()).toBe(1);
+
+    const cleared = await sut.removeInfo(wine.id);
+    expect(cleared.infoAttachmentId).toBeNull();
+    expect(await db.photos.count()).toBe(0);
+  });
+
+  it('remove should also delete the photo and the info file', async () => {
+    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, photoInput());
+    await sut.attachInfo(wine.id, photoInput());
 
     await sut.remove(wine.id);
 
