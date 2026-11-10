@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BUILD_INFO } from '../../../build-info';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
+import { ProfileDatastore } from '../../datastore/profile.datastore';
 import { ReferenceDatastore } from '../../datastore/reference.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { TastingDatastore } from '../../datastore/tasting.datastore';
@@ -40,6 +41,7 @@ export class ReglagesPage {
   private readonly wines = inject(WineDatastore);
   private readonly references = inject(ReferenceDatastore);
   private readonly tastings = inject(TastingDatastore);
+  private readonly profile = inject(ProfileDatastore);
   protected readonly settings = inject(SettingsDatastore);
   protected readonly storage = inject(StoragePersistenceService);
   protected readonly update = inject(AppUpdateService);
@@ -156,7 +158,7 @@ export class ReglagesPage {
     this.busy.set(true);
     try {
       const count = await this.backup.restore(pending.backup, mode);
-      await Promise.all([this.wines.load(), this.tastings.load(), this.references.load(), this.settings.load()]);
+      await Promise.all([this.wines.load(), this.tastings.load(), this.profile.load(), this.references.load(), this.settings.load()]);
       this.pendingImport.set(null);
       this.backupFeedback.set({ kind: 'success', text: this.translate.instant('reglages.backup.imported', { count }) });
     } catch (error) {

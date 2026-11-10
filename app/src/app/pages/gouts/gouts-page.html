@@ -1,0 +1,114 @@
+<app-page-header [title]="'gouts.title' | translate" [subtitle]="subtitleKey() | translate: { count: store.tastingCount() }" />
+
+@if (store.tastingCount() === 0) {
+  <app-empty-state [title]="'gouts.empty.title' | translate" [text]="'gouts.empty.text' | translate" />
+  <a class="btn btn--quiet to-cave" routerLink="/cave">{{ 'gouts.empty.action' | translate }}</a>
+} @else {
+  @if (!settings.hasApiKey()) {
+    <p class="notice">
+      {{ 'gouts.noKey' | translate }}
+      <a routerLink="/reglages">{{ 'ajouter.noKeyLink' | translate }}</a>
+    </p>
+  }
+  @switch (store.status()) {
+    @case ('updating') {
+      <div class="status" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>{{ 'gouts.updating' | translate }}</span>
+      </div>
+    }
+    @case ('error') {
+      @if (store.error(); as error) {
+        <div class="status status--error" role="alert">
+          <span>{{ 'ai.errors.' + error.kind | translate: { detail: error.detail ?? '' } }}</span>
+          <button type="button" class="status__retry" (click)="retry()">{{ 'gouts.retry' | translate }}</button>
+        </div>
+      }
+    }
+  }
+
+  @if (store.profile(); as profile) {
+    <section class="summary" aria-labelledby="summary-title">
+      <p id="summary-title" class="summary__label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6" /></svg>
+        {{ 'gouts.summary' | translate }}
+      </p>
+      <p class="summary__text" data-testid="profile-summary">{{ profile.summary }}</p>
+      <p class="summary__meta">{{ 'gouts.updatedAt' | translate: { date: (profile.generatedAt | date: 'd MMM y') } }}</p>
+    </section>
+
+    <section class="block" aria-labelledby="axes-title">
+      <div class="block__head">
+        <h2 id="axes-title" class="label block__title">{{ 'gouts.axesTitle' | translate }}</h2>
+        <span class="label">{{ 'gouts.outOf' | translate }}</span>
+      </div>
+      @for (axis of axes; track axis) {
+        @if (editingAxis() === axis) {
+          <div class="axis-edit">
+            <label class="axis-edit__label" for="axis-range">{{ 'gouts.axes.' + axis | translate }} · {{ axisDraft() }}/10</label>
+            <input id="axis-range" type="range" min="0" max="10" step="1" [value]="axisDraft()" (input)="onAxisInput($event)" />
+            <div class="axis-edit__actions">
+              <button type="button" class="btn btn--primary" (click)="saveAxis()">{{ 'gouts.saveAxis' | translate }}</button>
+              <button type="button" class="btn btn--quiet" (click)="editingAxis.set(null)">{{ 'gouts.cancel' | translate }}</button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="axis" (click)="editAxis(axis)" [attr.aria-label]="('gouts.axes.' + axis | translate) + ' ' + profile.axes[axis] + '/10, ' + ('gouts.tapToCorrect' | translate)">
+            <span class="axis__name">{{ 'gouts.axes.' + axis | translate }}</span>
+            <span class="axis__bar" aria-hidden="true"><span [style.width.%]="profile.axes[axis] * 10"></span></span>
+            <span class="axis__value" [class.axis__value--corrected]="correctedAxes().has(axis)">{{ profile.axes[axis] }}</span>
+          </button>
+        }
+      }
+      <p class="hint">{{ 'gouts.axesHint' | translate }}</p>
+    </section>
+
+    <section class="block" aria-labelledby="grapes-title">
+      <h2 id="grapes-title" class="label block__title">{{ 'gouts.grapes' | translate }}</h2>
+      <div class="chips">
+        @for (grape of profile.favoriteGrapes; track grape) {
+          <span class="chip">
+            {{ grape }}
+            <button type="button" class="chip__remove" (click)="removeGrape(grape)" [attr.aria-label]="'gouts.removeGrape' | translate: { value: grape }">×</button>
+          </span>
+        } @empty {
+          <span class="hint">{{ 'gouts.none' | translate }}</span>
+        }
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="avoid-title">
+      <h2 id="avoid-title" class="label block__title">{{ 'gouts.avoid' | translate }}</h2>
+      <div class="chips">
+        @for (pattern of profile.avoidPatterns; track pattern) {
+          <span class="chip chip--avoid">
+            <span class="chip__struck">{{ pattern }}</span>
+            <button type="button" class="chip__remove" (click)="removeAvoid(pattern)" [attr.aria-label]="'gouts.removeAvoid' | translate: { value: pattern }">×</button>
+          </span>
+        } @empty {
+          <span class="hint">{{ 'gouts.none' | translate }}</span>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="block" aria-labelledby="note-title">
+    <label id="note-title" class="label block__title" for="note-input">{{ 'gouts.noteTitle' | translate }}</label>
+    <div class="note">
+      <input id="note-input" type="text" autocomplete="off" [value]="noteDraft()" (input)="onNoteInput($event)" (keydown.enter)="addNote()" [placeholder]="'gouts.notePlaceholder' | translate" />
+      <button type="button" class="btn" [disabled]="!noteDraft().trim()" (click)="addNote()">{{ 'gouts.addNote' | translate }}</button>
+    </div>
+  </section>
+
+  @if (corrections().length) {
+    <section class="block" aria-labelledby="corrections-title">
+      <h2 id="corrections-title" class="label block__title">{{ 'gouts.corrections' | translate }}</h2>
+      @for (item of corrections(); track item.override.id) {
+        <div class="correction">
+          <span>{{ item.key | translate: { axis: (item.params['axis'] ?? '' | translate), value: item.params['value'] } }}</span>
+          <button type="button" class="correction__undo" (click)="undoCorrection(item.override)">{{ 'gouts.undo' | translate }}</button>
+        </div>
+      }
+    </section>
+  }
+}

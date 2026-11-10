@@ -97,9 +97,52 @@
   "gouts": {
     "title": "Mes goûts",
     "subtitle": "Déduits de vos dégustations notées.",
+    "basedOn": {
+      "one": "Déduits de {{count}} dégustation notée. Plus vous notez, plus c'est juste.",
+      "other": "Déduits de {{count}} dégustations notées. Plus vous notez, plus c'est juste."
+    },
+    "provisional": {
+      "one": "Profil provisoire, basé sur {{count}} dégustation. Il se précise à partir de 5.",
+      "other": "Profil provisoire, basé sur {{count}} dégustations. Il se précise à partir de 5."
+    },
     "empty": {
-      "title": "Bientôt ici.",
-      "text": "Votre profil de goûts arrive à l'itération 4."
+      "title": "Pas encore de profil.",
+      "text": "Ouvrez une bouteille et notez-la : votre profil se dessine dès la première note.",
+      "action": "Aller à la cave"
+    },
+    "noKey": "Pour calculer votre profil avec Claude, ajoutez votre clé API.",
+    "updating": "Claude met à jour votre profil…",
+    "retry": "Réessayer",
+    "summary": "En une phrase",
+    "updatedAt": "Mis à jour le {{date}}",
+    "axesTitle": "Ce que vous recherchez",
+    "outOf": "sur 10",
+    "axes": {
+      "fruit": "Fruit",
+      "freshness": "Fraîcheur",
+      "spice": "Épices",
+      "power": "Puissance",
+      "oak": "Boisé"
+    },
+    "tapToCorrect": "toucher pour corriger",
+    "axesHint": "Une valeur vous semble fausse ? Touchez-la pour la corriger. Les valeurs soulignées sont les vôtres.",
+    "saveAxis": "Corriger",
+    "cancel": "Annuler",
+    "grapes": "Cépages qui marchent",
+    "avoid": "À éviter pour vous",
+    "none": "Rien pour l'instant.",
+    "removeGrape": "Retirer {{value}} des cépages favoris",
+    "removeAvoid": "Retirer {{value}} des profils à éviter",
+    "noteTitle": "Ajouter une précision",
+    "notePlaceholder": "Ex. J'aime les rouges légers en été",
+    "addNote": "Ajouter",
+    "corrections": "Vos corrections",
+    "undo": "Retirer",
+    "correction": {
+      "axis": "{{axis}} : {{value}}/10",
+      "removeGrape": "Pas un favori : {{value}}",
+      "removeAvoid": "Pas à éviter : {{value}}",
+      "note": "« {{value}} »"
     }
   },
   "reglages": {
@@ -297,6 +340,6 @@
     "delete": "Supprimer cette dégustation",
     "deleteConfirm": "Supprimer cette dégustation ?",
     "cancelOpening": "Annuler l'ouverture, la bouteille retourne en cave",
-    "hint": "Chaque note affine votre profil de goûts, calculé à l'itération 4."
+    "hint": "Chaque note affine votre profil de goûts."
   }
 }

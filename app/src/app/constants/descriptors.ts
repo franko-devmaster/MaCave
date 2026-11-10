@@ -8,3 +8,20 @@ const KNOWN: ReadonlySet<string> = new Set<string>([...LIKED_DESCRIPTORS, ...DIS
 export function descriptorKey(value: string): string | null {
   return KNOWN.has(value) ? `descriptors.${value}` : null;
 }
+
+/** Libellés français envoyés à Claude ; l'interface passe par les traductions. */
+export const DESCRIPTOR_PROMPT_LABELS: Readonly<Record<string, string>> = {
+  fruite: 'fruité',
+  epice: 'épicé',
+  boise: 'boisé',
+  'tanins-souples': 'tanins souples',
+  mineral: 'minéral',
+  puissant: 'puissant',
+  leger: 'léger',
+  long: 'long',
+  'trop-acide': 'trop acide',
+  'trop-boise': 'trop boisé',
+  'finale-courte': 'finale courte',
+  'alcool-marque': 'alcool marqué',
+  bouchonne: 'bouchonné',
+};
