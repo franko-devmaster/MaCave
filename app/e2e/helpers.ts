@@ -34,3 +34,32 @@ export async function addWine(page: Page, wine: NewWine): Promise<void> {
   await page.getByRole('button', { name: 'Ajouter à ma cave' }).tap();
   await expect(page.getByRole('status')).toContainText('ajouté à la cave');
 }
+
+/** Charge un jeu de données par l'import des Réglages (mode remplacement). */
+export async function importBackup(page: Page, data: Record<string, unknown[]>): Promise<void> {
+  await page.goto('reglages');
+  const backup = { app: 'ma-cave', schemaVersion: 1, exportedAt: new Date().toISOString(), data };
+  await page.getByLabel('Importer une sauvegarde').setInputFiles({
+    name: 'jeu.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await page.getByRole('button', { name: 'Remplacer toutes mes données' }).tap();
+  await expect(page.getByRole('status')).toContainText('Import terminé');
+}
+
+export function sampleWine(id: string, name: string, grapes: string[]): Record<string, unknown> {
+  const now = new Date().toISOString();
+  return {
+    id, name, producer: 'Germanier', vintage: 2019, color: 'rouge', country: 'Suisse', region: 'Valais',
+    appellation: '', grapes, alcohol: null, sweetness: null, drinkFrom: null, drinkUntil: null,
+    labelPhotoId: null, location: '', notes: '', createdAt: now, updatedAt: now,
+  };
+}
+
+export function sampleTasting(id: string, wineId: string, score: number): Record<string, unknown> {
+  return {
+    id, wineId, score, likedDescriptors: ['fruite'], dislikedDescriptors: [], comment: 'Très bon.',
+    context: 'raclette', rebuy: score >= 4, date: new Date().toISOString(),
+  };
+}

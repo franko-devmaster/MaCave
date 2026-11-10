@@ -236,8 +236,9 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 | 0 — Socle | Livrée, recette validée |
 | 1 — Cave | Livrée, recette validée |
 | 2 — Connecteur Claude et lecture d'étiquette | Livrée, recette validée |
-| 3 — Dégustations | Livrée, en recette |
-| 4 à 7 | À faire |
+| 3 — Dégustations | Livrée, recette validée |
+| 4 — Profil de goûts | Livrée, en recette |
+| 5 à 7 | À faire |
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -264,5 +265,13 @@ Choix faits pendant l'itération 3, à confirmer en recette :
 - Les descripteurs prédéfinis sont stockés par identifiant, les descripteurs ajoutés avec « + Autre » en texte libre.
 - Un vin épuisé dont la dernière note est « à racheter » le signale dans la liste des vins épuisés.
 - Le champ « Avec quoi, avec qui » est séparé du commentaire : il servira aux accords mets et vins.
+
+Choix faits pendant l'itération 4, à confirmer en recette :
+
+- Le profil est calculé dès la première dégustation, affiché « provisoire » en dessous de cinq.
+- Il est recalculé à l'ouverture de l'onglet Goûts, seulement si une note ou une correction a changé depuis le dernier calcul, et après chaque correction. Aucun appel au lancement de l'application.
+- Quatre corrections possibles : ajuster un axe (0 à 10), retirer un cépage favori, retirer un profil à éviter, ajouter une précision libre. Elles s'appliquent immédiatement à l'écran, restent prioritaires sur les déductions de Claude et se retirent depuis « Vos corrections ».
+- Les axes corrigés à la main sont soulignés.
+- Effort de réflexion « medium » pour la synthèse, plus exigeante que la lecture d'étiquette.
 
 Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.

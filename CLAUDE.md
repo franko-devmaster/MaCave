@@ -44,7 +44,7 @@ app/                         Projet Angular (racine du workspace Angular)
     components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list, ai-hint
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture)
-    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, reference, settings)
+    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
     testing/                 Utilitaires de test (base Dexie isolée, fixtures)
@@ -94,7 +94,7 @@ docs/                        Description fonctionnelle et décisions
 
 - Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`. Chaque fichier expose une fonction `xxxRequest()` qui renvoie un `StructuredRequest` (système, contenu, schéma, effort, parseur)
 - Appels via `client.beta.messages.create` avec `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) : un refus est rejoué côté serveur sur un modèle de repli
-- Effort `low` pour l'extraction (étiquettes, descriptions) ; à relever seulement si la qualité le justifie, mesures à l'appui
+- Effort `low` pour l'extraction (étiquettes, descriptions), `medium` pour la synthèse (profil de goûts) ; à relever seulement si la qualité le justifie, mesures à l'appui
 - Schémas stricts : toutes les propriétés dans `required`, `additionalProperties: false`, nullabilité par `anyOf` avec `{ "type": "null" }`, pas de `minimum` / `maximum` (bornes contrôlées par le parseur, qui met à null une valeur hors bornes)
 - Test de clé par `models.retrieve` : aucun texte généré, rien de facturé
 - Erreurs classées par les classes typées du SDK (`classifyError`), jamais par le texte du message
@@ -102,7 +102,7 @@ docs/                        Description fonctionnelle et décisions
 - Contexte envoyé : inventaire résumé + profil, placés en tête comme préfixe stable ; la requête variable en fin
 - Images : JPEG base64 redimensionné, jamais l'original
 - Gérer `stop_reason`, les erreurs réseau, les erreurs 401 (clé invalide → renvoi vers Réglages) et 429
-- Le profil de goûts n'est recalculé qu'après une nouvelle dégustation ou une correction, jamais à l'ouverture
+- Le profil de goûts n'est recalculé qu'après une nouvelle dégustation ou une correction, jamais à l'ouverture : il garde la signature (`profileSignature`) des dégustations et corrections utilisées, et `refreshIfStale()` n'appelle Claude que si elle a changé. Les corrections de l'utilisateur s'appliquent localement tout de suite (`applyOverrides`) et sont envoyées à Claude comme prioritaires
 - Tester la logique autour des appels (construction des prompts, parsing, erreurs) avec des réponses fixtures ; aucun appel réel dans les tests. Vitest : `testing/fake-claude.ts` (client factice, vraies classes d'erreurs). Playwright : `e2e/claude-mock.ts` intercepte `api.anthropic.com`, avec `serviceWorkers: 'block'` car le service worker relaie les requêtes hors de portée de l'interception
 
 ## Sécurité
