@@ -10,6 +10,7 @@ import { ProfileDatastore } from './datastore/profile.datastore';
 import { ReferenceDatastore } from './datastore/reference.datastore';
 import { SettingsDatastore } from './datastore/settings.datastore';
 import { TastingDatastore } from './datastore/tasting.datastore';
+import { VerdictDatastore } from './datastore/verdict.datastore';
 import { WineDatastore } from './datastore/wine.datastore';
 import { BundledTranslateLoader } from './utils/bundled-translate-loader';
 
@@ -35,6 +36,7 @@ export const appConfig: ApplicationConfig = {
         inject(TastingDatastore).load(),
         inject(ProfileDatastore).load(),
         inject(PairingDatastore).load(),
+        inject(VerdictDatastore).load(),
         inject(ReferenceDatastore).load(),
         inject(SettingsDatastore).load(),
       ]),

@@ -238,8 +238,9 @@ Ordre justifié : la cave sans IA est utile dès l'itération 1 ; le connecteur 
 | 2 — Connecteur Claude et lecture d'étiquette | Livrée, recette validée |
 | 3 — Dégustations | Livrée, recette validée |
 | 4 — Profil de goûts | Livrée, recette validée |
-| 5 — Accords | Livrée, en recette |
-| 6 et 7 | À faire |
+| 5 — Accords | Livrée, recette validée |
+| 6 — Magasin | Livrée, en recette |
+| 7 — Finitions | À faire |
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 
@@ -283,4 +284,12 @@ Choix faits pendant l'itération 5, à confirmer en recette :
 - La photo d'un plat n'est pas conservée ; les dix derniers accords le sont et se réaffichent sans nouvel appel.
 - Le profil utilisé est le dernier calculé ; il n'est pas recalculé avant un accord, pour ne pas ralentir la réponse.
 
-Point ouvert relevé pendant l'itération 0 : la maquette ne prévoit aucun accès à l'écran « Vérifier en magasin ». À trancher avant l'itération 6 : bouton dans l'onglet Ajouter (« En magasin » / « Acheté ») ou cinquième onglet.
+Choix faits pendant l'itération 6, à confirmer en recette :
+
+- Un seul appel à Claude identifie le vin et rend le verdict ; l'identification suit exactement les règles de la lecture d'étiquette.
+- Claude reçoit le profil, la composition de la cave par couleur, tous les vins dégustés avec leurs notes (même épuisés), la calibration et la liste des vins pour repérer un doublon.
+- Calibration (F5.5) : un verdict est relié au vin quand on l'achète via « J'achète, l'ajouter » ; dès que ce vin est noté, l'écart entre l'affinité prédite et la note réelle est envoyé avec les verdicts suivants.
+- « J'achète, l'ajouter » ouvre l'écran Ajouter prérempli (lecture, photo, prix affiché, une bouteille) sans nouvel appel.
+- Tous les verdicts sont conservés avec leur issue (acheté, passé ou sans suite) ; ils ne sont pas affichés en liste, faute de besoin exprimé.
+
+Décision prise avant l'itération 6 : « Vérifier en magasin » s'ouvre depuis l'onglet Ajouter, par une bascule « Je l'ai acheté » / « Je suis en magasin ». La barre reste à quatre onglets.

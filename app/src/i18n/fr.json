@@ -354,5 +354,36 @@
     "deleteConfirm": "Supprimer cette dégustation ?",
     "cancelOpening": "Annuler l'ouverture, la bouteille retourne en cave",
     "hint": "Chaque note affine votre profil de goûts."
+  },
+  "addMode": {
+    "label": "Type d'ajout",
+    "bought": "Je l'ai acheté",
+    "store": "Je suis en magasin"
+  },
+  "magasin": {
+    "title": "En magasin",
+    "subtitle": "Photographiez l'étiquette : Claude vous dit si ce vin est pour vous.",
+    "noKey": "Pour obtenir un verdict de Claude, ajoutez votre clé API.",
+    "captureLabel": "Vin à juger",
+    "describePlaceholder": "Ex. Syrah Cayas 2020, Germanier, 39 francs",
+    "ask": "Demander le verdict",
+    "reading": "Claude examine ce vin…",
+    "price": "étiquette {{price}}",
+    "verdict": "Verdict",
+    "levels": {
+      "plaira": "Devrait vous plaire",
+      "mitige": "Mitigé",
+      "deconseille": "Probablement pas pour vous"
+    },
+    "affinity": "Affinité {{value}} sur 10",
+    "duplicate": "Déjà dans votre cave : {{count}} bouteille(s). Voir la fiche",
+    "why": "Pourquoi",
+    "signs": {
+      "+": "Point positif",
+      "-": "Réserve",
+      "i": "Information"
+    },
+    "buy": "J'achète, l'ajouter",
+    "pass": "Je passe"
   }
 }

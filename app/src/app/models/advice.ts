@@ -1,17 +1,25 @@
-export type VerdictLevel = 'plaira' | 'mitige' | 'deconseille';
+import type { LabelReading } from '../ai/label-reading';
+
+export const VERDICT_LEVELS = ['plaira', 'mitige', 'deconseille'] as const;
+export type VerdictLevel = (typeof VERDICT_LEVELS)[number];
+
+export const REASON_SIGNS = ['+', '-', 'i'] as const;
+export type ReasonSign = (typeof REASON_SIGNS)[number];
 
 export interface VerdictReason {
-  sign: '+' | '-' | 'i';
+  sign: ReasonSign;
   text: string;
 }
 
 export interface Verdict {
   id: string;
-  wineIdentified: Record<string, unknown>;
+  wineIdentified: LabelReading;
   affinity: number;
   level: VerdictLevel;
   reasons: VerdictReason[];
   outcome: 'achete' | 'passe' | null;
+  /** Vin de la cave créé ou complété après achat : sert à calibrer les verdicts suivants. */
+  boughtWineId: string | null;
   date: string;
 }
 
