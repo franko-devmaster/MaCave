@@ -1,11 +1,13 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AddModeSwitchComponent } from '../../components/add-mode-switch/add-mode-switch';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineFormComponent } from '../../components/wine-form/wine-form';
 import { AddWineDatastore } from '../../datastore/add-wine.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
+import { VerdictDatastore } from '../../datastore/verdict.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { Wine } from '../../models/wine';
 import { readingToFormValue, uncertainFormFields, WineFormResult } from '../../utils/wine-form';
@@ -28,14 +30,15 @@ interface PendingDuplicate {
  */
 @Component({
   selector: 'app-ajouter-page',
-  imports: [PageHeaderComponent, WineFormComponent, RouterLink, TranslatePipe],
+  imports: [PageHeaderComponent, AddModeSwitchComponent, WineFormComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './ajouter-page.scss',
   templateUrl: './ajouter-page.html',
 })
-export class AjouterPage implements OnDestroy {
+export class AjouterPage implements AfterViewInit, OnDestroy {
   private readonly wines = inject(WineDatastore);
   private readonly document = inject(DOCUMENT);
+  private readonly verdicts = inject(VerdictDatastore);
   private readonly form = viewChild.required(WineFormComponent);
 
   protected readonly flow = inject(AddWineDatastore);
@@ -44,6 +47,14 @@ export class AjouterPage implements OnDestroy {
   protected readonly added = signal<Added | null>(null);
   protected readonly duplicate = signal<PendingDuplicate | null>(null);
   protected readonly description = signal('');
+
+  /** Une lecture déjà prête (venue du magasin) remplit le formulaire dès l'ouverture. */
+  ngAfterViewInit(): void {
+    const reading = this.flow.reading();
+    if (reading) {
+      this.form().fill(readingToFormValue(reading), uncertainFormFields(reading));
+    }
+  }
 
   ngOnDestroy(): void {
     this.flow.reset();
@@ -90,6 +101,7 @@ export class AjouterPage implements OnDestroy {
     await this.run(async () => {
       const { wine, result } = pending;
       await this.wines.buy(wine.id, result.pricePaid, result.quantity);
+      await this.linkVerdict(wine.id);
       const photo = this.flow.photoToSave();
       if (photo && !wine.labelPhotoId) {
         await this.wines.setPhoto(wine.id, photo);
@@ -122,8 +134,16 @@ export class AjouterPage implements OnDestroy {
   private async create(result: WineFormResult): Promise<void> {
     await this.run(async () => {
       const wine = await this.wines.create(result.input, { quantity: result.quantity, pricePaid: result.pricePaid }, this.flow.photoToSave());
+      await this.linkVerdict(wine.id);
       this.done({ id: wine.id, label: wineLabel(wine), key: 'ajouter.added', count: result.quantity });
     });
+  }
+
+  private async linkVerdict(wineId: string): Promise<void> {
+    const verdictId = this.flow.verdictId();
+    if (verdictId) {
+      await this.verdicts.markBought(verdictId, wineId);
+    }
   }
 
   private async run(action: () => Promise<void>): Promise<void> {

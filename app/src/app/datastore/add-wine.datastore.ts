@@ -20,11 +20,14 @@ export class AddWineDatastore {
   private readonly readingSignal = signal<LabelReading | null>(null);
   private readonly photoSignal = signal<PreparedPhoto | null>(null);
   private readonly previewSignal = signal<string | null>(null);
+  private readonly verdictIdSignal = signal<string | null>(null);
 
   readonly status = this.statusSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly reading = this.readingSignal.asReadonly();
   readonly preview = this.previewSignal.asReadonly();
+  /** Verdict magasin à l'origine de cet ajout, à relier au vin une fois enregistré. */
+  readonly verdictId = this.verdictIdSignal.asReadonly();
 
   /** Photo à enregistrer avec le vin, sans la copie base64 destinée à l'API. */
   photoToSave(): PhotoInput | null {
@@ -56,6 +59,18 @@ export class AddWineDatastore {
     await this.read({ kind: 'text', description });
   }
 
+  /** Reprend une lecture déjà faite (verdict en magasin) sans nouvel appel à Claude. */
+  prefill(reading: LabelReading, photo: PreparedPhoto | null, verdictId: string): void {
+    this.reset();
+    this.readingSignal.set({ ...reading, quantity: reading.quantity ?? 1 });
+    if (photo) {
+      this.photoSignal.set(photo);
+      this.previewSignal.set(URL.createObjectURL(new Blob([photo.bytes], { type: photo.mediaType })));
+    }
+    this.verdictIdSignal.set(verdictId);
+    this.statusSignal.set('done');
+  }
+
   reset(): void {
     const preview = this.previewSignal();
     if (preview) {
@@ -66,6 +81,7 @@ export class AddWineDatastore {
     this.readingSignal.set(null);
     this.photoSignal.set(null);
     this.previewSignal.set(null);
+    this.verdictIdSignal.set(null);
   }
 
   private async read(source: LabelSource): Promise<void> {

@@ -41,10 +41,10 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list, ai-hint
-    datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, score-picker, chip-group, tasting-list
+    datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture)
-    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, reference, settings)
+    db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
     models/                  Types et enums du domaine
     ai/                      Prompts, schémas JSON de sortie, parseurs
     testing/                 Utilitaires de test (base Dexie isolée, fixtures)
@@ -95,13 +95,15 @@ docs/                        Description fonctionnelle et décisions
 
 - Un seul `ClaudeService` ; les prompts et schémas de sortie vivent dans `src/app/ai/`, un fichier par cas d'usage : `label-reading`, `store-verdict`, `pairing`, `taste-profile`. Chaque fichier expose une fonction `xxxRequest()` qui renvoie un `StructuredRequest` (système, contenu, schéma, effort, parseur)
 - Appels via `client.beta.messages.create` avec `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) : un refus est rejoué côté serveur sur un modèle de repli
-- Effort `low` pour l'extraction (étiquettes, descriptions), `medium` pour la synthèse et le raisonnement (profil de goûts, accords) ; à relever seulement si la qualité le justifie, mesures à l'appui
+- Effort `low` pour l'extraction (étiquettes, descriptions), `medium` pour la synthèse et le raisonnement (profil de goûts, accords, verdict magasin) ; à relever seulement si la qualité le justifie, mesures à l'appui
 - Schémas stricts : toutes les propriétés dans `required`, `additionalProperties: false`, nullabilité par `anyOf` avec `{ "type": "null" }`, pas de `minimum` / `maximum` (bornes contrôlées par le parseur, qui met à null une valeur hors bornes)
 - Test de clé par `models.retrieve` : aucun texte généré, rien de facturé
 - Erreurs classées par les classes typées du SDK (`classifyError`), jamais par le texte du message
 - Toujours `output_config.format` avec un schéma JSON strict ; jamais de parsing de texte libre
 - Contexte envoyé : inventaire résumé + profil, placés en tête comme préfixe stable ; la requête variable en fin
 - Images : JPEG base64 redimensionné, jamais l'original
+- Réutiliser plutôt que dupliquer : le verdict magasin imbrique `LABEL_READING_SCHEMA`, `parseLabelReading` et `LABEL_FIELD_RULES` ; `profileText` sert aux accords et au verdict
+- Calibration : chaque verdict suivi d'un achat (`boughtWineId`) puis d'une note est renvoyé à Claude dans les verdicts suivants (`calibrationText`)
 - Le parseur ne garde que des identifiants de vins présents dans le contexte envoyé (en stock pour les accords) : un vin inventé ou épuisé est écarté sans erreur
 - Gérer `stop_reason`, les erreurs réseau, les erreurs 401 (clé invalide → renvoi vers Réglages) et 429
 - Le profil de goûts n'est recalculé qu'après une nouvelle dégustation ou une correction, jamais à l'ouverture : il garde la signature (`profileSignature`) des dégustations et corrections utilisées, et `refreshIfStale()` n'appelle Claude que si elle a changé. Les corrections de l'utilisateur s'appliquent localement tout de suite (`applyOverrides`) et sont envoyées à Claude comme prioritaires

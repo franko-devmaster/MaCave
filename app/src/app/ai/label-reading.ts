@@ -63,16 +63,15 @@ export const LABEL_READING_SCHEMA: Record<string, unknown> = {
   },
 };
 
-export const LABEL_READING_SYSTEM = `Tu aides à tenir l'inventaire d'une cave à vin personnelle, en Suisse romande. On te donne la photo d'une étiquette ou une courte description, et la liste des vins déjà en cave. Tu réponds selon le schéma imposé.
-
-Valeurs attendues :
+/** Règles d'identification d'un vin, partagées par la lecture d'étiquette et le verdict en magasin. */
+export const LABEL_FIELD_RULES = `Valeurs attendues :
 - Textes en français : pays et régions sous leur nom français (Suisse, Valais, Piémont, Bourgogne, Toscane).
 - color : rouge, blanc, rose ou bulles. Les vins effervescents sont « bulles », quelle que soit leur couleur.
 - name : le nom du vin tel qu'on le demanderait à un caviste (cuvée, cépage ou appellation), sans le domaine ni le millésime.
 - producer : le domaine, le château ou le producteur.
 - grapes : les cépages, avec leur nom usuel.
 - drinkFrom et drinkUntil : la fenêtre de consommation que tu estimes d'après le type de vin, l'appellation et le millésime.
-- quantity et pricePaid : seulement s'ils figurent dans une description ; sinon null. pricePaid est en francs suisses, par bouteille.
+- quantity et pricePaid : seulement s'ils figurent dans la description ou sur une étiquette de prix visible ; sinon null. pricePaid est en francs suisses, par bouteille.
 
 Règles :
 - N'invente rien. Une information absente vaut null, ou une liste vide pour grapes.
@@ -80,6 +79,10 @@ Règles :
 - Mets toujours drinkFrom et drinkUntil dans uncertainFields, ainsi que tout champ dont la lecture est douteuse.
 - possibleDuplicateId : l'identifiant d'un vin de la cave qui est le même vin, du même producteur et du même millésime. Sinon null.
 - Si la photo n'est pas une étiquette de vin lisible, mets notReadable à true, name à une chaîne vide et le reste à null.`;
+
+export const LABEL_READING_SYSTEM = `Tu aides à tenir l'inventaire d'une cave à vin personnelle, en Suisse romande. On te donne la photo d'une étiquette ou une courte description, et la liste des vins déjà en cave. Tu réponds selon le schéma imposé.
+
+${LABEL_FIELD_RULES}`;
 
 /** Liste compacte des vins en cave, pour la détection de doublons. */
 export function inventoryText(wines: readonly Wine[]): string {

@@ -9,6 +9,7 @@ import { ProfileDatastore } from '../../datastore/profile.datastore';
 import { ReferenceDatastore } from '../../datastore/reference.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { TastingDatastore } from '../../datastore/tasting.datastore';
+import { VerdictDatastore } from '../../datastore/verdict.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ClaudeFailure } from '../../ai/claude-errors';
 import { AppUpdateService } from '../../services/app-update.service';
@@ -44,6 +45,7 @@ export class ReglagesPage {
   private readonly tastings = inject(TastingDatastore);
   private readonly profile = inject(ProfileDatastore);
   private readonly pairings = inject(PairingDatastore);
+  private readonly verdicts = inject(VerdictDatastore);
   protected readonly settings = inject(SettingsDatastore);
   protected readonly storage = inject(StoragePersistenceService);
   protected readonly update = inject(AppUpdateService);
@@ -160,7 +162,7 @@ export class ReglagesPage {
     this.busy.set(true);
     try {
       const count = await this.backup.restore(pending.backup, mode);
-      await Promise.all([this.wines.load(), this.tastings.load(), this.profile.load(), this.pairings.load(), this.references.load(), this.settings.load()]);
+      await Promise.all([this.wines.load(), this.tastings.load(), this.profile.load(), this.pairings.load(), this.verdicts.load(), this.references.load(), this.settings.load()]);
       this.pendingImport.set(null);
       this.backupFeedback.set({ kind: 'success', text: this.translate.instant('reglages.backup.imported', { count }) });
     } catch (error) {

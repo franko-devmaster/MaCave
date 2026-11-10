@@ -32,6 +32,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/ajouter/ajouter-page').then((m) => m.AjouterPage),
   },
   {
+    path: 'magasin',
+    title: 'En magasin · Ma Cave',
+    data: { hideTabBar: true },
+    loadComponent: () => import('./pages/magasin/magasin-page').then((m) => m.MagasinPage),
+  },
+  {
     path: 'accords',
     title: 'Accords · Ma Cave',
     loadComponent: () => import('./pages/accords/accords-page').then((m) => m.AccordsPage),

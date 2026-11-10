@@ -4,6 +4,7 @@
   </a>
 </div>
 <app-page-header [title]="'ajouter.title' | translate" [subtitle]="(settings.hasApiKey() ? 'ajouter.subtitle' : 'ajouter.subtitleManual') | translate" />
+<app-add-mode-switch active="achat" />
 
 @if (added(); as wine) {
   <div class="banner" role="status">
