@@ -5,6 +5,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { routes } from './app.routes';
+import { PairingDatastore } from './datastore/pairing.datastore';
 import { ProfileDatastore } from './datastore/profile.datastore';
 import { ReferenceDatastore } from './datastore/reference.datastore';
 import { SettingsDatastore } from './datastore/settings.datastore';
@@ -33,6 +34,7 @@ export const appConfig: ApplicationConfig = {
         inject(WineDatastore).load(),
         inject(TastingDatastore).load(),
         inject(ProfileDatastore).load(),
+        inject(PairingDatastore).load(),
         inject(ReferenceDatastore).load(),
         inject(SettingsDatastore).load(),
       ]),

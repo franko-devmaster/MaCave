@@ -25,6 +25,8 @@ const TOAST_DURATION_MS = 6000;
 })
 export class FichePage {
   readonly id = input.required<string>();
+  /** Plat pour lequel ce vin a été proposé par Accords ; transmis à Noter. */
+  readonly plat = input<string>();
 
   private readonly store = inject(WineDatastore);
   private readonly photos = inject(PhotoService);
@@ -55,7 +57,7 @@ export class FichePage {
     await this.run(async () => {
       const movement = await this.store.open(this.id());
       if (movement) {
-        await this.router.navigate(['/cave', this.id(), 'noter'], { queryParams: { ouverture: movement.id } });
+        await this.router.navigate(['/cave', this.id(), 'noter'], { queryParams: { ouverture: movement.id, plat: this.plat() } });
       }
     });
   }

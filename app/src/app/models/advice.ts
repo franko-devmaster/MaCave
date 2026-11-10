@@ -20,12 +20,26 @@ export interface PairingChoice {
   reason: string;
 }
 
-export interface PairingRequest {
-  id: string;
+export interface PairingPick extends PairingChoice {
+  /** Conseil de service : température, carafage. */
+  service: string;
+}
+
+/** Réponse de Claude à une demande d'accord, validée. */
+export interface PairingAnswer {
   dish: string;
-  photoId: string | null;
-  topPickWineId: string | null;
+  topPick: PairingPick | null;
   alternatives: PairingChoice[];
   rejected: PairingChoice[];
+  /** Type de vin à acheter quand rien ne convient en cave. */
+  buyAdvice: string | null;
+}
+
+export interface PairingRequest extends PairingAnswer {
+  id: string;
+  /** Texte saisi par l'utilisateur, vide pour une photo seule. */
+  query: string;
+  /** Les photos de plats ne sont pas conservées. */
+  photoId: null;
   date: string;
 }
