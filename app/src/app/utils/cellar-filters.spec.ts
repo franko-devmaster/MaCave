@@ -1,3 +1,4 @@
+import { WineAdvice } from '../models/wine';
 import { wine } from '../testing/fixtures';
 import { CellarEntry } from './cellar';
 import { hasFilters, matchesFilters, NO_FILTERS, toggleFilter } from './cellar-filters';
@@ -5,6 +6,8 @@ import { hasFilters, matchesFilters, NO_FILTERS, toggleFilter } from './cellar-f
 function entry(overrides: Partial<CellarEntry> = {}, wineOverrides = {}): CellarEntry {
   return { wine: wine('a', wineOverrides), bottles: 2, drinkNow: false, readiness: null, ...overrides };
 }
+
+const GRAND_CRU: WineAdvice = { status: 'pret', text: '', generatedAt: '2026-11-01T00:00:00Z', affinity: null, grandCru: true };
 
 describe('cellar filters', () => {
   it('matchesFilters without filters should keep every wine', () => {
@@ -21,8 +24,8 @@ describe('cellar filters', () => {
   it('matchesFilters should combine groups', () => {
     const filters = { colors: ['rouge'] as const, when: ['ready'] as const, taste: ['grand-cru'] as const };
 
-    expect(matchesFilters(entry({ readiness: 'ready' }, { name: 'Dézaley Grand Cru' }), filters, false)).toBe(true);
-    expect(matchesFilters(entry({ readiness: 'soon' }, { name: 'Dézaley Grand Cru' }), filters, false)).toBe(false);
+    expect(matchesFilters(entry({ readiness: 'ready' }, { advice: GRAND_CRU }), filters, false)).toBe(true);
+    expect(matchesFilters(entry({ readiness: 'soon' }, { advice: GRAND_CRU }), filters, false)).toBe(false);
     expect(matchesFilters(entry({ readiness: 'ready' }, { name: 'Cornalin' }), filters, false)).toBe(false);
   });
 
@@ -30,7 +33,7 @@ describe('cellar filters', () => {
     const filters = { ...NO_FILTERS, taste: ['star', 'grand-cru'] as const };
 
     expect(matchesFilters(entry(), filters, true)).toBe(true);
-    expect(matchesFilters(entry({}, { appellation: 'Calamin Grand Cru' }), filters, false)).toBe(true);
+    expect(matchesFilters(entry({}, { advice: GRAND_CRU }), filters, false)).toBe(true);
     expect(matchesFilters(entry(), filters, false)).toBe(false);
   });
 

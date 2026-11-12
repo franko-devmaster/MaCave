@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MaCaveDb } from '../db/schema';
-import { photoInput, wineInput } from '../testing/fixtures';
+import { photoInput, tastingInput, wineInput } from '../testing/fixtures';
+import { TastingDatastore } from './tasting.datastore';
 import { createTestDb, provideTestDb } from '../testing/test-db';
 import { WineDatastore } from './wine.datastore';
 
@@ -78,6 +79,15 @@ describe('WineDatastore', () => {
     await sut.update(wine.id, wineInput(), { bottles: 0, pricePaid: null });
 
     expect(sut.detail(wine.id)?.bottles).toBe(0);
+  });
+
+  it('starWineIds should follow tastings and the affinity stored with the advice', async () => {
+    const loved = await sut.create(wineInput({ name: 'Aimé' }), { quantity: 1, pricePaid: null });
+    const close = await sut.create(wineInput({ name: 'Proche' }), { quantity: 1, pricePaid: null });
+    await TestBed.inject(TastingDatastore).add(tastingInput(loved.id, { score: 5 }));
+    await sut.setAdvice(close.id, { status: 'pret', text: 'x', generatedAt: '2026-11-01T00:00:00Z', affinity: 9, grandCru: false });
+
+    expect(sut.starWineIds()).toEqual(new Set([loved.id, close.id]));
   });
 
   it('remove should drop the wine and its movements from state', async () => {

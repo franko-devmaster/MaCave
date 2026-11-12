@@ -3,6 +3,7 @@ import { ReferenceRepository } from '../db/reference.repository';
 import { Purchase, WineRepository } from '../db/wine.repository';
 import { PhotoInput, StockMovement, Wine, WineAdvice, WineInput } from '../models/wine';
 import { TastingDatastore } from './tasting.datastore';
+import { starWineIds } from '../utils/badges';
 import { buildEntries, CellarEntry, findDuplicate, lastPricePaid, summarize } from '../utils/cellar';
 
 export interface WineDetail extends CellarEntry {
@@ -29,6 +30,8 @@ export class WineDatastore {
   readonly movements = this.movementsSignal.asReadonly();
   readonly entries = computed(() => buildEntries(this.winesSignal(), this.movementsSignal(), new Date().getFullYear()));
   readonly summary = computed(() => summarize(this.entries()));
+  /** Vins qui vous conviennent le mieux : bien notés, ou jugés très proches de vos goûts par Claude. */
+  readonly starWineIds = computed(() => starWineIds(this.winesSignal(), this.tastings.tastings()));
 
   async load(): Promise<void> {
     const [wines, movements] = await Promise.all([this.repository.listWines(), this.repository.listMovements()]);

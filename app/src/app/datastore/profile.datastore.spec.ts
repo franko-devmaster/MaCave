@@ -68,19 +68,6 @@ describe('ProfileDatastore', () => {
     expect(calls[0].params['output_config']).toMatchObject({ effort: 'medium' });
   });
 
-  it('starWineIds should combine good scores and favorite grapes from the profile', async () => {
-    const wines = TestBed.inject(WineDatastore);
-    const loved = await wines.create(wineInput({ name: 'Aimé', grapes: ['Syrah'] }), { quantity: 1, pricePaid: null });
-    const favorite = await wines.create(wineInput({ name: 'Favori', grapes: ['Merlot'] }), { quantity: 1, pricePaid: null });
-    const other = await wines.create(wineInput({ name: 'Autre', grapes: ['Gamay'] }), { quantity: 1, pricePaid: null });
-    await tastings.add(tastingInput(loved.id, { score: 5 }));
-
-    await sut.refreshIfStale();
-
-    expect(sut.starWineIds()).toEqual(new Set([loved.id, favorite.id]));
-    expect(sut.starWineIds().has(other.id)).toBe(false);
-  });
-
   it('a new tasting should make the profile stale again', async () => {
     await taste(1);
     await sut.refreshIfStale();

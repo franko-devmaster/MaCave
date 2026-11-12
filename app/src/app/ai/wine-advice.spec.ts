@@ -7,7 +7,7 @@ const NOW = new Date('2026-11-10T12:00:00Z');
 describe('wine-advice', () => {
   it('schema should be strict', () => {
     expect(WINE_ADVICE_SCHEMA['additionalProperties']).toBe(false);
-    expect(WINE_ADVICE_SCHEMA['required']).toEqual(['status', 'text', 'infoSummary']);
+    expect(WINE_ADVICE_SCHEMA['required']).toEqual(['status', 'text', 'infoSummary', 'affinity', 'grandCru']);
   });
 
   it('wineText should describe the wine, stock and own tastings', () => {
@@ -33,14 +33,39 @@ describe('wine-advice', () => {
   });
 
   it('parseWineAdvice should trim the text and fall back to an unknown status', () => {
-    expect(parseWineAdvice({ status: 'apogee', text: ' Ouvrez-le ce soir. ', infoSummary: null })).toEqual({ status: 'apogee', text: 'Ouvrez-le ce soir.', infoSummary: null });
+    expect(parseWineAdvice({ status: 'apogee', text: ' Ouvrez-le ce soir. ', infoSummary: null, affinity: 8, grandCru: true })).toEqual({
+      status: 'apogee',
+      text: 'Ouvrez-le ce soir.',
+      infoSummary: null,
+      affinity: 8,
+      grandCru: true,
+    });
     expect(parseWineAdvice({ status: 'pret', text: 'x', infoSummary: ' Élevé 12 mois en fût. ' }).infoSummary).toBe('Élevé 12 mois en fût.');
     expect(parseWineAdvice({ status: 'parfait', text: 'x' }).status).toBe('inconnu');
     expect(() => parseWineAdvice({ status: 'pret', text: ' ' })).toThrow(new InvalidResponseError('conseil manquant'));
   });
 
+  it('parseWineAdvice should null an affinity out of bounds and default grandCru to false', () => {
+    expect(parseWineAdvice({ status: 'pret', text: 'x', affinity: 12, grandCru: 'oui' })).toMatchObject({ affinity: null, grandCru: false });
+    expect(parseWineAdvice({ status: 'pret', text: 'x', affinity: 7.5 }).affinity).toBeNull();
+    expect(parseWineAdvice({ status: 'pret', text: 'x', affinity: 0 }).affinity).toBe(0);
+  });
+
+  it('system prompt should ask for a demanding affinity and a strict grand cru', () => {
+    const system = wineAdviceRequest(wine('w1'), 1, [], null, NOW).system;
+
+    expect(system).toContain('Sois exigeant');
+    expect(system).toContain('Dans le doute : false');
+  });
+
+  it('isAdviceFresh should ask again once for an advice without affinity and grand cru', () => {
+    const old = { status: 'pret' as const, text: 'x', generatedAt: '2026-11-01T00:00:00Z' };
+
+    expect(isAdviceFresh(wine('w1', { advice: old, updatedAt: '2026-10-01T00:00:00Z' }), NOW)).toBe(false);
+  });
+
   it('isAdviceFresh should expire after an edit or a new year', () => {
-    const advice = { status: 'pret' as const, text: 'x', generatedAt: '2026-11-01T00:00:00Z' };
+    const advice = { status: 'pret' as const, text: 'x', generatedAt: '2026-11-01T00:00:00Z', affinity: 6, grandCru: false };
 
     expect(isAdviceFresh(wine('w1', { advice, updatedAt: '2026-10-01T00:00:00Z' }), NOW)).toBe(true);
     expect(isAdviceFresh(wine('w1', { advice, updatedAt: '2026-11-05T00:00:00Z' }), NOW)).toBe(false);
@@ -60,7 +85,7 @@ describe('wine-advice', () => {
   });
 
   it('isAdviceFresh should expire when the info file changes, but not for older advice without info', () => {
-    const advice = { status: 'pret' as const, text: 'x', generatedAt: '2026-11-01T00:00:00Z' };
+    const advice = { status: 'pret' as const, text: 'x', generatedAt: '2026-11-01T00:00:00Z', affinity: null, grandCru: false };
     const updatedAt = '2026-10-01T00:00:00Z';
 
     expect(isAdviceFresh(wine('w1', { advice, updatedAt }), NOW)).toBe(true);

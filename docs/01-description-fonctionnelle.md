@@ -280,9 +280,12 @@ Le plan de la v1 est entièrement livré.
 0.11.0 — Indicateurs et filtres combinables dans la cave :
 
 - Puce sous le nombre de bouteilles, l'une ou l'autre : rouge « À boire rapidement », verte « Prêt à boire ». La fin de la garde atteinte prime, puis l'état du conseil de Claude (en déclin → rouge ; prêt ou à son apogée → vert ; trop jeune → rien), puis le début de la garde atteint (→ vert). Le compteur « à boire » suit la même règle.
-- À gauche du nombre, dans cet ordre et sans colonne réservée : étoile bordeaux « Selon vos goûts » (moyenne des notes d'au moins 4 sur 5 ; pas encore dégusté, un cépage favori du profil), puis couronne « Grand cru » (mention dans le nom ou l'appellation).
+- À gauche du nombre, dans cet ordre et sans colonne réservée : étoile bordeaux « Selon vos goûts », puis couronne « Grand cru ». Les deux viennent de l'évaluation de Claude dans le conseil de la fiche :
+  - étoile : vin dégusté, moyenne de vos notes d'au moins 4 sur 5 ; pas encore dégusté, affinité d'au moins 8 sur 10 donnée par Claude d'après le profil et les dégustations (consigne d'exigence dans le prompt) ;
+  - couronne : Claude juge le vin de tout premier rang (grand cru officiel, cru classé, ou référence majeure de sa région) ; une mention « grand cru » dans le nom ne suffit pas.
+  - Un vin dont la fiche n'a jamais été ouverte n'a ni affinité ni évaluation : pas d'étoile (sauf note), pas de couronne. Les conseils d'avant cette version sont redemandés une fois, à l'ouverture de la fiche.
 - Filtres en trois groupes, une ligne chacun : couleur ; quand le boire (à boire vite, prêt à boire) ; goût et rang (mes goûts, grands crus). Dans un groupe, les choix s'additionnent (rouges ou blancs) ; entre groupes, ils se cumulent (rouges et prêts à boire). « Tous » efface tout.
-- Calculs locaux, sans appel à Claude. Le texte « à boire » disparaît des lignes : la puce le remplace. Deux couleurs d'état s'ajoutent à la palette, à la demande de l'utilisateur : `--color-soon` (rouge) et `--color-ready` (vert).
+- Aucun appel supplémentaire : l'affinité et le grand cru sont deux champs de plus dans la réponse du conseil. Le texte « à boire » disparaît des lignes : la puce le remplace. Deux couleurs d'état s'ajoutent à la palette, à la demande de l'utilisateur : `--color-soon` (rouge) et `--color-ready` (vert).
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

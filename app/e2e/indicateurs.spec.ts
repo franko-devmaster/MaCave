@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { message, mockClaude, MODEL_OK } from './claude-mock';
 import { importBackup, sampleTasting, sampleWine } from './helpers';
 
 const YEAR = new Date().getFullYear();
@@ -11,8 +12,13 @@ const DATA = {
   wines: [
     { ...sampleWine('w1', 'Cornalin', ['Cornalin']), drinkFrom: YEAR - 6, drinkUntil: YEAR },
     { ...sampleWine('w2', 'Pinot Noir Réserve', ['Pinot Noir']), drinkFrom: YEAR - 2, drinkUntil: YEAR + 5 },
-    { ...sampleWine('w3', 'Dézaley', ['Chasselas']), color: 'blanc', appellation: 'Dézaley Grand Cru' },
-    { ...sampleWine('w4', 'Humagne Rouge', ['Humagne Rouge']), drinkFrom: YEAR + 3, drinkUntil: YEAR + 10 },
+    {
+      ...sampleWine('w3', 'Dézaley', ['Chasselas']),
+      color: 'blanc',
+      appellation: 'Dézaley Grand Cru',
+      advice: { status: 'pret', text: 'Servez-le à 10 °C.', generatedAt: new Date().toISOString(), affinity: 5, grandCru: true },
+    },
+    { ...sampleWine('w4', 'Humagne Rouge Grand Cru', ['Humagne Rouge']), drinkFrom: YEAR + 3, drinkUntil: YEAR + 10 },
   ],
   stockMovements: [stock('m1', 'w1', 2), stock('m2', 'w2', 3), stock('m3', 'w3', 6), stock('m4', 'w4', 1)],
   tastings: [sampleTasting('t1', 'w2', 5)],
@@ -34,6 +40,10 @@ test.describe('Indicateurs et filtres de la cave', () => {
 
     await expect(row(/Dézaley/).getByRole('img', { name: 'Grand cru' })).toBeVisible();
     await expect(row(/Humagne/).getByRole('img')).toHaveCount(0);
+  });
+
+  test('la mention « Grand Cru » dans le nom ne suffit pas : seule l’évaluation de Claude compte', async ({ page }) => {
+    await expect(page.getByRole('link', { name: /Humagne/ }).getByRole('img', { name: 'Grand cru' })).toHaveCount(0);
   });
 
   test('combine les filtres : ou dans un groupe, et entre groupes', async ({ page }) => {
@@ -59,5 +69,30 @@ test.describe('Indicateurs et filtres de la cave', () => {
     await tap('Tous');
     await expect(row(/Humagne/)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Blancs' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test.describe('avec Claude', () => {
+    test.use({ serviceWorkers: 'block' });
+
+    test('le conseil de la fiche donne l’étoile et la couronne à un vin pas encore dégusté', async ({ page }) => {
+      await mockClaude(page, {
+        models: () => MODEL_OK,
+        messages: () => message({ status: 'trop-jeune', text: 'Attendez encore.', infoSummary: null, affinity: 9, grandCru: true }),
+      });
+      await page.goto('reglages');
+      await page.getByLabel('Clé API Claude').fill('sk-ant-api03-test-0123456789abcdef');
+      await page.getByRole('button', { name: 'Enregistrer et tester' }).tap();
+      await expect(page.getByTestId('api-key')).toBeVisible();
+      await page.getByRole('link', { name: 'Cave' }).tap();
+      const humagne = page.getByRole('link', { name: /Humagne/ });
+      await expect(humagne.getByRole('img')).toHaveCount(0);
+
+      await humagne.tap();
+      await expect(page.getByTestId('wine-advice')).toContainText('Attendez encore.');
+      await page.getByRole('link', { name: 'Cave' }).tap();
+
+      await expect(humagne.getByRole('img', { name: 'Selon vos goûts' })).toBeVisible();
+      await expect(humagne.getByRole('img', { name: 'Grand cru' })).toBeVisible();
+    });
   });
 });

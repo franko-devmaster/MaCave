@@ -16,6 +16,10 @@ export interface WineAdvice {
   infoAttachmentId?: string | null;
   /** Résumé factuel de la fiche info, réutilisé par les accords sans relire le document. */
   infoSummary?: string | null;
+  /** Adéquation avec les goûts de la personne, de 0 à 10 ; null sans profil ni dégustation. Absent sur les conseils d'avant la 0.11. */
+  affinity?: number | null;
+  /** Grand cru selon l'évaluation de Claude (classement officiel ou vin de tout premier rang). */
+  grandCru?: boolean;
 }
 
 export interface Wine {
