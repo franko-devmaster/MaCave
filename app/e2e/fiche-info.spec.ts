@@ -11,14 +11,14 @@ async function wineWithBottlePhoto(page: Page): Promise<void> {
   await page.goto('ajouter');
   await addWine(page, { name: 'Cornalin', vintage: '2019', quantity: 2 });
   await page.getByRole('link', { name: 'Voir la fiche' }).tap();
-  await page.getByLabel('Photo bouteille').setInputFiles({ name: 'infos.png', mimeType: 'image/png', buffer: LABEL_PNG });
-  await expect(page.getByRole('button', { name: "Photo de l'étiquette" })).toBeVisible();
+  await page.getByLabel('Ajouter une photo').setInputFiles({ name: 'infos.png', mimeType: 'image/png', buffer: LABEL_PNG });
+  await expect(page.getByRole('button', { name: 'Photo de la bouteille' })).toBeVisible();
 }
 
 /** Ouvre la photo Bouteille en grand et la remplace depuis la visionneuse. */
 async function replaceBottlePhoto(page: Page): Promise<void> {
-  await page.getByRole('button', { name: "Photo de l'étiquette" }).tap();
-  const viewer = page.getByRole('dialog', { name: "Photo de l'étiquette" });
+  await page.getByRole('button', { name: 'Photo de la bouteille' }).tap();
+  const viewer = page.getByRole('dialog', { name: 'Photo de la bouteille' });
   await expect(viewer).toBeVisible();
   await viewer.getByLabel('Remplacer la photo').setInputFiles({ name: 'face.png', mimeType: 'image/png', buffer: LABEL_PNG });
   await expect(viewer).toBeHidden();
@@ -28,10 +28,10 @@ test.describe('Fiche info et photo bouteille', () => {
   test('toucher la photo bouteille l’affiche en plein écran', async ({ page }) => {
     await wineWithBottlePhoto(page);
 
-    await page.getByRole('button', { name: "Photo de l'étiquette" }).tap();
-    const viewer = page.getByRole('dialog', { name: "Photo de l'étiquette" });
+    await page.getByRole('button', { name: 'Photo de la bouteille' }).tap();
+    const viewer = page.getByRole('dialog', { name: 'Photo de la bouteille' });
     await expect(viewer).toBeVisible();
-    await expect(viewer.getByRole('img', { name: "Photo de l'étiquette" })).toHaveAttribute('src', /^blob:/);
+    await expect(viewer.getByRole('img', { name: 'Photo de la bouteille' })).toHaveAttribute('src', /^blob:/);
     const box = await viewer.boundingBox();
     expect(box?.width).toBe(page.viewportSize()?.width);
 
@@ -53,11 +53,11 @@ test.describe('Fiche info et photo bouteille', () => {
     await viewer.getByRole('button', { name: 'Fermer' }).tap();
     await expect(viewer).toBeHidden();
 
-    await info.getByLabel('Remplacer').setInputFiles({ name: 'fiche.png', mimeType: 'image/png', buffer: LABEL_PNG });
+    await info.getByLabel('Remplacer la fiche').setInputFiles({ name: 'fiche.png', mimeType: 'image/png', buffer: LABEL_PNG });
     await expect(page.getByTestId('info-tile')).toContainText(/Photo · \d+ Ko/);
 
     page.once('dialog', (dialog) => dialog.accept());
-    await info.getByRole('button', { name: 'Supprimer' }).tap();
+    await info.getByRole('button', { name: 'Supprimer la fiche' }).tap();
     await expect(info.getByText(/Ajouter une fiche info/)).toBeVisible();
   });
 

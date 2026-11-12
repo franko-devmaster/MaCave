@@ -37,6 +37,32 @@ describe('WineRepository', () => {
     expect(updated.updatedAt).toBe(later.toISOString());
   });
 
+  it('update when nothing changed should keep updatedAt', async () => {
+    const { wine } = await sut.create(wineInput(), { quantity: 1, pricePaid: null }, null, FIXED_NOW);
+
+    const updated = await sut.update(wine.id, wineInput(), new Date('2026-12-01T10:00:00Z'));
+
+    expect(updated.updatedAt).toBe(FIXED_NOW.toISOString());
+  });
+
+  it('setLastPrice should change the price of the last purchase only', async () => {
+    const { wine, movement: first } = await sut.create(wineInput(), { quantity: 2, pricePaid: 30 }, null, FIXED_NOW);
+    const second = await sut.addMovement(wine.id, 1, 'achat', 32, new Date('2026-12-01T10:00:00Z'));
+
+    const updated = await sut.setLastPrice(wine.id, 35);
+
+    expect(updated.id).toBe(second.id);
+    expect((await db.stockMovements.get(second.id))?.pricePaid).toBe(35);
+    expect((await db.stockMovements.get(first.id))?.pricePaid).toBe(30);
+  });
+
+  it('setLastPrice when no purchase exists should add a correction without bottles', async () => {
+    const movement = await sut.setLastPrice('sans-achat', 20, FIXED_NOW);
+
+    expect(movement).toMatchObject({ wineId: 'sans-achat', delta: 0, reason: 'correction', pricePaid: 20 });
+    expect(await db.stockMovements.count()).toBe(1);
+  });
+
   it('update when the wine does not exist should throw', async () => {
     await expect(sut.update('absent', wineInput())).rejects.toThrow('Vin introuvable');
   });

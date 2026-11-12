@@ -249,7 +249,8 @@ Le plan de la v1 est entièrement livré.
 | Version | Évolution | État |
 |---|---|---|
 | 0.8.0 | Fiche info et photo Bouteille | Livrée, recette validée |
-| 0.9.0 | Conseil enrichi par la fiche info, photo en plein écran | Livrée, en recette |
+| 0.9.0 | Conseil enrichi par la fiche info, photo en plein écran | Livrée, retours intégrés en 0.10.0 |
+| 0.10.0 | Visionneuse claire, libellés, stock et prix modifiables | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -266,6 +267,14 @@ Le plan de la v1 est entièrement livré.
 - Ajouter, remplacer ou supprimer la fiche info redemande le conseil ; changer la photo Bouteille ne le redemande toujours pas.
 - Toucher la photo Bouteille l'affiche en plein écran. « Remplacer la photo » se trouve dans la visionneuse. Sans photo, toucher l'emplacement ouvre l'appareil photo.
 - La visionneuse plein écran est partagée entre la photo Bouteille et la fiche info.
+
+0.10.0 — Retours de recette de la 0.9.0 :
+
+- Visionneuse sur fond blanc comme le reste de l'application : croix de fermeture en haut, titre, actions en bas sous forme de boutons du design system.
+- Fiche info : « Remplacer la fiche » en bouton, « Supprimer la fiche » en bouton discret bordeaux.
+- Libellés : « Ouvrir une bouteille » et « Ajouter une bouteille » (au lieu de « J'en ouvre une » et « + 1 achetée »), empilés sur toute la largeur ; « Prix payé », « Cépages », « Modifier le vin », « Ajouter une photo », « Photo de la bouteille », « Je l'achète » en magasin.
+- Modifier le vin : tous les champs sont modifiables, y compris le nombre de bouteilles en cave (0 accepté) et le prix payé par bouteille. Un écart de stock est enregistré comme mouvement « correction » ; le prix corrige celui du dernier achat.
+- Enregistrer la fiche sans rien changer ne fait plus redemander le conseil de Claude ; corriger seulement le stock ou le prix non plus.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

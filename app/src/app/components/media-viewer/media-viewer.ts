@@ -4,7 +4,7 @@ import { PDF_MEDIA_TYPE } from '../../models/wine';
 
 /**
  * Visionneuse plein écran d'une photo ou d'un PDF. Les actions propres à l'appelant
- * (remplacer, partager) se placent dans la barre par projection : `<… viewerAction>`.
+ * (remplacer, partager) se placent en bas par projection : `<… viewerAction class="btn">`.
  */
 @Component({
   selector: 'app-media-viewer',
@@ -14,8 +14,11 @@ import { PDF_MEDIA_TYPE } from '../../models/wine';
   template: `
     <dialog #dialog class="viewer" [attr.aria-label]="title()">
       <div class="viewer__bar">
-        <button type="button" class="viewer__button" (click)="close()">{{ 'info.close' | translate }}</button>
-        <ng-content select="[viewerAction]" />
+        <button type="button" class="viewer__close" (click)="close()" [attr.aria-label]="'info.close' | translate">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+        <span class="label viewer__title">{{ title() }}</span>
+        <span class="viewer__spacer" aria-hidden="true"></span>
       </div>
       <div class="viewer__body">
         @if (mediaType() === pdfType) {
@@ -25,6 +28,9 @@ import { PDF_MEDIA_TYPE } from '../../models/wine';
         } @else if (url(); as src) {
           <img class="viewer__image" [src]="src" [alt]="title()" />
         }
+      </div>
+      <div class="viewer__actions">
+        <ng-content select="[viewerAction]" />
       </div>
     </dialog>
   `,

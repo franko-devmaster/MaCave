@@ -73,7 +73,7 @@ test.describe('Itération 7 — conseil sur la fiche', () => {
     await expect(advice).toContainText('À son apogée');
     expect(mock.messageBodies).toHaveLength(1);
 
-    await page.getByRole('link', { name: 'Modifier la fiche' }).tap();
+    await page.getByRole('link', { name: 'Modifier le vin' }).tap();
     await page.getByLabel('Millésime').fill('2020');
     await page.getByRole('button', { name: 'Enregistrer' }).tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cornalin');

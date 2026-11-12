@@ -20,7 +20,7 @@ import { WineFormResult } from '../../utils/wine-form';
     </div>
     <app-page-header [title]="'modifier.title' | translate" />
     @if (wine(); as current) {
-      <app-wine-form mode="edit" [initial]="current" [submitLabel]="'modifier.submit' | translate" [busy]="busy()" (submitted)="save($event)">
+      <app-wine-form mode="edit" [initial]="current" [stock]="stock()" [submitLabel]="'modifier.submit' | translate" [busy]="busy()" (submitted)="save($event)">
         <button type="button" class="btn btn--quiet delete" [disabled]="busy()" (click)="remove()">{{ 'modifier.delete' | translate }}</button>
       </app-wine-form>
     } @else {
@@ -35,13 +35,18 @@ export class ModifierPage {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
-  protected readonly wine = computed(() => this.store.detail(this.id())?.wine ?? null);
+  private readonly detail = computed(() => this.store.detail(this.id()));
+  protected readonly wine = computed(() => this.detail()?.wine ?? null);
+  protected readonly stock = computed(() => {
+    const detail = this.detail();
+    return detail ? { bottles: detail.bottles, pricePaid: detail.lastPrice } : null;
+  });
   protected readonly busy = signal(false);
 
   protected async save(result: WineFormResult): Promise<void> {
     this.busy.set(true);
     try {
-      await this.store.update(this.id(), result.input);
+      await this.store.update(this.id(), result.input, { bottles: result.quantity, pricePaid: result.pricePaid });
       await this.router.navigate(['/cave', this.id()], { replaceUrl: true });
     } finally {
       this.busy.set(false);

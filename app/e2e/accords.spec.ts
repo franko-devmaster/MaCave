@@ -75,7 +75,7 @@ test.describe('Itération 5 — accords', () => {
 
     await page.getByTestId('top-pick').tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pinot Noir Réserve');
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await expect(page.getByLabel('Avec quoi, avec qui')).toHaveValue('Risotto aux bolets et parmesan');
     await page.locator('label', { has: page.getByRole('radio', { name: '5 / 5' }) }).tap();
     await page.getByRole('button', { name: 'Enregistrer' }).tap();

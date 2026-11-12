@@ -28,8 +28,22 @@ describe('wine-form', () => {
     expect(validateWineForm(form({ quantity }), 'create', 2026).quantity?.key).toBe('form.errors.quantity');
   });
 
-  it('validateWineForm in edit mode should ignore quantity and price', () => {
-    expect(validateWineForm(form({ quantity: '', price: 'abc' }), 'edit', 2026)).toEqual({});
+  it('validateWineForm in edit mode should accept an empty cellar', () => {
+    expect(validateWineForm(form({ quantity: '0' }), 'edit', 2026)).toEqual({});
+  });
+
+  it('validateWineForm in edit mode should still check bottles and price', () => {
+    const errors = validateWineForm(form({ quantity: '-1', price: 'abc' }), 'edit', 2026);
+
+    expect(errors.quantity?.key).toBe('form.errors.bottles');
+    expect(errors.price?.key).toBe('form.errors.price');
+  });
+
+  it('toFormValue with a stock should fill bottles and the price paid', () => {
+    const value = toFormValue(wineInput(), { bottles: 0, pricePaid: 31.5 });
+
+    expect(value.quantity).toBe('0');
+    expect(value.price).toBe('31.5');
   });
 
   it('validateWineForm should reject a negative price and accept a decimal comma', () => {

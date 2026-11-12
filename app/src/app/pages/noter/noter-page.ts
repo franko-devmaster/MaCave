@@ -12,7 +12,7 @@ import { Score } from '../../models/tasting';
 import { pluralKey } from '../../utils/format';
 
 /**
- * Noter une dégustation. Trois entrées : après « J'en ouvre une » (paramètre `ouverture`),
+ * Noter une dégustation. Trois entrées : après « Ouvrir une bouteille » (paramètre `ouverture`),
  * depuis la fiche sans ouvrir de bouteille, ou pour modifier une note (paramètre `degustation`).
  */
 @Component({
@@ -24,7 +24,7 @@ import { pluralKey } from '../../utils/format';
 })
 export class NoterPage implements OnInit {
   readonly id = input.required<string>();
-  /** Mouvement de stock créé par « J'en ouvre une », annulable depuis cet écran. */
+  /** Mouvement de stock créé par « Ouvrir une bouteille », annulable depuis cet écran. */
   readonly ouverture = input<string>();
   /** Dégustation à modifier. */
   readonly degustation = input<string>();

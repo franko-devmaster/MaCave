@@ -74,7 +74,7 @@ test.describe('Itération 2 — connecteur Claude et lecture d’étiquette', ()
     await page.getByRole('button', { name: 'Ajouter à ma cave' }).tap();
     await expect(page.getByText('Cornalin 2019 ajouté à la cave.')).toBeVisible();
     await page.getByRole('link', { name: 'Voir la fiche' }).tap();
-    await expect(page.getByRole('img', { name: "Photo de l'étiquette" })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Photo de la bouteille' })).toBeVisible();
   });
 
   test('complète une description et propose d’ajouter les bouteilles au vin existant', async ({ page }) => {
