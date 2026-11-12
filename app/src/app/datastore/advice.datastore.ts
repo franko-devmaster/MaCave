@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ClaudeFailure } from '../ai/claude-errors';
 import { InfoFile, isAdviceFresh, wineAdviceRequest } from '../ai/wine-advice';
 import { ClaudeService } from '../services/claude.service';
@@ -8,6 +8,14 @@ import { ProfileDatastore } from './profile.datastore';
 import { SettingsDatastore } from './settings.datastore';
 import { TastingDatastore } from './tasting.datastore';
 import { WineDatastore } from './wine.datastore';
+
+/** Avancement d'une réévaluation de la cave ; `running` à false une fois terminée ou interrompue. */
+export interface Reevaluation {
+  done: number;
+  total: number;
+  running: boolean;
+  error: ClaudeFailure | null;
+}
 
 /** Conseil de Claude sur la fiche : demandé une fois par vin, mémorisé, renouvelé si le vin change. */
 @Injectable({ providedIn: 'root' })
@@ -22,8 +30,41 @@ export class AdviceDatastore {
   private readonly loadingSignal = signal<ReadonlySet<string>>(new Set());
   private readonly errorsSignal = signal<ReadonlyMap<string, ClaudeFailure>>(new Map());
 
+  private readonly reevaluationSignal = signal<Reevaluation | null>(null);
+
   readonly loading = this.loadingSignal.asReadonly();
   readonly errors = this.errorsSignal.asReadonly();
+  readonly reevaluation = this.reevaluationSignal.asReadonly();
+
+  /** Vins en cave à réévaluer : ceux dont il reste au moins une bouteille. */
+  readonly reevaluableCount = computed(() => this.wines.entries().filter((e) => e.bottles > 0).length);
+
+  /**
+   * Redemande le conseil de chaque vin en cave, un à la fois, pour recalculer l'affinité et le
+   * grand cru d'après le profil actuel. S'arrête à la première erreur (clé, limite, réseau).
+   */
+  async reevaluateAll(today: Date = new Date()): Promise<void> {
+    if (this.reevaluationSignal()?.running || !this.settings.hasApiKey()) {
+      return;
+    }
+    const ids = this.wines
+      .entries()
+      .filter((e) => e.bottles > 0)
+      .map((e) => e.wine.id);
+    let done = 0;
+    this.reevaluationSignal.set({ done, total: ids.length, running: true, error: null });
+    for (const id of ids) {
+      await this.refresh(id, today);
+      const error = this.errorsSignal().get(id);
+      if (error) {
+        this.reevaluationSignal.set({ done, total: ids.length, running: false, error });
+        return;
+      }
+      done++;
+      this.reevaluationSignal.set({ done, total: ids.length, running: true, error: null });
+    }
+    this.reevaluationSignal.set({ done, total: ids.length, running: false, error: null });
+  }
 
   /** Demande un conseil si celui du vin manque ou est périmé, et si Claude est joignable. */
   async ensure(wineId: string, today: Date = new Date()): Promise<void> {

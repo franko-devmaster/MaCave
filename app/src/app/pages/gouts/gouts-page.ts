@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
+import { AdviceDatastore } from '../../datastore/advice.datastore';
 import { ProfileDatastore } from '../../datastore/profile.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { ProfileOverride, ProfileOverrideInput, TASTE_AXES, TasteAxis } from '../../models/tasting';
@@ -20,6 +21,8 @@ import { axisOf } from '../../utils/profile';
 export class GoutsPage implements OnInit {
   protected readonly store = inject(ProfileDatastore);
   protected readonly settings = inject(SettingsDatastore);
+  protected readonly advice = inject(AdviceDatastore);
+  private readonly translate = inject(TranslateService);
 
   protected readonly axes = TASTE_AXES;
   protected readonly editingAxis = signal<TasteAxis | null>(null);
@@ -87,6 +90,14 @@ export class GoutsPage implements OnInit {
   protected async undoCorrection(override: ProfileOverride): Promise<void> {
     await this.store.removeOverride(override.id);
     void this.store.refreshIfStale();
+  }
+
+  /** Recalcule l'affinité et le grand cru de chaque vin en cave, après confirmation (un appel par vin). */
+  protected reevaluate(): void {
+    const count = this.advice.reevaluableCount();
+    if (count > 0 && confirm(this.translate.instant('gouts.reevaluate.confirm', { count }))) {
+      void this.advice.reevaluateAll();
+    }
   }
 
   protected retry(): void {
