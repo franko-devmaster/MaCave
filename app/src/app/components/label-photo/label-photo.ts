@@ -22,7 +22,7 @@ import { MediaViewerComponent } from '../media-viewer/media-viewer';
         </span>
       </button>
       <app-media-viewer #viewer [url]="src" mediaType="image/jpeg" [title]="'photo.alt' | translate">
-        <label viewerAction>
+        <label viewerAction class="btn">
           {{ 'photo.replace' | translate }}
           <input class="visually-hidden" type="file" accept="image/*" capture="environment" [disabled]="busy()" (change)="onPick($event); viewer.close()" />
         </label>

@@ -53,6 +53,33 @@ describe('WineDatastore', () => {
     expect(sut.detail(wine.id)?.wine.vintage).toBe(2020);
   });
 
+  it('update with a stock correction should adjust bottles and the price paid', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 6, pricePaid: 34 });
+
+    await sut.update(wine.id, wineInput(), { bottles: 4, pricePaid: 31.5 });
+
+    expect(sut.detail(wine.id)).toMatchObject({ bottles: 4, lastPrice: 31.5 });
+    const stored = await db.stockMovements.toArray();
+    expect(stored).toHaveLength(2);
+    expect(stored.find((m) => m.reason === 'correction')).toMatchObject({ delta: -2, pricePaid: null });
+  });
+
+  it('update with an unchanged stock should not add a movement', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 3, pricePaid: 20 });
+
+    await sut.update(wine.id, wineInput(), { bottles: 3, pricePaid: 20 });
+
+    expect(await db.stockMovements.count()).toBe(1);
+  });
+
+  it('update should allow an empty cellar', async () => {
+    const wine = await sut.create(wineInput(), { quantity: 2, pricePaid: null });
+
+    await sut.update(wine.id, wineInput(), { bottles: 0, pricePaid: null });
+
+    expect(sut.detail(wine.id)?.bottles).toBe(0);
+  });
+
   it('remove should drop the wine and its movements from state', async () => {
     const wine = await sut.create(wineInput(), { quantity: 4, pricePaid: null });
 

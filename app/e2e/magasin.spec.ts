@@ -81,7 +81,7 @@ test.describe('Itération 6 — en magasin', () => {
     await saveKey(page);
     await page.goto('magasin');
     await page.getByLabel("Photographier l'étiquette").setInputFiles({ name: 'etiquette.png', mimeType: 'image/png', buffer: LABEL_PNG });
-    await page.getByRole('button', { name: "J'achète, l'ajouter" }).tap();
+    await page.getByRole('button', { name: "Je l'achète" }).tap();
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ajouter un vin');
     await expect(page.getByLabel('Nom du vin')).toHaveValue('Syrah Cayas');
@@ -89,9 +89,9 @@ test.describe('Itération 6 — en magasin', () => {
     await expect(page.getByLabel('Quantité')).toHaveValue('1');
     await page.getByRole('button', { name: 'Ajouter à ma cave' }).tap();
     await page.getByRole('link', { name: 'Voir la fiche' }).tap();
-    await expect(page.getByRole('img', { name: "Photo de l'étiquette" })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Photo de la bouteille' })).toBeVisible();
 
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await page.locator('label', { has: page.getByRole('radio', { name: '2 / 5' }) }).tap();
     await page.getByRole('button', { name: 'Enregistrer' }).tap();
     await expect(page.getByRole('link', { name: /2\/5/ })).toBeVisible();

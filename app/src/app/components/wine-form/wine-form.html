@@ -20,19 +20,17 @@
         <p id="wf-vintage-error" class="field__error">{{ error.key | translate: error.params }}</p>
       }
     </div>
-    @if (mode() === 'create') {
-      <div class="field">
-        <label class="label" for="wf-quantity" [class.uncertain]="isUncertain('quantity')">{{ 'form.quantity' | translate }}@if (isUncertain('quantity')) {<span class="uncertain__tag" aria-hidden="true"> ●</span><span class="visually-hidden"> {{ 'form.toCheck' | translate }}</span>}</label>
-        <div class="stepper">
-          <button type="button" class="stepper__btn" (click)="stepQuantity(-1)" [attr.aria-label]="'form.quantityLess' | translate">−</button>
-          <input id="wf-quantity" class="stepper__value" type="text" inputmode="numeric" maxlength="3" formControlName="quantity" [attr.aria-invalid]="!!errors().quantity" aria-describedby="wf-quantity-error" />
-          <button type="button" class="stepper__btn" (click)="stepQuantity(1)" [attr.aria-label]="'form.quantityMore' | translate">+</button>
-        </div>
-        @if (errors().quantity; as error) {
-          <p id="wf-quantity-error" class="field__error">{{ error.key | translate }}</p>
-        }
+    <div class="field">
+      <label class="label" for="wf-quantity" [class.uncertain]="isUncertain('quantity')">{{ (mode() === 'create' ? 'form.quantity' : 'form.bottles') | translate }}@if (isUncertain('quantity')) {<span class="uncertain__tag" aria-hidden="true"> ●</span><span class="visually-hidden"> {{ 'form.toCheck' | translate }}</span>}</label>
+      <div class="stepper">
+        <button type="button" class="stepper__btn" (click)="stepQuantity(-1)" [attr.aria-label]="'form.quantityLess' | translate">−</button>
+        <input id="wf-quantity" class="stepper__value" type="text" inputmode="numeric" maxlength="3" formControlName="quantity" [attr.aria-invalid]="!!errors().quantity" aria-describedby="wf-quantity-error" />
+        <button type="button" class="stepper__btn" (click)="stepQuantity(1)" [attr.aria-label]="'form.quantityMore' | translate">+</button>
       </div>
-    }
+      @if (errors().quantity; as error) {
+        <p id="wf-quantity-error" class="field__error">{{ error.key | translate }}</p>
+      }
+    </div>
   </div>
 
   <fieldset class="field colors">
@@ -48,15 +46,13 @@
     </div>
   </fieldset>
 
-  @if (mode() === 'create') {
-    <div class="field">
-      <label class="label" for="wf-price" [class.uncertain]="isUncertain('price')">{{ 'form.price' | translate }}@if (isUncertain('price')) {<span class="uncertain__tag" aria-hidden="true"> ●</span><span class="visually-hidden"> {{ 'form.toCheck' | translate }}</span>}</label>
-      <input id="wf-price" type="text" inputmode="decimal" formControlName="price" [placeholder]="'form.optional' | translate" [attr.aria-invalid]="!!errors().price" aria-describedby="wf-price-error" />
-      @if (errors().price; as error) {
-        <p id="wf-price-error" class="field__error">{{ error.key | translate }}</p>
-      }
-    </div>
-  }
+  <div class="field">
+    <label class="label" for="wf-price" [class.uncertain]="isUncertain('price')">{{ (mode() === 'create' ? 'form.price' : 'form.pricePaid') | translate }}@if (isUncertain('price')) {<span class="uncertain__tag" aria-hidden="true"> ●</span><span class="visually-hidden"> {{ 'form.toCheck' | translate }}</span>}</label>
+    <input id="wf-price" type="text" inputmode="decimal" formControlName="price" [placeholder]="'form.optional' | translate" [attr.aria-invalid]="!!errors().price" aria-describedby="wf-price-error" />
+    @if (errors().price; as error) {
+      <p id="wf-price-error" class="field__error">{{ error.key | translate }}</p>
+    }
+  </div>
 
   <details class="details" [open]="detailsOpen()">
     <summary class="details__summary">{{ 'form.details' | translate }}</summary>

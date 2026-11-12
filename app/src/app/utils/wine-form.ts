@@ -44,9 +44,12 @@ export function emptyWineForm(): WineFormValue {
   };
 }
 
-export function toFormValue(wine: WineInput): WineFormValue {
+/** Valeurs du formulaire pour un vin existant ; le stock et le prix viennent des mouvements. */
+export function toFormValue(wine: WineInput, stock: { bottles: number; pricePaid: number | null } | null = null): WineFormValue {
   return {
     ...emptyWineForm(),
+    quantity: stock ? String(stock.bottles) : '1',
+    price: stock ? numberText(stock.pricePaid) : '',
     name: wine.name,
     producer: wine.producer,
     vintage: numberText(wine.vintage),
@@ -64,7 +67,7 @@ export function toFormValue(wine: WineInput): WineFormValue {
   };
 }
 
-/** Contrôle la saisie. En modification, quantité et prix ne sont pas saisis. */
+/** Contrôle la saisie. En modification, la quantité est le stock en cave et peut tomber à zéro. */
 export function validateWineForm(value: WineFormValue, mode: 'create' | 'edit', currentYear: number): WineFormErrors {
   const errors: WineFormErrors = {};
   if (!value.name.trim()) {
@@ -74,15 +77,14 @@ export function validateWineForm(value: WineFormValue, mode: 'create' | 'edit', 
   if (value.vintage.trim() && !isYear(vintage, 1900, currentYear + 1)) {
     errors.vintage = { key: 'form.errors.vintage', params: { max: currentYear + 1 } };
   }
-  if (mode === 'create') {
-    const quantity = parseNumber(value.quantity);
-    if (quantity === null || !Number.isInteger(quantity) || quantity < 1 || quantity > 999) {
-      errors.quantity = { key: 'form.errors.quantity' };
-    }
-    const price = parseNumber(value.price);
-    if (value.price.trim() && (price === null || price < 0 || price > 100_000)) {
-      errors.price = { key: 'form.errors.price' };
-    }
+  const quantity = parseNumber(value.quantity);
+  const minQuantity = mode === 'create' ? 1 : 0;
+  if (quantity === null || !Number.isInteger(quantity) || quantity < minQuantity || quantity > 999) {
+    errors.quantity = { key: mode === 'create' ? 'form.errors.quantity' : 'form.errors.bottles' };
+  }
+  const price = parseNumber(value.price);
+  if (value.price.trim() && (price === null || price < 0 || price > 100_000)) {
+    errors.price = { key: 'form.errors.price' };
   }
   const from = parseNumber(value.drinkFrom);
   const until = parseNumber(value.drinkUntil);
@@ -119,7 +121,7 @@ export function toWineFormResult(value: WineFormValue): WineFormResult {
     location: value.location.trim(),
     notes: value.notes.trim(),
   };
-  return { input, quantity: parseNumber(value.quantity) ?? 1, pricePaid: parseNumber(value.price) };
+  return { input, quantity: parseNumber(value.quantity) ?? 1, pricePaid: value.price.trim() ? parseNumber(value.price) : null };
 }
 
 function isYear(value: number | null, min: number, max: number): boolean {

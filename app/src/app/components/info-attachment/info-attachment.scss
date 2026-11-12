@@ -63,24 +63,16 @@
 
 .actions {
   display: flex;
-  gap: var(--space-5);
+  gap: 10px;
+
+  .btn {
+    flex: 1;
+    padding: 0 var(--space-2);
+  }
 }
 
-.actions__link {
-  min-height: var(--touch-target);
-  display: flex;
-  align-items: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-muted);
-  font-size: 14px;
-  text-decoration: underline;
-  cursor: pointer;
-
-  &--danger {
-    color: var(--color-accent);
-  }
+.actions__remove {
+  color: var(--color-accent);
 }
 
 .add {

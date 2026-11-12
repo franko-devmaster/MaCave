@@ -53,6 +53,8 @@ function buildForm(value: WineFormValue): WineFormGroup {
 export class WineFormComponent implements OnInit {
   readonly mode = input<'create' | 'edit'>('create');
   readonly initial = input<WineInput | null>(null);
+  /** En modification : stock en cave et dernier prix payé, éditables avec la fiche. */
+  readonly stock = input<{ bottles: number; pricePaid: number | null } | null>(null);
   readonly submitLabel = input.required<string>();
   readonly busy = input(false);
   readonly submitted = output<WineFormResult>();
@@ -77,7 +79,7 @@ export class WineFormComponent implements OnInit {
     this.detailsOpen.set(this.mode() === 'edit');
     const initial = this.initial();
     if (initial) {
-      this.form.reset(toFormValue(initial));
+      this.form.reset(toFormValue(initial, this.stock()));
     }
   }
 
@@ -103,7 +105,8 @@ export class WineFormComponent implements OnInit {
 
   protected stepQuantity(delta: number): void {
     const current = Number.parseInt(this.form.controls.quantity.value, 10) || 0;
-    this.form.controls.quantity.setValue(String(Math.min(999, Math.max(1, current + delta))));
+    const min = this.mode() === 'create' ? 1 : 0;
+    this.form.controls.quantity.setValue(String(Math.min(999, Math.max(min, current + delta))));
   }
 
   protected submit(): void {

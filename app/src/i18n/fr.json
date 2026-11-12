@@ -100,7 +100,7 @@
     "noPickTitle": "Rien d'idéal dans votre cave",
     "for": "Pour : {{dish}}",
     "bottles": "{{count}} btl",
-    "openFiche": "Voir la fiche, puis J'en ouvre une",
+    "openFiche": "Voir la fiche pour ouvrir la bouteille",
     "buyTitle": "À acheter pour ce plat",
     "alternatives": "Aussi possible",
     "rejected": "Écarté :",
@@ -259,24 +259,27 @@
       "price": "Prix invalide.",
       "years": "Années entre 1900 et 2100.",
       "yearsOrder": "« Dès » doit précéder « jusqu'en ».",
-      "alcohol": "Degré entre 0 et 25."
+      "alcohol": "Degré entre 0 et 25.",
+      "bottles": "Bouteilles en cave : entre 0 et 999."
     },
-    "toCheck": "à vérifier"
+    "toCheck": "à vérifier",
+    "bottles": "Bouteilles en cave",
+    "pricePaid": "Prix payé par bouteille (CHF)"
   },
   "fiche": {
     "back": "Cave",
-    "edit": "Modifier la fiche",
-    "grape": "Cépage",
+    "edit": "Modifier le vin",
+    "grape": "Cépages",
     "keep": "Garde",
-    "paid": "Payé",
+    "paid": "Prix payé",
     "unknown": "—",
     "bottles": {
       "one": "bouteille en cave",
       "other": "bouteilles en cave"
     },
-    "open": "J'en ouvre une",
-    "buy": "+ 1 achetée",
-    "bought": "Une bouteille ajoutée.",
+    "open": "Ouvrir une bouteille",
+    "buy": "Ajouter une bouteille",
+    "bought": "Une bouteille ajoutée à la cave.",
     "undo": "Annuler",
     "notFound": "Ce vin n'existe plus.",
     "drinkNow": "À boire maintenant",
@@ -289,15 +292,15 @@
     "keepAsInfo": "Garder l'ancienne photo comme fiche info ?\n\nOK : elle devient la fiche info.\nAnnuler : elle est remplacée."
   },
   "modifier": {
-    "title": "Modifier",
+    "title": "Modifier le vin",
     "back": "Fiche",
     "submit": "Enregistrer",
     "delete": "Supprimer ce vin",
     "deleteConfirm": "Supprimer « {{name}} » et tout son historique ? Cette action est définitive."
   },
   "photo": {
-    "alt": "Photo de l'étiquette",
-    "add": "Photo bouteille",
+    "alt": "Photo de la bouteille",
+    "add": "Ajouter une photo",
     "replace": "Remplacer la photo"
   },
   "ai": {
@@ -385,7 +388,7 @@
       "-": "Réserve",
       "i": "Information"
     },
-    "buy": "J'achète, l'ajouter",
+    "buy": "Je l'achète",
     "pass": "Je passe"
   },
   "advice": {
@@ -406,9 +409,9 @@
     "addHint": "Photo ou PDF, par exemple le descriptif QoQa. Claude s'en sert pour le conseil et les accords.",
     "photo": "Photo · {{size}}",
     "pdf": "PDF · {{size}}",
-    "view": "Voir",
-    "replace": "Remplacer",
-    "remove": "Supprimer",
+    "view": "Afficher",
+    "replace": "Remplacer la fiche",
+    "remove": "Supprimer la fiche",
     "removeConfirm": "Supprimer la fiche info de ce vin ?",
     "close": "Fermer",
     "share": "Partager ou enregistrer",

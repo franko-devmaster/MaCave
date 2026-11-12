@@ -16,7 +16,7 @@ test.describe('Itération 3 — dégustations', () => {
   test('ouvre une bouteille, la note et retrouve la note sur la fiche', async ({ page }) => {
     await wineWith(page, 'Cornalin', 3);
 
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await expect(page.getByText('Bouteille ouverte · il en reste 2')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cornalin 2019');
 
@@ -69,7 +69,7 @@ test.describe('Itération 3 — dégustations', () => {
 
   test('signale « à racheter » sur un vin épuisé', async ({ page }) => {
     await wineWith(page, 'Petite Arvine', 1);
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await rate(page, 5);
     await page.getByRole('switch', { name: 'À racheter' }).check();
     await page.getByRole('button', { name: 'Enregistrer' }).tap();

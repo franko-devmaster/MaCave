@@ -40,8 +40,13 @@ export class WineRepository {
     return { wine, movement };
   }
 
+  /** Enregistre la saisie. `updatedAt` ne change que si un champ change : le conseil n'est alors pas redemandé. */
   async update(id: string, input: WineInput, now: Date = new Date()): Promise<Wine> {
     const existing = await this.getOrThrow(id);
+    const keys = Object.keys(input) as (keyof WineInput)[];
+    if (keys.every((key) => JSON.stringify(existing[key]) === JSON.stringify(input[key]))) {
+      return existing;
+    }
     const wine: Wine = { ...existing, ...input, updatedAt: now.toISOString() };
     await this.db.wines.put(wine);
     return wine;
@@ -131,6 +136,25 @@ export class WineRepository {
     const movement = buildMovement(wineId, delta, reason, pricePaid, now);
     await this.db.stockMovements.add(movement);
     return movement;
+  }
+
+  /**
+   * Corrige le prix payé affiché sur la fiche : celui du dernier achat. Sans achat enregistré,
+   * le prix est porté par un mouvement de correction sans bouteille.
+   */
+  async setLastPrice(wineId: string, pricePaid: number | null, now: Date = new Date()): Promise<StockMovement> {
+    return this.db.transaction('rw', this.db.stockMovements, async () => {
+      const purchases = await this.db.stockMovements.where('wineId').equals(wineId).filter((m) => m.reason === 'achat').toArray();
+      const last = purchases.sort((a, b) => b.date.localeCompare(a.date))[0];
+      if (!last) {
+        const movement = buildMovement(wineId, 0, 'correction', pricePaid, now);
+        await this.db.stockMovements.add(movement);
+        return movement;
+      }
+      const movement: StockMovement = { ...last, pricePaid };
+      await this.db.stockMovements.put(movement);
+      return movement;
+    });
   }
 
   deleteMovement(id: string): Promise<void> {

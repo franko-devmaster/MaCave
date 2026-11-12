@@ -14,11 +14,11 @@
       </span>
     </button>
     <div class="actions">
-      <label class="actions__link">
+      <label class="btn">
         {{ 'info.replace' | translate }}
         <input class="visually-hidden" type="file" accept="image/*,application/pdf,.pdf" [disabled]="busy()" (change)="onPick($event)" />
       </label>
-      <button type="button" class="actions__link actions__link--danger" [disabled]="busy()" (click)="remove()">{{ 'info.remove' | translate }}</button>
+      <button type="button" class="btn btn--quiet actions__remove" [disabled]="busy()" (click)="remove()">{{ 'info.remove' | translate }}</button>
     </div>
   } @else {
     <label class="add">
@@ -33,5 +33,5 @@
 </section>
 
 <app-media-viewer #viewer [url]="url()" [mediaType]="file()?.mediaType ?? null" [title]="'info.title' | translate">
-  <button viewerAction type="button" (click)="shareFile()">{{ 'info.share' | translate }}</button>
+  <button viewerAction type="button" class="btn" (click)="shareFile()">{{ 'info.share' | translate }}</button>
 </app-media-viewer>

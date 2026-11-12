@@ -63,7 +63,8 @@ export interface Photo {
 
 export type PhotoInput = Omit<Photo, 'id' | 'createdAt'>;
 
-export type StockReason = 'achat' | 'ouverture' | 'casse' | 'cadeau';
+/** `correction` : écart saisi en modifiant la fiche (inventaire recompté). */
+export type StockReason = 'achat' | 'ouverture' | 'casse' | 'cadeau' | 'correction';
 
 export interface StockMovement {
   id: string;

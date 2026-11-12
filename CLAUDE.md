@@ -69,6 +69,7 @@ docs/                        Description fonctionnelle et décisions
 - `takeUntilDestroyed`, `viewChild`, `resource()` ou `forkJoin` pour l'asynchrone
 - Datastore pattern : une classe par agrégat dans `datastore/`, état en signals, persistance via les repositories Dexie, aucun appel Dexie depuis un composant
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
+- Modifier le vin : tous les champs sont éditables, y compris le stock en cave et le prix payé. Le stock est la somme des mouvements : un écart devient un mouvement `correction`, le prix corrige le dernier achat (`setLastPrice`). `update` ne change `updatedAt` que si un champ descriptif change
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants
 - Le conteneur qui défile est `main.content`, pas la fenêtre : passer par `ScrollService` (`toTop()` après un enregistrement qui reste sur l'écran ; le service remet en haut à chaque navigation et rend la position au retour). Pas de défilement animé : iOS l'interrompt quand la hauteur du contenu change
@@ -89,7 +90,7 @@ docs/                        Description fonctionnelle et décisions
 
 - Installable sur l'écran d'accueil (manifest, icônes, `apple-mobile-web-app-capable`, `viewport-fit=cover`, safe areas via `env(safe-area-inset-*)`). Écran de lancement `apple-touch-startup-image` pour l'iPhone 16 Pro (1206 × 2622), généré par `scripts/generate-icons.mjs` ; un autre modèle d'iPhone demande sa propre taille
 - Photo via `<input type="file" accept="image/*" capture="environment">`, redimensionnée côté client à 1 280 px de grand côté en JPEG avant stockage et envoi
-- Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt`. Toucher la photo Bouteille l'ouvre dans la visionneuse plein écran partagée (`media-viewer`), d'où on la remplace ; sans photo, toucher ouvre l'appareil photo
+- Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt`. Toucher la photo Bouteille l'ouvre dans la visionneuse plein écran partagée (`media-viewer`, fond blanc, croix de fermeture, actions projetées en bas avec `viewerAction class="btn"`), d'où on la remplace ; sans photo, toucher ouvre l'appareil photo
 - Service worker activé, y compris sur Safari iOS : vérifier à chaque itération que l'installation et la mise à jour fonctionnent ; en cas de problème, désactiver par userAgent comme sur AquaPlan et le documenter ici
 - IndexedDB est la source de vérité. Demander `navigator.storage.persist()` au premier lancement. Rappeler l'export si le dernier remonte à plus de 30 jours
 - Consultation de la cave hors ligne ; les fonctions IA affichent un état explicite sans réseau

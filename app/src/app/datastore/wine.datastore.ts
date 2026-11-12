@@ -9,6 +9,12 @@ export interface WineDetail extends CellarEntry {
   lastPrice: number | null;
 }
 
+/** Stock et prix tels que saisis en modifiant la fiche. */
+export interface StockCorrection {
+  bottles: number;
+  pricePaid: number | null;
+}
+
 /** État de la cave : vins et mouvements de stock, dérivations en signaux. */
 @Injectable({ providedIn: 'root' })
 export class WineDatastore {
@@ -48,10 +54,25 @@ export class WineDatastore {
     return wine;
   }
 
-  async update(id: string, input: WineInput): Promise<Wine> {
+  /**
+   * Enregistre la fiche et, si fourni, le stock et le prix corrigés : un écart de stock devient
+   * un mouvement `correction`, un nouveau prix remplace celui du dernier achat.
+   */
+  async update(id: string, input: WineInput, stock: StockCorrection | null = null): Promise<Wine> {
+    const before = this.detail(id);
     const wine = await this.repository.update(id, input);
     await this.references.remember(input.country, input.region, input.grapes);
-    this.winesSignal.update((wines) => wines.map((w) => (w.id === id ? wine : w)));
+    this.replace(wine);
+    if (stock && before) {
+      const delta = stock.bottles - before.bottles;
+      if (delta !== 0) {
+        await this.addMovement(id, delta, 'correction');
+      }
+      if (stock.pricePaid !== before.lastPrice) {
+        const movement = await this.repository.setLastPrice(id, stock.pricePaid);
+        this.movementsSignal.update((movements) => [...movements.filter((m) => m.id !== movement.id), movement]);
+      }
+    }
     return wine;
   }
 

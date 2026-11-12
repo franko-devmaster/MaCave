@@ -144,16 +144,9 @@
 
 .actions {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 14px var(--gutter) 0;
-
-  .btn {
-    flex: 1;
-  }
-}
-
-.actions__buy {
-  flex: 0 0 120px !important;
 }
 
 .notes {

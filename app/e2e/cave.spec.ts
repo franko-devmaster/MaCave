@@ -59,21 +59,27 @@ test.describe('Itération 1 — cave', () => {
     await expect(page.getByTestId('bottles')).toHaveText('3');
     await expect(page.getByText('CHF 34.–')).toBeVisible();
 
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await expect(page.getByText('Bouteille ouverte · il en reste 2')).toBeVisible();
     await page.getByRole('button', { name: /Annuler l'ouverture/ }).tap();
     await expect(page.getByTestId('bottles')).toHaveText('3');
 
-    await page.getByRole('button', { name: '+ 1 achetée' }).tap();
+    await page.getByRole('button', { name: 'Ajouter une bouteille' }).tap();
     await expect(page.getByTestId('bottles')).toHaveText('4');
 
-    await page.getByRole('link', { name: 'Modifier la fiche' }).tap();
+    await page.getByRole('link', { name: 'Modifier le vin' }).tap();
     await expect(page.getByLabel('Nom du vin')).toHaveValue('Cornalin');
+    await expect(page.getByLabel('Bouteilles en cave')).toHaveValue('4');
+    await expect(page.getByLabel('Prix payé par bouteille (CHF)')).toHaveValue('34');
     await page.getByLabel('Nom du vin').fill('Cornalin Réserve');
+    await page.getByLabel('Bouteilles en cave').fill('6');
+    await page.getByLabel('Prix payé par bouteille (CHF)').fill('36');
     await page.getByRole('button', { name: 'Enregistrer' }).tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cornalin Réserve');
+    await expect(page.getByTestId('bottles')).toHaveText('6');
+    await expect(page.getByText('CHF 36.–')).toBeVisible();
 
-    await page.getByRole('link', { name: 'Modifier la fiche' }).tap();
+    await page.getByRole('link', { name: 'Modifier le vin' }).tap();
     page.once('dialog', (dialog) => dialog.accept());
     await page.getByRole('button', { name: 'Supprimer ce vin' }).tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ma cave');
@@ -84,9 +90,9 @@ test.describe('Itération 1 — cave', () => {
     await page.goto('ajouter');
     await addWine(page, { name: 'Dézaley', color: 'Blanc', quantity: 1 });
     await page.getByRole('link', { name: 'Voir la fiche' }).tap();
-    await page.getByRole('button', { name: "J'en ouvre une" }).tap();
+    await page.getByRole('button', { name: 'Ouvrir une bouteille' }).tap();
     await page.getByRole('link', { name: 'Fiche' }).tap();
-    await expect(page.getByRole('button', { name: "J'en ouvre une" })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Ouvrir une bouteille' })).toBeDisabled();
     await page.getByRole('link', { name: 'Cave' }).tap();
 
     await expect(page.getByText('0 bouteille')).toBeVisible();
