@@ -50,21 +50,24 @@
         </button>
       }
     </div>
-    <div class="filters__row" role="group" [attr.aria-label]="'cave.filterGroups.when' | translate">
-      @for (value of whenChoices; track value) {
-        <button type="button" class="chip" [class.chip--on]="filters().when.includes(value)" [attr.aria-pressed]="filters().when.includes(value)" (click)="toggleWhen(value)">
-          <app-badge-icon [kind]="value" aria-hidden="true" />
-          {{ 'cave.filters.' + value | translate }}
-        </button>
-      }
-    </div>
-    <div class="filters__row" role="group" [attr.aria-label]="'cave.filterGroups.taste' | translate">
-      @for (value of tasteChoices; track value) {
-        <button type="button" class="chip" [class.chip--on]="filters().taste.includes(value)" [attr.aria-pressed]="filters().taste.includes(value)" (click)="toggleTaste(value)">
-          <app-badge-icon [kind]="value" aria-hidden="true" />
-          {{ 'cave.filters.' + value | translate }}
-        </button>
-      }
+    <div class="filters__row">
+      <div class="filters__group" role="group" [attr.aria-label]="'cave.filterGroups.when' | translate">
+        @for (value of whenChoices; track value) {
+          <button type="button" class="chip" [class.chip--on]="filters().when.includes(value)" [attr.aria-pressed]="filters().when.includes(value)" (click)="toggleWhen(value)">
+            <app-badge-icon [kind]="value" aria-hidden="true" />
+            {{ 'cave.filters.' + value | translate }}
+          </button>
+        }
+      </div>
+      <span class="filters__divider" aria-hidden="true"></span>
+      <div class="filters__group" role="group" [attr.aria-label]="'cave.filterGroups.taste' | translate">
+        @for (value of tasteChoices; track value) {
+          <button type="button" class="chip" [class.chip--on]="filters().taste.includes(value)" [attr.aria-pressed]="filters().taste.includes(value)" (click)="toggleTaste(value)">
+            <app-badge-icon [kind]="value" aria-hidden="true" />
+            {{ 'cave.filters.' + value | translate }}
+          </button>
+        }
+      </div>
     </div>
   </div>
 

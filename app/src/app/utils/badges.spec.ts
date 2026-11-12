@@ -1,7 +1,7 @@
 import { Tasting } from '../models/tasting';
 import { WineAdvice } from '../models/wine';
 import { wine } from '../testing/fixtures';
-import { isGrandCru, starWineIds } from './badges';
+import { isGrandCru, starWineIds, wineBadges } from './badges';
 
 function tasting(wineId: string, score: Tasting['score']): Tasting {
   return { id: `${wineId}-${score}-${Math.random()}`, wineId, score, likedDescriptors: [], dislikedDescriptors: [], comment: '', context: '', rebuy: false, date: '' };
@@ -29,5 +29,10 @@ describe('badges', () => {
     const wines = [wine('a', { advice: advice({ affinity: 8 }) }), wine('b', { advice: advice({ affinity: 7 }) }), wine('c', { advice: null })];
 
     expect(starWineIds(wines, [])).toEqual(new Set(['a']));
+  });
+
+  it('wineBadges should list the drinking state, the star and the grand cru in this order', () => {
+    expect(wineBadges({ wine: wine('a', { advice: advice({ grandCru: true }) }), readiness: 'soon' }, true)).toEqual(['soon', 'star', 'grand-cru']);
+    expect(wineBadges({ wine: wine('b', { advice: null }), readiness: null }, false)).toEqual([]);
   });
 });

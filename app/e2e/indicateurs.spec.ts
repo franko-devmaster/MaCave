@@ -42,6 +42,20 @@ test.describe('Indicateurs et filtres de la cave', () => {
     await expect(row(/Humagne/).getByRole('img')).toHaveCount(0);
   });
 
+  test('affiche les indicateurs en haut de la fiche, à droite du millésime', async ({ page }) => {
+    await page.getByRole('link', { name: /Pinot Noir/ }).tap();
+    const badges = page.getByRole('list', { name: 'Indicateurs' });
+    await expect(badges.getByRole('listitem')).toHaveText(['Prêt à boire', 'Mes goûts']);
+
+    await page.getByRole('link', { name: 'Cave' }).tap();
+    await page.getByRole('link', { name: /Dézaley/ }).tap();
+    await expect(badges.getByRole('listitem')).toHaveText(['Prêt à boire', 'Grand cru']);
+
+    await page.getByRole('link', { name: 'Cave' }).tap();
+    await page.getByRole('link', { name: /Humagne/ }).tap();
+    await expect(badges).toHaveCount(0);
+  });
+
   test('la mention « Grand Cru » dans le nom ne suffit pas : seule l’évaluation de Claude compte', async ({ page }) => {
     await expect(page.getByRole('link', { name: /Humagne/ }).getByRole('img', { name: 'Grand cru' })).toHaveCount(0);
   });
