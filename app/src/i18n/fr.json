@@ -169,6 +169,15 @@
       "removeGrape": "Pas un favori : {{value}}",
       "removeAvoid": "Pas à éviter : {{value}}",
       "note": "« {{value}} »"
+    },
+    "reevaluate": {
+      "title": "Ma cave et mes goûts",
+      "hint": "Claude réévalue chaque vin en cave d'après votre profil actuel : l'étoile « Mes goûts » et la couronne « Grand cru » se mettent à jour. Un appel à Claude par vin.",
+      "action": "Réévaluer ma cave ({{count}} vins)",
+      "confirm": "Réévaluer {{count}} vins ?\n\nClaude fait un appel par vin, facturé sur votre clé.",
+      "progress": "Claude réévalue votre cave… {{done}} / {{total}}",
+      "done": "Cave réévaluée : {{count}} vins.",
+      "stopped": "Réévaluation interrompue après {{done}} / {{total}} vins."
     }
   },
   "reglages": {
@@ -309,7 +318,8 @@
       "ready": "Prêt à boire",
       "star": "Mes goûts",
       "grand-cru": "Grand cru"
-    }
+    },
+    "editShort": "Modifier"
   },
   "modifier": {
     "title": "Modifier le vin",

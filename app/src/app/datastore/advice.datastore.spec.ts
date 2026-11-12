@@ -98,4 +98,41 @@ describe('AdviceDatastore', () => {
 
     expect(calls).toHaveLength(2);
   });
+
+  it('reevaluateAll should ask again for every wine in stock, even with a fresh advice', async () => {
+    const other = await wines.create(wineInput({ name: 'Petite Arvine' }), { quantity: 1, pricePaid: null });
+    const emptied = await wines.create(wineInput({ name: 'Épuisé' }), { quantity: 1, pricePaid: null });
+    await wines.open(emptied.id);
+    await sut.ensure(wineId);
+    respond = () => textResponse(JSON.stringify({ status: 'pret', text: 'Réévalué.', infoSummary: null, affinity: 9, grandCru: true }));
+
+    await sut.reevaluateAll();
+
+    expect(calls).toHaveLength(3);
+    expect(sut.reevaluation()).toEqual({ done: 2, total: 2, running: false, error: null });
+    expect(wines.detail(wineId)?.wine.advice).toMatchObject({ affinity: 9, grandCru: true });
+    expect(wines.detail(other.id)?.wine.advice?.text).toBe('Réévalué.');
+    expect(wines.detail(emptied.id)?.wine.advice).toBeFalsy();
+  });
+
+  it('reevaluateAll should stop at the first error and report it', async () => {
+    await wines.create(wineInput({ name: 'Petite Arvine' }), { quantity: 1, pricePaid: null });
+    respond = () => {
+      throw apiError(429);
+    };
+
+    await sut.reevaluateAll();
+
+    expect(calls).toHaveLength(1);
+    expect(sut.reevaluation()).toMatchObject({ done: 0, total: 2, running: false, error: { kind: 'rate-limit' } });
+  });
+
+  it('reevaluateAll without an API key should do nothing', async () => {
+    await TestBed.inject(SettingsDatastore).clearApiKey();
+
+    await sut.reevaluateAll();
+
+    expect(calls).toHaveLength(0);
+    expect(sut.reevaluation()).toBeNull();
+  });
 });

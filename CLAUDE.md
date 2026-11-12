@@ -109,6 +109,7 @@ docs/                        Description fonctionnelle et décisions
 - Images : JPEG base64 redimensionné, jamais l'original
 - Réutiliser plutôt que dupliquer : le verdict magasin imbrique `LABEL_READING_SCHEMA`, `parseLabelReading` et `LABEL_FIELD_RULES` ; `profileText` sert aux accords et au verdict
 - Conseil de fiche : demandé une fois par vin, mémorisé sur le vin (`advice`), redemandé seulement après modification du vin, changement d'année ou changement de fiche info (`isAdviceFresh`) ; `setAdvice` ne modifie pas `updatedAt`. La photo Bouteille n'est jamais envoyée pour le conseil
+- Réévaluer ma cave (Mes goûts) : `AdviceDatastore.reevaluateAll()` redemande le conseil des vins en stock, un par un, état `reevaluation` (fait / total / erreur), arrêt à la première erreur ; confirmation obligatoire, car un appel par vin
 - Conseil de fiche : rend aussi `affinity` (0 à 10, null sans profil ni dégustation, consigne d'exigence) et `grandCru` (premier rang seulement, false dans le doute) ; un conseil sans ces champs est redemandé une fois (`isAdviceFresh`)
 - Fiche info : envoyée avec la demande de conseil (bloc `document` pour un PDF, `image` sinon) ; Claude en rend un résumé (`infoSummary`) mémorisé avec le conseil. Les accords réutilisent ce résumé (`currentInfoSummary`) au lieu de renvoyer le fichier
 - Calibration : chaque verdict suivi d'un achat (`boughtWineId`) puis d'une note est renvoyé à Claude dans les verdicts suivants (`calibrationText`)
