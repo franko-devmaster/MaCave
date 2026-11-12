@@ -251,7 +251,8 @@ Le plan de la v1 est entièrement livré.
 | 0.8.0 | Fiche info et photo Bouteille | Livrée, recette validée |
 | 0.9.0 | Conseil enrichi par la fiche info, photo en plein écran | Livrée, retours intégrés en 0.10.0 |
 | 0.10.0 | Visionneuse claire, libellés, stock et prix modifiables | Livrée |
-| 0.11.0 | Indicateurs et filtres combinables dans la cave | Livrée, en recette |
+| 0.11.0 | Indicateurs et filtres combinables dans la cave | Livrée |
+| 0.11.1 | Filtres « quand » et « goût » sur une seule ligne | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -284,7 +285,7 @@ Le plan de la v1 est entièrement livré.
   - étoile : vin dégusté, moyenne de vos notes d'au moins 4 sur 5 ; pas encore dégusté, affinité d'au moins 8 sur 10 donnée par Claude d'après le profil et les dégustations (consigne d'exigence dans le prompt) ;
   - couronne : Claude juge le vin de tout premier rang (grand cru officiel, cru classé, ou référence majeure de sa région) ; une mention « grand cru » dans le nom ne suffit pas.
   - Un vin dont la fiche n'a jamais été ouverte n'a ni affinité ni évaluation : pas d'étoile (sauf note), pas de couronne. Les conseils d'avant cette version sont redemandés une fois, à l'ouverture de la fiche.
-- Filtres en trois groupes, une ligne chacun : couleur ; quand le boire (à boire vite, prêt à boire) ; goût et rang (mes goûts, grands crus). Dans un groupe, les choix s'additionnent (rouges ou blancs) ; entre groupes, ils se cumulent (rouges et prêts à boire). « Tous » efface tout.
+- Filtres en trois groupes sur deux lignes à défilement horizontal : couleur ; puis quand le boire (à boire vite, prêt à boire) et goût et rang (mes goûts, grands crus), séparés par un filet (0.11.1, pour gagner de la hauteur). Dans un groupe, les choix s'additionnent (rouges ou blancs) ; entre groupes, ils se cumulent (rouges et prêts à boire). « Tous » efface tout.
 - Aucun appel supplémentaire : l'affinité et le grand cru sont deux champs de plus dans la réponse du conseil. Le texte « à boire » disparaît des lignes : la puce le remplace. Deux couleurs d'état s'ajoutent à la palette, à la demande de l'utilisateur : `--color-soon` (rouge) et `--color-ready` (vert).
 
 Choix faits pendant l'itération 1, à confirmer en recette :

@@ -89,6 +89,19 @@
   }
 }
 
+.filters__group {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.filters__divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+}
+
 .chip {
   flex-shrink: 0;
   display: inline-flex;
