@@ -1,9 +1,14 @@
 import { StockMovement, Wine, WINE_COLORS, WineColor } from '../models/wine';
 
+/** Moment de boire un vin en cave : à boire rapidement, ou prêt à boire. */
+export type Readiness = 'soon' | 'ready';
+
 export interface CellarEntry {
   wine: Wine;
   bottles: number;
+  /** À boire rapidement (`readiness === 'soon'`) : alimente le filtre et le compteur « à boire ». */
   drinkNow: boolean;
+  readiness: Readiness | null;
 }
 
 export interface ColorGroup {
@@ -17,8 +22,6 @@ export interface CellarSummary {
   wines: number;
   drinkNow: number;
 }
-
-export type CellarFilter = 'tous' | 'a-boire' | WineColor;
 
 export const EXPORT_REMINDER_DAYS = 30;
 
@@ -44,11 +47,33 @@ export function isDrinkNow(wine: Wine, year: number): boolean {
   return wine.drinkUntil !== null && wine.drinkUntil <= year;
 }
 
+/**
+ * À boire rapidement ou prêt à boire, sinon null (trop jeune ou inconnu).
+ * La fin de la garde atteinte prime ; vient ensuite l'état donné par le conseil de Claude,
+ * puis le début de la garde.
+ */
+export function readiness(wine: Wine, year: number): Readiness | null {
+  if (isDrinkNow(wine, year)) {
+    return 'soon';
+  }
+  switch (wine.advice?.status) {
+    case 'declin':
+      return 'soon';
+    case 'pret':
+    case 'apogee':
+      return 'ready';
+    case 'trop-jeune':
+      return null;
+  }
+  return wine.drinkFrom !== null && wine.drinkFrom <= year ? 'ready' : null;
+}
+
 export function buildEntries(wines: readonly Wine[], movements: readonly StockMovement[], year: number): CellarEntry[] {
   const stock = stockByWine(movements);
   return wines.map((wine) => {
     const bottles = Math.max(0, stock.get(wine.id) ?? 0);
-    return { wine, bottles, drinkNow: bottles > 0 && isDrinkNow(wine, year) };
+    const state = bottles > 0 ? readiness(wine, year) : null;
+    return { wine, bottles, drinkNow: state === 'soon', readiness: state };
   });
 }
 
@@ -75,16 +100,6 @@ export function matchesSearch(wine: Wine, query: string): boolean {
     [wine.name, wine.producer, wine.region, wine.country, wine.appellation, wine.grapes.join(' '), wine.vintage ?? ''].join(' '),
   );
   return terms.every((term) => haystack.includes(term));
-}
-
-export function matchesFilter(entry: CellarEntry, filter: CellarFilter): boolean {
-  if (filter === 'tous') {
-    return true;
-  }
-  if (filter === 'a-boire') {
-    return entry.drinkNow;
-  }
-  return entry.wine.color === filter;
 }
 
 /** Groupes par couleur, dans l'ordre rouge, blanc, rosé, bulles ; tri par nom puis millésime. */

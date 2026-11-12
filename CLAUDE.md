@@ -41,7 +41,7 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, info-attachment, media-viewer, score-picker, chip-group, tasting-list, wine-advice
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, badge-icon, wine-form, color-dot, label-photo, info-attachment, media-viewer, score-picker, chip-group, tasting-list, wine-advice
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore, AdviceDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture), ScrollService (défilement), NetworkService (en ligne / hors ligne), AppUpdateService, StoragePersistenceService, FileShareService
     db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
@@ -69,6 +69,7 @@ docs/                        Description fonctionnelle et décisions
 - `takeUntilDestroyed`, `viewChild`, `resource()` ou `forkJoin` pour l'asynchrone
 - Datastore pattern : une classe par agrégat dans `datastore/`, état en signals, persistance via les repositories Dexie, aucun appel Dexie depuis un composant
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
+- Indicateurs de la liste (`badge-icon`) : puce sous le nombre de bouteilles, rouge `--color-soon` ou verte `--color-ready`, selon `readiness()` (fin de garde, puis état du conseil, puis début de garde), qui alimente aussi le compteur « à boire » ; à gauche du nombre, étoile puis couronne, sans colonne réservée. `starWineIds` dans `WineDatastore` (moyenne des notes ≥ 4, sinon `advice.affinity` ≥ 8) ; `isGrandCru` = `advice.grandCru`, l'évaluation de Claude, jamais le nom. Filtres `CellarFilters` (`utils/cellar-filters.ts`) : couleur, moment, goût ; OU dans un groupe, ET entre groupes. Aucun appel dédié : tout vient des données locales et du conseil de fiche
 - Modifier le vin : tous les champs sont éditables, y compris le stock en cave et le prix payé. Le stock est la somme des mouvements : un écart devient un mouvement `correction`, le prix corrige le dernier achat (`setLastPrice`). `update` ne change `updatedAt` que si un champ descriptif change
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants
@@ -80,7 +81,7 @@ docs/                        Description fonctionnelle et décisions
 ### Design system « Étiquette »
 
 - Fond blanc `#FFFFFF`, surface secondaire `#F3F1EC`, encre `#17120F`, texte atténué `#6B625B`, filet `#ECE8E1`, bordure `#E3DED6`
-- Un seul accent : bordeaux `#7A1F2E`, pour l'action principale, les notes et le signal IA
+- Un seul accent : bordeaux `#7A1F2E`, pour l'action principale, les notes et le signal IA. Exception voulue par l'utilisateur : puces d'état de la cave, rouge `#C62828` (à boire rapidement) et verte `#2E7D32` (prêt à boire), toujours avec un libellé accessible
 - Couleurs de vin : rouge `#7A1F2E`, blanc `#D4A72C`, rosé `#E08A9B`, bulles `#4F7F96`. Toujours accompagnées du libellé
 - Typographie : Barlow Condensed 600 / 700 pour titres et millésimes ; Inter 400 / 500 / 600 pour le texte ; IBM Plex Mono 400 / 500 en capitales espacées pour les étiquettes de champ
 - Cibles tactiles 44 px au minimum, contrastes 4.5:1, pas de barre d'état simulée, pas d'emoji, icônes SVG en trait
@@ -108,6 +109,7 @@ docs/                        Description fonctionnelle et décisions
 - Images : JPEG base64 redimensionné, jamais l'original
 - Réutiliser plutôt que dupliquer : le verdict magasin imbrique `LABEL_READING_SCHEMA`, `parseLabelReading` et `LABEL_FIELD_RULES` ; `profileText` sert aux accords et au verdict
 - Conseil de fiche : demandé une fois par vin, mémorisé sur le vin (`advice`), redemandé seulement après modification du vin, changement d'année ou changement de fiche info (`isAdviceFresh`) ; `setAdvice` ne modifie pas `updatedAt`. La photo Bouteille n'est jamais envoyée pour le conseil
+- Conseil de fiche : rend aussi `affinity` (0 à 10, null sans profil ni dégustation, consigne d'exigence) et `grandCru` (premier rang seulement, false dans le doute) ; un conseil sans ces champs est redemandé une fois (`isAdviceFresh`)
 - Fiche info : envoyée avec la demande de conseil (bloc `document` pour un PDF, `image` sinon) ; Claude en rend un résumé (`infoSummary`) mémorisé avec le conseil. Les accords réutilisent ce résumé (`currentInfoSummary`) au lieu de renvoyer le fichier
 - Calibration : chaque verdict suivi d'un achat (`boughtWineId`) puis d'une note est renvoyé à Claude dans les verdicts suivants (`calibrationText`)
 - Le parseur ne garde que des identifiants de vins présents dans le contexte envoyé (en stock pour les accords) : un vin inventé ou épuisé est écarté sans erreur

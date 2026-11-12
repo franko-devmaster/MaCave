@@ -14,6 +14,9 @@
   --wine-blanc: #d4a72c;
   --wine-rose: #e08a9b;
   --wine-bulles: #4f7f96;
+  /* Puces de garde dans la liste : à boire rapidement, prêt à boire (contraste ≥ 4.5:1 sur blanc). */
+  --color-soon: #c62828;
+  --color-ready: #2e7d32;
 
   --font-display: 'Barlow Condensed', 'Inter', system-ui, sans-serif;
   --font-text: 'Inter', system-ui, -apple-system, sans-serif;

@@ -34,17 +34,18 @@ test.describe('Itération 1 — cave', () => {
     await expect(page.getByText('1 à boire')).toBeVisible();
     await expect(page.getByRole('heading', { name: /Rouges/ })).toBeVisible();
     await expect(page.getByRole('heading', { name: /Blancs/ })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Cornalin.*Germanier · Valais · à boire/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Cornalin.*Germanier · Valais.*À boire rapidement/ })).toBeVisible();
 
     await page.getByLabel('Rechercher un vin').fill('arvine');
     await expect(page.getByRole('link', { name: /Petite Arvine/ })).toBeVisible();
     await expect(page.getByRole('link', { name: /Cornalin/ })).toHaveCount(0);
 
     await page.getByLabel('Rechercher un vin').fill('');
-    await page.getByRole('button', { name: 'À boire' }).tap();
+    await page.getByRole('button', { name: 'À boire vite' }).tap();
     await expect(page.getByRole('link', { name: /Cornalin/ })).toBeVisible();
     await expect(page.getByRole('link', { name: /Petite Arvine/ })).toHaveCount(0);
 
+    await page.getByRole('button', { name: 'Tous' }).tap();
     await page.getByRole('button', { name: 'Blancs' }).tap();
     await expect(page.getByRole('link', { name: /Petite Arvine/ })).toBeVisible();
     await expect(page.getByRole('link', { name: /Cornalin/ })).toHaveCount(0);

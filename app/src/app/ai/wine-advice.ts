@@ -9,6 +9,8 @@ export interface AdviceParsed {
   status: AdviceStatus;
   text: string;
   infoSummary: string | null;
+  affinity: number | null;
+  grandCru: boolean;
 }
 
 /** Fiche info jointe à la demande : PDF ou image JPEG, en base64. */
@@ -20,11 +22,13 @@ export interface InfoFile {
 export const WINE_ADVICE_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['status', 'text', 'infoSummary'],
+  required: ['status', 'text', 'infoSummary', 'affinity', 'grandCru'],
   properties: {
     status: { type: 'string', enum: [...ADVICE_STATUSES] },
     text: { type: 'string' },
     infoSummary: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+    affinity: { anyOf: [{ type: 'integer' }, { type: 'null' }] },
+    grandCru: { type: 'boolean' },
   },
 };
 
@@ -32,6 +36,9 @@ export const WINE_ADVICE_SYSTEM = `Tu conseilles une personne sur une bouteille 
 
 - status : trop-jeune (mieux vaut attendre), pret (bon maintenant, peut encore attendre), apogee (son meilleur moment), declin (à boire sans tarder), inconnu (pas assez d'informations).
 - text : trois phrases au plus. Quand l'ouvrir ; comment la servir (température, carafe ou aération) ; deux ou trois plats qui lui iront, en tenant compte des goûts de la personne. L'état de garde est déjà affiché à part : ne le répète pas, commence directement par le conseil.
+
+- affinity : de 0 à 10, à quel point ce vin correspond aux goûts de la personne, d'après son profil et ses dégustations (de ce vin et des autres). Sois exigeant : 8 ou plus seulement si le vin coche nettement ce qu'elle recherche et rien de ce qu'elle évite. Sans profil ni dégustation : null.
+- grandCru : true seulement pour un vin de tout premier rang : grand cru ou premier grand cru officiel (Bourgogne, Alsace, Champagne, Dézaley, Calamin, grands crus du Valais…), cru classé de Bordeaux, Saint-Émilion grand cru classé, ou vin unanimement reconnu comme une référence majeure de sa région. Une simple mention « grand cru » d'appellation large ne suffit pas. Dans le doute : false.
 
 - infoSummary : si une fiche info est jointe (descriptif du producteur ou du vendeur, en PDF ou en photo), un résumé factuel en deux phrases au plus : élevage, style, garde, accords conseillés. Sans fiche info : null.
 
@@ -62,7 +69,7 @@ export function parseWineAdvice(raw: unknown): AdviceParsed {
   if (typeof raw !== 'object' || raw === null) {
     throw new InvalidResponseError('objet attendu');
   }
-  const { status, text, infoSummary } = raw as Record<string, unknown>;
+  const { status, text, infoSummary, affinity, grandCru } = raw as Record<string, unknown>;
   const trimmed = typeof text === 'string' ? text.trim() : '';
   if (!trimmed) {
     throw new InvalidResponseError('conseil manquant');
@@ -71,6 +78,8 @@ export function parseWineAdvice(raw: unknown): AdviceParsed {
     status: typeof status === 'string' && (ADVICE_STATUSES as readonly string[]).includes(status) ? (status as AdviceStatus) : 'inconnu',
     text: trimmed,
     infoSummary: typeof infoSummary === 'string' && infoSummary.trim() ? infoSummary.trim() : null,
+    affinity: typeof affinity === 'number' && Number.isInteger(affinity) && affinity >= 0 && affinity <= 10 ? affinity : null,
+    grandCru: grandCru === true,
   };
 }
 
@@ -111,10 +120,13 @@ export function wineAdviceRequest(
   };
 }
 
-/** Un conseil reste valable tant que le vin n'a pas été modifié et que l'année n'a pas changé. */
+/**
+ * Un conseil reste valable tant que le vin n'a pas été modifié, que l'année et la fiche info n'ont pas
+ * changé. Un conseil d'avant l'affinité et le grand cru est redemandé une fois.
+ */
 export function isAdviceFresh(wine: Wine, today: Date): boolean {
   const advice = wine.advice;
-  if (!advice) {
+  if (!advice || advice.grandCru === undefined) {
     return false;
   }
   return (

@@ -16,10 +16,10 @@ const PROFILE: TasteProfile = {
 };
 
 const ENTRIES: CellarEntry[] = [
-  { wine: wine('w1', { drinkFrom: 2024, drinkUntil: 2030 }), bottles: 3, drinkNow: false },
-  { wine: wine('w2', { name: 'Barolo Bussia', producer: 'Prunotto', vintage: 2016, region: 'Piémont', country: 'Italie', grapes: ['Nebbiolo'], drinkFrom: 2022, drinkUntil: 2026 }), bottles: 1, drinkNow: true },
-  { wine: wine('w3', { name: 'Sociando-Mallet', drinkFrom: 2028, drinkUntil: 2040 }), bottles: 2, drinkNow: false },
-  { wine: wine('w4', { name: 'Épuisé' }), bottles: 0, drinkNow: false },
+  { wine: wine('w1', { drinkFrom: 2024, drinkUntil: 2030 }), bottles: 3, drinkNow: false, readiness: null },
+  { wine: wine('w2', { name: 'Barolo Bussia', producer: 'Prunotto', vintage: 2016, region: 'Piémont', country: 'Italie', grapes: ['Nebbiolo'], drinkFrom: 2022, drinkUntil: 2026 }), bottles: 1, drinkNow: true, readiness: 'soon' as const },
+  { wine: wine('w3', { name: 'Sociando-Mallet', drinkFrom: 2028, drinkUntil: 2040 }), bottles: 2, drinkNow: false, readiness: null },
+  { wine: wine('w4', { name: 'Épuisé' }), bottles: 0, drinkNow: false, readiness: null },
 ];
 
 function answer(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -140,7 +140,7 @@ describe('pairing', () => {
 
   it('cellarText should add the summary of the current info file', () => {
     const advice = { status: 'pret' as const, text: 'x', generatedAt: '', infoAttachmentId: 'f1', infoSummary: 'Élevé 12 mois en fût, accords gibier.' };
-    const entries: CellarEntry[] = [{ wine: wine('w1', { advice, infoAttachmentId: 'f1', drinkFrom: null, drinkUntil: null }), bottles: 1, drinkNow: false }];
+    const entries: CellarEntry[] = [{ wine: wine('w1', { advice, infoAttachmentId: 'f1', drinkFrom: null, drinkUntil: null }), bottles: 1, drinkNow: false, readiness: null }];
 
     expect(cellarText(entries, [], 2026)).toContain('| fiche info : Élevé 12 mois en fût, accords gibier.');
   });

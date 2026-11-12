@@ -58,9 +58,9 @@ describe('store-verdict', () => {
 
   it('cellarOverview should count bottles in stock by color', () => {
     const entries: CellarEntry[] = [
-      { wine: wine('a'), bottles: 14, drinkNow: false },
-      { wine: wine('b', { color: 'blanc' }), bottles: 3, drinkNow: false },
-      { wine: wine('c', { color: 'blanc' }), bottles: 0, drinkNow: false },
+      { wine: wine('a'), bottles: 14, drinkNow: false, readiness: null },
+      { wine: wine('b', { color: 'blanc' }), bottles: 3, drinkNow: false, readiness: null },
+      { wine: wine('c', { color: 'blanc' }), bottles: 0, drinkNow: false, readiness: null },
     ];
 
     expect(cellarOverview(entries)).toBe('Cave : 17 bouteilles en stock (14 rouges, 3 blancs).');
