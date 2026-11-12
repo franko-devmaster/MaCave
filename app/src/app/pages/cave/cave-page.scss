@@ -71,8 +71,16 @@
 
 .filters {
   display: flex;
+  flex-direction: column;
   gap: var(--space-2);
-  padding: 14px var(--gutter) var(--space-1);
+  padding: 14px 0 var(--space-1);
+}
+
+.filters__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--gutter);
   overflow-x: auto;
   scrollbar-width: none;
 
@@ -98,6 +106,11 @@
   &--on {
     border-color: var(--color-ink);
     background: var(--color-ink);
+    color: var(--color-on-ink);
+  }
+
+  /* Sur fond encre, l'étoile et la couronne passent en blanc ; les puces gardent leur couleur. */
+  &--on app-badge-icon {
     color: var(--color-on-ink);
   }
 }
@@ -159,19 +172,3 @@
   color: var(--color-muted);
 }
 
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin: 0;
-  padding: var(--space-4) var(--gutter) 0;
-  list-style: none;
-  font-size: var(--text-small);
-  color: var(--color-muted);
-}
-
-.legend__item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}

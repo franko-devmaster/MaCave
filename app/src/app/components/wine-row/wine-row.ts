@@ -22,24 +22,18 @@ import { BadgeIconComponent } from '../badge-icon/badge-icon';
           <span class="row__meta">{{ origin() }}</span>
         }
       </span>
-      <span class="row__badges">
-        <span class="row__slot">
-          @if (entry().readiness; as state) {
-            <app-badge-icon [kind]="state" />
-          }
-        </span>
-        <span class="row__slot">
-          @if (star()) {
-            <app-badge-icon kind="star" />
-          }
-        </span>
-        <span class="row__slot">
-          @if (grandCru()) {
-            <app-badge-icon kind="grand-cru" />
-          }
-        </span>
+      @if (star()) {
+        <app-badge-icon kind="star" />
+      }
+      @if (grandCru()) {
+        <app-badge-icon kind="grand-cru" />
+      }
+      <span class="row__stock">
+        <span class="row__count">{{ entry().bottles }}</span>
+        @if (entry().readiness; as state) {
+          <app-badge-icon [kind]="state" />
+        }
       </span>
-      <span class="row__count">{{ entry().bottles }}</span>
     </a>
   `,
 })

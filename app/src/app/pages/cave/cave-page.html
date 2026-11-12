@@ -39,18 +39,33 @@
   </div>
 
   <div class="filters" role="group" [attr.aria-label]="'cave.filterLabel' | translate">
-    <button type="button" class="chip" [class.chip--on]="filter() === 'tous'" [attr.aria-pressed]="filter() === 'tous'" (click)="filter.set('tous')">
-      {{ 'cave.filters.tous' | translate }}
-    </button>
-    <button type="button" class="chip" [class.chip--on]="filter() === 'a-boire'" [attr.aria-pressed]="filter() === 'a-boire'" (click)="filter.set('a-boire')">
-      {{ 'cave.filters.aBoire' | translate }}
-    </button>
-    @for (color of colors; track color) {
-      <button type="button" class="chip" [class.chip--on]="filter() === color" [attr.aria-pressed]="filter() === color" (click)="filter.set(color)">
-        <app-color-dot [color]="color" />
-        {{ 'wine.colorPlural.' + color | translate }}
+    <div class="filters__row" role="group" [attr.aria-label]="'cave.filterGroups.color' | translate">
+      <button type="button" class="chip" [class.chip--on]="!filtered()" [attr.aria-pressed]="!filtered()" (click)="filters.set(noFilters)">
+        {{ 'cave.filters.tous' | translate }}
       </button>
-    }
+      @for (color of colors; track color) {
+        <button type="button" class="chip" [class.chip--on]="filters().colors.includes(color)" [attr.aria-pressed]="filters().colors.includes(color)" (click)="toggleColor(color)">
+          <app-color-dot [color]="color" />
+          {{ 'wine.colorPlural.' + color | translate }}
+        </button>
+      }
+    </div>
+    <div class="filters__row" role="group" [attr.aria-label]="'cave.filterGroups.when' | translate">
+      @for (value of whenChoices; track value) {
+        <button type="button" class="chip" [class.chip--on]="filters().when.includes(value)" [attr.aria-pressed]="filters().when.includes(value)" (click)="toggleWhen(value)">
+          <app-badge-icon [kind]="value" aria-hidden="true" />
+          {{ 'cave.filters.' + value | translate }}
+        </button>
+      }
+    </div>
+    <div class="filters__row" role="group" [attr.aria-label]="'cave.filterGroups.taste' | translate">
+      @for (value of tasteChoices; track value) {
+        <button type="button" class="chip" [class.chip--on]="filters().taste.includes(value)" [attr.aria-pressed]="filters().taste.includes(value)" (click)="toggleTaste(value)">
+          <app-badge-icon [kind]="value" aria-hidden="true" />
+          {{ 'cave.filters.' + value | translate }}
+        </button>
+      }
+    </div>
   </div>
 
   <div class="list">
@@ -65,14 +80,6 @@
           <app-wine-row [entry]="entry" [star]="starIds().has(entry.wine.id)" />
         }
       </section>
-    }
-
-    @if (groups().length) {
-      <ul class="legend" [attr.aria-label]="'cave.badges.legend' | translate">
-        @for (kind of badgeKinds; track kind) {
-          <li class="legend__item"><app-badge-icon [kind]="kind" />{{ 'cave.badges.' + kind | translate }}</li>
-        }
-      </ul>
     }
 
     @if (noResult()) {

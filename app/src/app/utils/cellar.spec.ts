@@ -9,7 +9,6 @@ import {
   readiness,
   isExportDue,
   lastPricePaid,
-  matchesFilter,
   matchesSearch,
   normalize,
   stockByWine,
@@ -103,15 +102,6 @@ describe('cellar', () => {
     const dezaley = wine('a', { name: 'Grand Cru', appellation: 'Dézaley', grapes: ['Chasselas'], color: 'blanc' });
 
     expect(matchesSearch(dezaley, 'dezaley chasselas')).toBe(true);
-  });
-
-  it('matchesFilter should handle all, drink-now and colors', () => {
-    const entry = { wine: wine('a', { color: 'blanc' }), bottles: 1, drinkNow: true, readiness: 'soon' as const };
-
-    expect(matchesFilter(entry, 'tous')).toBe(true);
-    expect(matchesFilter(entry, 'a-boire')).toBe(true);
-    expect(matchesFilter(entry, 'blanc')).toBe(true);
-    expect(matchesFilter(entry, 'rouge')).toBe(false);
   });
 
   it('groupByColor should order colors, sort by name then vintage and count bottles', () => {

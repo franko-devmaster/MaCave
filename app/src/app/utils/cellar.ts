@@ -23,8 +23,6 @@ export interface CellarSummary {
   drinkNow: number;
 }
 
-export type CellarFilter = 'tous' | 'a-boire' | WineColor;
-
 export const EXPORT_REMINDER_DAYS = 30;
 
 /** Stock par vin : somme des mouvements. */
@@ -102,16 +100,6 @@ export function matchesSearch(wine: Wine, query: string): boolean {
     [wine.name, wine.producer, wine.region, wine.country, wine.appellation, wine.grapes.join(' '), wine.vintage ?? ''].join(' '),
   );
   return terms.every((term) => haystack.includes(term));
-}
-
-export function matchesFilter(entry: CellarEntry, filter: CellarFilter): boolean {
-  if (filter === 'tous') {
-    return true;
-  }
-  if (filter === 'a-boire') {
-    return entry.drinkNow;
-  }
-  return entry.wine.color === filter;
 }
 
 /** Groupes par couleur, dans l'ordre rouge, blanc, rosé, bulles ; tri par nom puis millésime. */

@@ -69,7 +69,7 @@ docs/                        Description fonctionnelle et décisions
 - `takeUntilDestroyed`, `viewChild`, `resource()` ou `forkJoin` pour l'asynchrone
 - Datastore pattern : une classe par agrégat dans `datastore/`, état en signals, persistance via les repositories Dexie, aucun appel Dexie depuis un composant
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
-- Indicateurs de la liste (`badge-icon`, colonnes fixes dans `wine-row`) : `readiness()` (à boire rapidement ou prêt, exclusifs ; fin de garde, puis état du conseil, puis début de garde) alimente aussi le filtre « à boire » ; `starWineIds` (moyenne ≥ 4, sinon cépage favori du profil) dans `ProfileDatastore` ; `isGrandCru` par la mention dans le nom ou l'appellation. Calculs locaux, jamais d'appel à Claude
+- Indicateurs de la liste (`badge-icon`) : puce sous le nombre de bouteilles, rouge `--color-soon` ou verte `--color-ready`, selon `readiness()` (fin de garde, puis état du conseil, puis début de garde), qui alimente aussi le compteur « à boire » ; à gauche du nombre, étoile puis couronne, sans colonne réservée. `starWineIds` (moyenne ≥ 4, sinon cépage favori du profil) dans `ProfileDatastore` ; `isGrandCru` par la mention dans le nom ou l'appellation. Filtres `CellarFilters` (`utils/cellar-filters.ts`) : couleur, moment, goût ; OU dans un groupe, ET entre groupes. Calculs locaux, jamais d'appel à Claude
 - Modifier le vin : tous les champs sont éditables, y compris le stock en cave et le prix payé. Le stock est la somme des mouvements : un écart devient un mouvement `correction`, le prix corrige le dernier achat (`setLastPrice`). `update` ne change `updatedAt` que si un champ descriptif change
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants
@@ -81,7 +81,7 @@ docs/                        Description fonctionnelle et décisions
 ### Design system « Étiquette »
 
 - Fond blanc `#FFFFFF`, surface secondaire `#F3F1EC`, encre `#17120F`, texte atténué `#6B625B`, filet `#ECE8E1`, bordure `#E3DED6`
-- Un seul accent : bordeaux `#7A1F2E`, pour l'action principale, les notes et le signal IA
+- Un seul accent : bordeaux `#7A1F2E`, pour l'action principale, les notes et le signal IA. Exception voulue par l'utilisateur : puces d'état de la cave, rouge `#C62828` (à boire rapidement) et verte `#2E7D32` (prêt à boire), toujours avec un libellé accessible
 - Couleurs de vin : rouge `#7A1F2E`, blanc `#D4A72C`, rosé `#E08A9B`, bulles `#4F7F96`. Toujours accompagnées du libellé
 - Typographie : Barlow Condensed 600 / 700 pour titres et millésimes ; Inter 400 / 500 / 600 pour le texte ; IBM Plex Mono 400 / 500 en capitales espacées pour les étiquettes de champ
 - Cibles tactiles 44 px au minimum, contrastes 4.5:1, pas de barre d'état simulée, pas d'emoji, icônes SVG en trait

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BadgeIconComponent, BadgeKind } from '../../components/badge-icon/badge-icon';
+import { BadgeIconComponent } from '../../components/badge-icon/badge-icon';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineRowComponent } from '../../components/wine-row/wine-row';
@@ -9,8 +9,9 @@ import { ProfileDatastore } from '../../datastore/profile.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { TastingDatastore } from '../../datastore/tasting.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
-import { WINE_COLORS } from '../../models/wine';
-import { CellarFilter, daysWithoutExport, groupByColor, isExportDue, matchesFilter, matchesSearch } from '../../utils/cellar';
+import { WINE_COLORS, WineColor } from '../../models/wine';
+import { daysWithoutExport, groupByColor, isExportDue, matchesSearch, Readiness } from '../../utils/cellar';
+import { CellarFilters, hasFilters, matchesFilters, NO_FILTERS, TasteFilter, toggleFilter } from '../../utils/cellar-filters';
 import { pluralKey } from '../../utils/format';
 
 @Component({
@@ -25,11 +26,14 @@ export class CavePage {
   private readonly settings = inject(SettingsDatastore);
   protected readonly rebuyIds = inject(TastingDatastore).rebuyWineIds;
   protected readonly starIds = inject(ProfileDatastore).starWineIds;
-  protected readonly badgeKinds: readonly BadgeKind[] = ['soon', 'ready', 'star', 'grand-cru'];
+  protected readonly whenChoices: readonly Readiness[] = ['soon', 'ready'];
+  protected readonly tasteChoices: readonly TasteFilter[] = ['star', 'grand-cru'];
 
   protected readonly colors = WINE_COLORS;
   protected readonly query = signal('');
-  protected readonly filter = signal<CellarFilter>('tous');
+  protected readonly noFilters = NO_FILTERS;
+  protected readonly filters = signal<CellarFilters>(NO_FILTERS);
+  protected readonly filtered = computed(() => hasFilters(this.filters()));
   protected readonly showEmptied = signal(false);
 
   protected readonly summary = this.store.summary;
@@ -47,7 +51,7 @@ export class CavePage {
   });
 
   private readonly visible = computed(() =>
-    this.store.entries().filter((e) => matchesSearch(e.wine, this.query()) && matchesFilter(e, this.filter())),
+    this.store.entries().filter((e) => matchesSearch(e.wine, this.query()) && matchesFilters(e, this.filters(), this.starIds().has(e.wine.id))),
   );
   protected readonly groups = computed(() => groupByColor(this.visible().filter((e) => e.bottles > 0)));
   protected readonly emptied = computed(() =>
@@ -66,6 +70,18 @@ export class CavePage {
     }
     return { key: lastExportAt ? 'cave.reminder.since' : 'cave.reminder.never', days: daysWithoutExport(lastExportAt, wines, now) };
   });
+
+  protected toggleColor(color: WineColor): void {
+    this.filters.update((f) => toggleFilter(f, 'colors', color));
+  }
+
+  protected toggleWhen(value: Readiness): void {
+    this.filters.update((f) => toggleFilter(f, 'when', value));
+  }
+
+  protected toggleTaste(value: TasteFilter): void {
+    this.filters.update((f) => toggleFilter(f, 'taste', value));
+  }
 
   protected onSearch(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);

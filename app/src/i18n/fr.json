@@ -36,7 +36,10 @@
     "filterLabel": "Filtrer la cave",
     "filters": {
       "tous": "Tous",
-      "aBoire": "À boire"
+      "soon": "À boire vite",
+      "ready": "Prêt à boire",
+      "star": "Mes goûts",
+      "grand-cru": "Grands crus"
     },
     "groupBottles": "· {{count}} btl",
     "noResult": "Aucun vin ne correspond.",
@@ -57,11 +60,15 @@
     },
     "rebuy": "à racheter",
     "badges": {
-      "legend": "Légende des indicateurs",
       "soon": "À boire rapidement",
       "ready": "Prêt à boire",
       "star": "Selon vos goûts",
       "grand-cru": "Grand cru"
+    },
+    "filterGroups": {
+      "color": "Couleur",
+      "when": "Quand le boire",
+      "taste": "Goût et rang"
     }
   },
   "ajouter": {
