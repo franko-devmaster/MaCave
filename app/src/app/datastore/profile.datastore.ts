@@ -4,6 +4,7 @@ import { tasteProfileRequest } from '../ai/taste-profile';
 import { ProfileRepository } from '../db/profile.repository';
 import { ProfileOverride, ProfileOverrideInput, TasteProfile } from '../models/tasting';
 import { ClaudeService } from '../services/claude.service';
+import { starWineIds } from '../utils/badges';
 import { applyOverrides, profileSignature, PROVISIONAL_THRESHOLD } from '../utils/profile';
 import { SettingsDatastore } from './settings.datastore';
 import { TastingDatastore } from './tasting.datastore';
@@ -43,6 +44,11 @@ export class ProfileDatastore {
     const profile = this.profileSignal();
     return profile && this.tastingCount() > 0 ? applyOverrides(profile, this.overridesSignal()) : null;
   });
+
+  /** Vins qui vous conviennent le mieux : bien notés, ou d'un cépage favori s'ils ne sont pas encore dégustés. */
+  readonly starWineIds = computed(() =>
+    starWineIds(this.wines.wines(), this.tastings.tastings(), this.profile()?.favoriteGrapes ?? []),
+  );
 
   async load(): Promise<void> {
     const [profile, overrides] = await Promise.all([this.repository.getProfile(), this.repository.listOverrides()]);

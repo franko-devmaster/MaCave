@@ -158,3 +158,20 @@
   line-height: 1.5;
   color: var(--color-muted);
 }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: var(--space-4) var(--gutter) 0;
+  list-style: none;
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

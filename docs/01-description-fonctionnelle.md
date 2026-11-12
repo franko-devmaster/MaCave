@@ -250,7 +250,8 @@ Le plan de la v1 est entièrement livré.
 |---|---|---|
 | 0.8.0 | Fiche info et photo Bouteille | Livrée, recette validée |
 | 0.9.0 | Conseil enrichi par la fiche info, photo en plein écran | Livrée, retours intégrés en 0.10.0 |
-| 0.10.0 | Visionneuse claire, libellés, stock et prix modifiables | Livrée, en recette |
+| 0.10.0 | Visionneuse claire, libellés, stock et prix modifiables | Livrée |
+| 0.11.0 | Indicateurs dans la liste de la cave | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -275,6 +276,13 @@ Le plan de la v1 est entièrement livré.
 - Libellés : « Ouvrir une bouteille » et « Ajouter une bouteille » (au lieu de « J'en ouvre une » et « + 1 achetée »), empilés sur toute la largeur ; « Prix payé », « Cépages », « Modifier le vin », « Ajouter une photo », « Photo de la bouteille », « Je l'achète » en magasin.
 - Modifier le vin : tous les champs sont modifiables, y compris le nombre de bouteilles en cave (0 accepté) et le prix payé par bouteille. Un écart de stock est enregistré comme mouvement « correction » ; le prix corrige celui du dernier achat.
 - Enregistrer la fiche sans rien changer ne fait plus redemander le conseil de Claude ; corriger seulement le stock ou le prix non plus.
+
+0.11.0 — Indicateurs dans la liste de la cave, à gauche du nombre de bouteilles, chacun dans sa colonne pour rester alignés, avec une légende sous la liste :
+
+- Moment de boire, l'un ou l'autre : sablier bordeaux « À boire rapidement », ou verre « Prêt à boire ». La fin de la garde atteinte prime, puis l'état du conseil de Claude (en déclin → à boire rapidement ; prêt ou à son apogée → prêt ; trop jeune → rien), puis le début de la garde atteint (→ prêt). Le filtre et le compteur « à boire » suivent la même règle.
+- Étoile bordeaux « Selon vos goûts » : vin dégusté avec une moyenne d'au moins 4 sur 5 ; pas encore dégusté, un de ses cépages fait partie des favoris du profil. Calcul local, sans appel à Claude.
+- Couronne « Grand cru » : la mention « Grand Cru » figure dans le nom ou l'appellation.
+- Le texte « à boire » disparaît des lignes : le sablier le remplace.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

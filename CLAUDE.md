@@ -41,7 +41,7 @@ app/                         Projet Angular (racine du workspace Angular)
   src/i18n/fr.json           Traductions
   src/app/
     pages/                   Un dossier par écran : cave/, fiche/, modifier/, ajouter/, noter/, accords/, magasin/, gouts/, reglages/
-    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, wine-form, color-dot, label-photo, info-attachment, media-viewer, score-picker, chip-group, tasting-list, wine-advice
+    components/              Composants partagés : tab-bar, page-header, empty-state, add-mode-switch, wine-row, badge-icon, wine-form, color-dot, label-photo, info-attachment, media-viewer, score-picker, chip-group, tasting-list, wine-advice
     datastore/               Classes signal-based : WineDatastore, ReferenceDatastore, SettingsDatastore, AddWineDatastore, TastingDatastore, ProfileDatastore, PairingDatastore, VerdictDatastore, AdviceDatastore
     services/                ClaudeService (appels IA), BackupService (export/import), PhotoService (redimensionnement + lecture), ScrollService (défilement), NetworkService (en ligne / hors ligne), AppUpdateService, StoragePersistenceService, FileShareService
     db/                      Dexie : schema.ts (tables, versions), repositories (wine, photo, tasting, profile, pairing, verdict, reference, settings)
@@ -69,6 +69,7 @@ docs/                        Description fonctionnelle et décisions
 - `takeUntilDestroyed`, `viewChild`, `resource()` ou `forkJoin` pour l'asynchrone
 - Datastore pattern : une classe par agrégat dans `datastore/`, état en signals, persistance via les repositories Dexie, aucun appel Dexie depuis un composant
 - Composants de page sans logique métier : ils lisent les datastores et appellent leurs méthodes
+- Indicateurs de la liste (`badge-icon`, colonnes fixes dans `wine-row`) : `readiness()` (à boire rapidement ou prêt, exclusifs ; fin de garde, puis état du conseil, puis début de garde) alimente aussi le filtre « à boire » ; `starWineIds` (moyenne ≥ 4, sinon cépage favori du profil) dans `ProfileDatastore` ; `isGrandCru` par la mention dans le nom ou l'appellation. Calculs locaux, jamais d'appel à Claude
 - Modifier le vin : tous les champs sont éditables, y compris le stock en cave et le prix payé. Le stock est la somme des mouvements : un écart devient un mouvement `correction`, le prix corrige le dernier achat (`setLastPrice`). `update` ne change `updatedAt` que si un champ descriptif change
 - Nommage : `XxxPage`, `XxxComponent`, `XxxDatastore`, `XxxService`, `XxxRepository` ; fichiers en kebab-case
 - Couleurs et tailles uniquement via les tokens de `src/styles/tokens.scss` — pas de hex dans les composants

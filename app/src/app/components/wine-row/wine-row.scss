@@ -70,3 +70,20 @@
   font-size: 22px;
   font-weight: 600;
 }
+
+.row__badges {
+  display: grid;
+  grid-template-columns: repeat(3, 18px);
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.row__slot {
+  display: flex;
+  height: 18px;
+}
+
+.row__count {
+  min-width: 2ch;
+  text-align: right;
+}

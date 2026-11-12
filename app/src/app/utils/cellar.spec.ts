@@ -1,3 +1,4 @@
+import { AdviceStatus, WineAdvice } from '../models/wine';
 import { FIXED_NOW, movement, wine } from '../testing/fixtures';
 import {
   buildEntries,
@@ -5,6 +6,7 @@ import {
   findDuplicate,
   groupByColor,
   isDrinkNow,
+  readiness,
   isExportDue,
   lastPricePaid,
   matchesFilter,
@@ -13,6 +15,10 @@ import {
   stockByWine,
   summarize,
 } from './cellar';
+
+function advice(status: AdviceStatus): WineAdvice {
+  return { status, text: '', generatedAt: '2026-01-01T00:00:00.000Z' };
+}
 
 describe('cellar', () => {
   it('stockByWine should sum movements per wine', () => {
@@ -43,6 +49,19 @@ describe('cellar', () => {
     expect(isDrinkNow(wine('a', { drinkUntil }), year)).toBe(expected);
   });
 
+  it.each([
+    ['fin de garde atteinte', { drinkUntil: 2026, drinkFrom: 2020 }, 'soon'],
+    ['conseil en déclin', { advice: advice('declin') }, 'soon'],
+    ['conseil prêt', { advice: advice('pret') }, 'ready'],
+    ['conseil à son apogée', { advice: advice('apogee') }, 'ready'],
+    ['conseil trop jeune malgré la garde ouverte', { drinkFrom: 2024, advice: advice('trop-jeune') }, null],
+    ['garde ouverte', { drinkFrom: 2024, drinkUntil: 2030 }, 'ready'],
+    ['garde pas encore ouverte', { drinkFrom: 2028 }, null],
+    ['rien de connu', { drinkFrom: null, drinkUntil: null }, null],
+  ] as const)('readiness when %s should match the expected state', (_case, overrides, expected) => {
+    expect(readiness(wine('a', overrides), 2026)).toBe(expected);
+  });
+
   it('buildEntries should never report negative stock and ignore drink-now for empty wines', () => {
     const entries = buildEntries(
       [wine('a', { drinkUntil: 2020 }), wine('b', { drinkUntil: 2020 })],
@@ -58,9 +77,9 @@ describe('cellar', () => {
 
   it('summarize should count only wines in stock', () => {
     const summary = summarize([
-      { wine: wine('a'), bottles: 3, drinkNow: true },
-      { wine: wine('b'), bottles: 0, drinkNow: false },
-      { wine: wine('c'), bottles: 2, drinkNow: false },
+      { wine: wine('a'), bottles: 3, drinkNow: true, readiness: 'soon' as const },
+      { wine: wine('b'), bottles: 0, drinkNow: false, readiness: null },
+      { wine: wine('c'), bottles: 2, drinkNow: false, readiness: null },
     ]);
 
     expect(summary).toEqual({ bottles: 5, wines: 2, drinkNow: 1 });
@@ -87,7 +106,7 @@ describe('cellar', () => {
   });
 
   it('matchesFilter should handle all, drink-now and colors', () => {
-    const entry = { wine: wine('a', { color: 'blanc' }), bottles: 1, drinkNow: true };
+    const entry = { wine: wine('a', { color: 'blanc' }), bottles: 1, drinkNow: true, readiness: 'soon' as const };
 
     expect(matchesFilter(entry, 'tous')).toBe(true);
     expect(matchesFilter(entry, 'a-boire')).toBe(true);
@@ -97,10 +116,10 @@ describe('cellar', () => {
 
   it('groupByColor should order colors, sort by name then vintage and count bottles', () => {
     const groups = groupByColor([
-      { wine: wine('1', { color: 'blanc', name: 'Petite Arvine' }), bottles: 2, drinkNow: false },
-      { wine: wine('2', { color: 'rouge', name: 'Pinot Noir', vintage: 2021 }), bottles: 4, drinkNow: false },
-      { wine: wine('3', { color: 'rouge', name: 'Cornalin' }), bottles: 3, drinkNow: false },
-      { wine: wine('4', { color: 'rouge', name: 'Pinot Noir', vintage: 2018 }), bottles: 1, drinkNow: false },
+      { wine: wine('1', { color: 'blanc', name: 'Petite Arvine' }), bottles: 2, drinkNow: false, readiness: null },
+      { wine: wine('2', { color: 'rouge', name: 'Pinot Noir', vintage: 2021 }), bottles: 4, drinkNow: false, readiness: null },
+      { wine: wine('3', { color: 'rouge', name: 'Cornalin' }), bottles: 3, drinkNow: false, readiness: null },
+      { wine: wine('4', { color: 'rouge', name: 'Pinot Noir', vintage: 2018 }), bottles: 1, drinkNow: false, readiness: null },
     ]);
 
     expect(groups.map((g) => [g.color, g.bottles])).toEqual([

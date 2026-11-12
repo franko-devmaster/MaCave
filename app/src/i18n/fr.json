@@ -39,7 +39,6 @@
       "aBoire": "À boire"
     },
     "groupBottles": "· {{count}} btl",
-    "drinkNow": "à boire",
     "noResult": "Aucun vin ne correspond.",
     "emptied": {
       "show": "Voir les vins épuisés ({{count}})",
@@ -56,7 +55,14 @@
       "text": "Ajoutez votre premier vin : le nom, la couleur et la quantité suffisent.",
       "action": "Ajouter un vin"
     },
-    "rebuy": "à racheter"
+    "rebuy": "à racheter",
+    "badges": {
+      "legend": "Légende des indicateurs",
+      "soon": "À boire rapidement",
+      "ready": "Prêt à boire",
+      "star": "Selon vos goûts",
+      "grand-cru": "Grand cru"
+    }
   },
   "ajouter": {
     "title": "Ajouter un vin",

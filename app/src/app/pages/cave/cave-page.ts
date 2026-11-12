@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { BadgeIconComponent, BadgeKind } from '../../components/badge-icon/badge-icon';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { PageHeaderComponent } from '../../components/page-header/page-header';
 import { WineRowComponent } from '../../components/wine-row/wine-row';
+import { ProfileDatastore } from '../../datastore/profile.datastore';
 import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { TastingDatastore } from '../../datastore/tasting.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
@@ -13,7 +15,7 @@ import { pluralKey } from '../../utils/format';
 
 @Component({
   selector: 'app-cave-page',
-  imports: [PageHeaderComponent, WineRowComponent, ColorDotComponent, RouterLink, TranslatePipe],
+  imports: [PageHeaderComponent, WineRowComponent, ColorDotComponent, BadgeIconComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './cave-page.scss',
   templateUrl: './cave-page.html',
@@ -22,6 +24,8 @@ export class CavePage {
   private readonly store = inject(WineDatastore);
   private readonly settings = inject(SettingsDatastore);
   protected readonly rebuyIds = inject(TastingDatastore).rebuyWineIds;
+  protected readonly starIds = inject(ProfileDatastore).starWineIds;
+  protected readonly badgeKinds: readonly BadgeKind[] = ['soon', 'ready', 'star', 'grand-cru'];
 
   protected readonly colors = WINE_COLORS;
   protected readonly query = signal('');

@@ -62,9 +62,17 @@
           <span class="label">{{ 'cave.groupBottles' | translate: { count: group.bottles } }}</span>
         </h2>
         @for (entry of group.entries; track entry.wine.id) {
-          <app-wine-row [entry]="entry" />
+          <app-wine-row [entry]="entry" [star]="starIds().has(entry.wine.id)" />
         }
       </section>
+    }
+
+    @if (groups().length) {
+      <ul class="legend" [attr.aria-label]="'cave.badges.legend' | translate">
+        @for (kind of badgeKinds; track kind) {
+          <li class="legend__item"><app-badge-icon [kind]="kind" />{{ 'cave.badges.' + kind | translate }}</li>
+        }
+      </ul>
     }
 
     @if (noResult()) {
