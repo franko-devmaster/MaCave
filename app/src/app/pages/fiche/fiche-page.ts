@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { BadgeIconComponent } from '../../components/badge-icon/badge-icon';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
 import { LabelPhotoComponent } from '../../components/label-photo/label-photo';
 import { InfoAttachmentComponent } from '../../components/info-attachment/info-attachment';
@@ -9,6 +10,7 @@ import { WineAdviceComponent } from '../../components/wine-advice/wine-advice';
 import { PhotoService } from '../../services/photo.service';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ChfPipe } from '../../pipes/chf.pipe';
+import { wineBadges } from '../../utils/badges';
 import { formatDrinkWindow, pluralKey } from '../../utils/format';
 
 interface Toast {
@@ -20,7 +22,7 @@ const TOAST_DURATION_MS = 6000;
 
 @Component({
   selector: 'app-fiche-page',
-  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, WineAdviceComponent, InfoAttachmentComponent, ChfPipe],
+  imports: [RouterLink, TranslatePipe, ColorDotComponent, LabelPhotoComponent, TastingListComponent, WineAdviceComponent, InfoAttachmentComponent, ChfPipe, BadgeIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './fiche-page.scss',
   templateUrl: './fiche-page.html',
@@ -41,6 +43,10 @@ export class FichePage {
   protected readonly drinkWindow = computed(() => {
     const wine = this.detail()?.wine;
     return wine ? formatDrinkWindow(wine.drinkFrom, wine.drinkUntil) : null;
+  });
+  protected readonly badges = computed(() => {
+    const detail = this.detail();
+    return detail ? wineBadges(detail, this.store.starWineIds().has(detail.wine.id)) : [];
   });
   protected readonly bottlesKey = computed(() => pluralKey('fiche.bottles', this.detail()?.bottles ?? 0));
   protected readonly subtitle = computed(() => {

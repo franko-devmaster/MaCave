@@ -302,7 +302,14 @@
     "addTasting": "Noter",
     "noTasting": "Pas encore de dégustation notée.",
     "rebuy": "à racheter",
-    "keepAsInfo": "Garder l'ancienne photo comme fiche info ?\n\nOK : elle devient la fiche info.\nAnnuler : elle est remplacée."
+    "keepAsInfo": "Garder l'ancienne photo comme fiche info ?\n\nOK : elle devient la fiche info.\nAnnuler : elle est remplacée.",
+    "badges": {
+      "title": "Indicateurs",
+      "soon": "À boire vite",
+      "ready": "Prêt à boire",
+      "star": "Mes goûts",
+      "grand-cru": "Grand cru"
+    }
   },
   "modifier": {
     "title": "Modifier le vin",

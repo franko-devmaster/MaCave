@@ -1,5 +1,7 @@
 import { Tasting } from '../models/tasting';
 import { Wine } from '../models/wine';
+import type { BadgeKind } from '../components/badge-icon/badge-icon';
+import { CellarEntry } from './cellar';
 
 /** Moyenne des notes à partir de laquelle un vin dégusté est une étoile. */
 export const STAR_MIN_SCORE = 4;
@@ -28,4 +30,19 @@ export function starWineIds(wines: readonly Wine[], tastings: readonly Tasting[]
     return (wine.advice?.affinity ?? 0) >= STAR_MIN_AFFINITY;
   });
   return new Set(stars.map((wine) => wine.id));
+}
+
+/** Indicateurs d'un vin, dans l'ordre d'affichage : moment de boire, vos goûts, grand cru. */
+export function wineBadges(entry: Pick<CellarEntry, 'wine' | 'readiness'>, star: boolean): BadgeKind[] {
+  const badges: BadgeKind[] = [];
+  if (entry.readiness) {
+    badges.push(entry.readiness);
+  }
+  if (star) {
+    badges.push('star');
+  }
+  if (isGrandCru(entry.wine)) {
+    badges.push('grand-cru');
+  }
+  return badges;
 }

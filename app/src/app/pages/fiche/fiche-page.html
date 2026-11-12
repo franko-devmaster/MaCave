@@ -15,9 +15,18 @@
     <app-label-photo [photoId]="d.wine.labelPhotoId" [color]="d.wine.color" [busy]="busy()" (picked)="changePhoto($event)" />
     <div class="identity" [style.--bar]="'var(--wine-' + d.wine.color + ')'">
       <div class="identity__names">
-        @if (d.wine.vintage) {
-          <span class="identity__vintage">{{ d.wine.vintage }}</span>
-        }
+        <div class="identity__top">
+          @if (d.wine.vintage) {
+            <span class="identity__vintage">{{ d.wine.vintage }}</span>
+          }
+          @if (badges().length) {
+            <ul class="badges" [attr.aria-label]="'fiche.badges.title' | translate" data-testid="fiche-badges">
+              @for (kind of badges(); track kind) {
+                <li class="badges__item"><app-badge-icon [kind]="kind" aria-hidden="true" />{{ 'fiche.badges.' + kind | translate }}</li>
+              }
+            </ul>
+          }
+        </div>
         <h1 class="identity__name">{{ d.wine.name }}</h1>
         @if (d.wine.producer) {
           <p class="identity__producer">{{ d.wine.producer }}</p>
