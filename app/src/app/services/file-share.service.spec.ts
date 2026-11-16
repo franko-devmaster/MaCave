@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
-import { FileShareService } from './file-share.service';
+import { DOWNLOAD_URL_LIFETIME_MS, FileShareService } from './file-share.service';
 
 describe('FileShareService', () => {
   const file = new File(['{}'], 'ma-cave-2026-11-08.json', { type: 'application/json' });
@@ -41,5 +41,31 @@ describe('FileShareService', () => {
 
     expect(await sut.deliver(file)).toBe('downloaded');
     expect(click).toHaveBeenCalled();
+  });
+
+  it('deliver when the share sheet refuses the file should download it instead', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    URL.createObjectURL = vi.fn().mockReturnValue('blob:fake');
+    URL.revokeObjectURL = vi.fn();
+    nav['canShare'] = vi.fn().mockReturnValue(true);
+    nav['share'] = vi.fn().mockRejectedValue(new DOMException('no user activation', 'NotAllowedError'));
+
+    expect(await sut.deliver(file)).toBe('downloaded');
+    expect(click).toHaveBeenCalled();
+  });
+
+  it('deliver when downloading should keep the file URL alive long enough for the download manager', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    URL.createObjectURL = vi.fn().mockReturnValue('blob:fake');
+    const revoke = vi.fn();
+    URL.revokeObjectURL = revoke;
+
+    await sut.deliver(file);
+    vi.advanceTimersByTime(DOWNLOAD_URL_LIFETIME_MS - 1);
+    expect(revoke).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(revoke).toHaveBeenCalledWith('blob:fake');
+    vi.useRealTimers();
   });
 });

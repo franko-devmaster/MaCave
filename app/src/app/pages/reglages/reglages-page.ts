@@ -127,8 +127,12 @@ export class ReglagesPage {
       const outcome = await this.share.deliver(file);
       if (outcome !== 'cancelled') {
         await this.settings.markExported(now);
-        this.backupFeedback.set({ kind: 'success', text: this.translate.instant('reglages.backup.exported', { file: file.name }) });
+        const key = outcome === 'downloaded' ? 'reglages.backup.downloaded' : 'reglages.backup.exported';
+        this.backupFeedback.set({ kind: 'success', text: this.translate.instant(key, { file: file.name }) });
       }
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      this.backupFeedback.set({ kind: 'error', text: this.translate.instant('reglages.backup.exportError', { reason }) });
     } finally {
       this.busy.set(false);
     }

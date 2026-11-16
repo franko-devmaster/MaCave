@@ -3,7 +3,18 @@ import { inject, Injectable } from '@angular/core';
 
 export type ShareOutcome = 'shared' | 'downloaded' | 'cancelled';
 
-/** Remet un fichier à l'utilisateur : feuille de partage iOS si disponible, téléchargement sinon. */
+/**
+ * Délai avant de libérer l'URL du fichier téléchargé. Sur Android, le gestionnaire de
+ * téléchargements lit le fichier après le clic : une URL libérée trop tôt fait échouer
+ * le téléchargement d'un export de plusieurs Mo.
+ */
+export const DOWNLOAD_URL_LIFETIME_MS = 60_000;
+
+/**
+ * Remet un fichier à l'utilisateur : feuille de partage si le navigateur l'accepte pour ce
+ * fichier (iOS), téléchargement sinon (Android refuse de partager un .json) ou si le partage
+ * échoue (geste de l'utilisateur expiré pendant la préparation du fichier, par exemple).
+ */
 @Injectable({ providedIn: 'root' })
 export class FileShareService {
   private readonly document = inject(DOCUMENT);
@@ -18,7 +29,6 @@ export class FileShareService {
         if (error instanceof DOMException && error.name === 'AbortError') {
           return 'cancelled';
         }
-        throw error;
       }
     }
     this.download(file);
@@ -33,6 +43,6 @@ export class FileShareService {
     this.document.body.appendChild(link);
     link.click();
     link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setTimeout(() => URL.revokeObjectURL(url), DOWNLOAD_URL_LIFETIME_MS);
   }
 }

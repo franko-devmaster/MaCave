@@ -198,7 +198,9 @@
       "mergeHint": "Ajoute les vins du fichier et met à jour ceux qui existent déjà. Rien n'est supprimé.",
       "replace": "Remplacer toutes mes données",
       "replaceHint": "Efface les données de ce téléphone, puis charge le fichier.",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "downloaded": "Export téléchargé : {{file}}. Il se trouve dans le dossier Téléchargements.",
+      "exportError": "Export impossible : {{reason}}"
     },
     "storage": {
       "title": "Stockage",
