@@ -253,7 +253,8 @@ Le plan de la v1 est entièrement livré.
 | 0.10.0 | Visionneuse claire, libellés, stock et prix modifiables | Livrée |
 | 0.11.0 | Indicateurs et filtres combinables dans la cave | Livrée |
 | 0.11.1 | Filtres sur deux lignes, indicateurs en haut de la fiche | Livrée |
-| 0.12.0 | Réévaluer ma cave, bouton Modifier visible | Livrée, en recette |
+| 0.12.0 | Réévaluer ma cave, bouton Modifier visible | Livrée |
+| 0.12.1 | Correctif : export sur Android | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -294,6 +295,13 @@ Le plan de la v1 est entièrement livré.
 
 - Mes goûts, section « Ma cave et mes goûts » : « Réévaluer ma cave (n vins) » redemande le conseil de chaque vin en cave (au moins une bouteille), même s'il est récent, pour recalculer l'affinité et le grand cru d'après le profil actuel. Confirmation avec le nombre d'appels, progression « 3 / 18 », arrêt à la première erreur (clé, limite de dépense, réseau) avec le nombre de vins déjà faits. Un vin à la fois, pour ménager la limite de requêtes. La réévaluation continue si l'on change d'écran.
 - Fiche : le crayon devient un bouton encadré « Modifier » de 44 px de haut.
+
+0.12.1 — Correctif, export sur Android :
+
+- Chrome Android ne partage pas un fichier `.json` : l'export est téléchargé dans « Téléchargements », avec un message qui le dit.
+- Si la feuille de partage échoue (geste de l'utilisateur expiré pendant la préparation d'un gros export, par exemple), l'export est téléchargé au lieu d'échouer en silence.
+- L'adresse du fichier reste valable 60 secondes au lieu d'une : le gestionnaire de téléchargements d'Android a le temps de lire un export de plusieurs Mo.
+- Une erreur d'export s'affiche désormais dans Réglages.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

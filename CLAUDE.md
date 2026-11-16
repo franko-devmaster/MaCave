@@ -93,6 +93,7 @@ docs/                        Description fonctionnelle et décisions
 - Photo via `<input type="file" accept="image/*" capture="environment">`, redimensionnée côté client à 1 280 px de grand côté en JPEG avant stockage et envoi
 - Deux fichiers par vin, tous deux dans la table `photos` : la photo Bouteille (`labelPhotoId`) et la fiche info (`infoAttachmentId`, image à 2 048 px ou PDF de 10 Mo au plus, choisi sans `capture` pour accéder à Fichiers). Ajouter ou remplacer un fichier ne modifie pas `updatedAt`. Toucher la photo Bouteille l'ouvre dans la visionneuse plein écran partagée (`media-viewer`, fond blanc, croix de fermeture, actions projetées en bas avec `viewerAction class="btn"`), d'où on la remplace ; sans photo, toucher ouvre l'appareil photo
 - Service worker activé, y compris sur Safari iOS : vérifier à chaque itération que l'installation et la mise à jour fonctionnent ; en cas de problème, désactiver par userAgent comme sur AquaPlan et le documenter ici
+- Export : `FileShareService.deliver` tente la feuille de partage (iOS), sinon ou en cas d'échec télécharge le fichier (Android refuse de partager un `.json`) ; l'URL du fichier vit 60 s (`DOWNLOAD_URL_LIFETIME_MS`) pour le gestionnaire de téléchargements Android. Parcours `e2e/export-android.spec.ts` sur le profil Pixel 7
 - IndexedDB est la source de vérité. Demander `navigator.storage.persist()` au premier lancement. Rappeler l'export si le dernier remonte à plus de 30 jours
 - Consultation de la cave hors ligne ; les fonctions IA affichent un état explicite sans réseau
 
