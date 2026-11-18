@@ -1,6 +1,5 @@
 :host {
   display: block;
-  padding-bottom: calc(var(--safe-bottom) + var(--space-8));
 }
 
 .top {
@@ -236,16 +235,25 @@ app-page-header ::ng-deep .header {
   }
 }
 
+/* Décision à portée de pouce : la barre reste collée en bas tant que le verdict défile. */
 .actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   display: flex;
-  gap: 10px;
-
-  .btn:first-child {
-    flex: 1;
-  }
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--gutter));
+  padding: var(--space-3) var(--gutter) calc(var(--safe-bottom) + var(--space-3));
+  border-top: 1px solid var(--color-rule);
+  background: var(--color-bg);
 }
 
-.actions__pass {
-  width: 118px;
-  flex-shrink: 0;
+.actions__row {
+  display: flex;
+  gap: var(--space-2);
+
+  .btn {
+    flex: 1;
+  }
 }

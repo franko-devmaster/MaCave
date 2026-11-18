@@ -140,6 +140,22 @@ describe('BackupService', () => {
     expect(new Uint8Array(photo?.bytes ?? new ArrayBuffer(0))).toEqual(new Uint8Array([65, 66, 67]));
   });
 
+  it('createBackup should add the bottles and the last price paid to each wine', async () => {
+    await db.wines.bulkPut([wine('a'), wine('b')]);
+    await db.stockMovements.bulkPut([
+      { id: 'm1', wineId: 'a', delta: 6, reason: 'achat', pricePaid: 30, date: '2026-01-01T00:00:00Z' },
+      { id: 'm2', wineId: 'a', delta: 2, reason: 'achat', pricePaid: 32.5, date: '2026-06-01T00:00:00Z' },
+      { id: 'm3', wineId: 'a', delta: -1, reason: 'ouverture', pricePaid: null, date: '2026-07-01T00:00:00Z' },
+    ]);
+
+    const backup = await sut.createBackup(NOW);
+
+    expect(backup.data.wines).toEqual([
+      { ...wine('a'), bottles: 7, lastPricePaid: 32.5 },
+      { ...wine('b'), bottles: 0, lastPricePaid: null },
+    ]);
+  });
+
   it('round trip export then import should restore the same data', async () => {
     await db.wines.bulkPut([wine('a'), wine('b')]);
     const exported = JSON.stringify(await sut.createBackup(NOW));

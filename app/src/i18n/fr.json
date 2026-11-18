@@ -69,7 +69,14 @@
       "color": "Couleur",
       "when": "Quand le boire",
       "taste": "Goût et rang"
-    }
+    },
+    "views": {
+      "label": "Afficher",
+      "cave": "En cave",
+      "wishes": "Souhaits ({{count}})"
+    },
+    "wishEmpty": "Aucun souhait pour l'instant. Un vin goûté chez des amis ou repéré en magasin : gardez-le ici, sans bouteille, pour l'acheter plus tard.",
+    "wishAdd": "Ajouter un vin goûté"
   },
   "ajouter": {
     "title": "Ajouter un vin",
@@ -91,14 +98,27 @@
     "readingText": "Claude complète la fiche…",
     "read": "Fiche remplie par Claude. Relisez les champs marqués d'un point.",
     "restart": "Recommencer",
-    "addedBottles": "{{count}} bouteille(s) ajoutée(s) à {{name}}.",
+    "addedBottles": {
+      "one": "1 bouteille ajoutée à {{name}}.",
+      "other": "{{count}} bouteilles ajoutées à {{name}}."
+    },
     "duplicate": {
       "title": "Ce vin est déjà dans votre cave.",
       "text": "{{name}} {{vintage}}, {{producer}}.",
-      "add": "Ajouter {{count}} bouteille(s) à ce vin",
+      "add": {
+        "one": "Ajouter 1 bouteille à ce vin",
+        "other": "Ajouter {{count}} bouteilles à ce vin"
+      },
       "create": "Créer une nouvelle fiche",
-      "cancel": "Annuler"
-    }
+      "cancel": "Annuler",
+      "titleWish": "Ce vin est déjà enregistré.",
+      "wish": "Le mettre sur ma liste de souhaits"
+    },
+    "wishTitle": "Ajouter un souhait",
+    "wishSubtitle": "Un vin goûté ailleurs ou repéré : il rejoint votre liste de souhaits, sans bouteille en cave.",
+    "wishSubmit": "Ajouter à mes souhaits",
+    "wished": "{{name}} ajouté à vos souhaits.",
+    "rate": "Noter ce vin"
   },
   "accords": {
     "title": "Accords",
@@ -113,7 +133,7 @@
     "noPickTitle": "Rien d'idéal dans votre cave",
     "for": "Pour : {{dish}}",
     "bottles": "{{count}} btl",
-    "openFiche": "Voir la fiche pour ouvrir la bouteille",
+    "openFiche": "Voir la fiche pour l'ouvrir",
     "buyTitle": "À acheter pour ce plat",
     "alternatives": "Aussi possible",
     "rejected": "Écarté :",
@@ -191,9 +211,15 @@
       "lastExport": "Dernier export : {{date}}",
       "neverExported": "Aucun export pour l'instant.",
       "exported": "Export prêt : {{file}}",
-      "imported": "Import terminé : {{count}} enregistrement(s).",
+      "imported": {
+        "one": "Import terminé : 1 enregistrement.",
+        "other": "Import terminé : {{count}} enregistrements."
+      },
       "error": "Import impossible : {{reason}}",
-      "importQuestion": "{{file}} contient {{count}} vin(s). Que voulez-vous faire ?",
+      "importQuestion": {
+        "one": "{{file}} contient 1 vin. Que voulez-vous faire ?",
+        "other": "{{file}} contient {{count}} vins. Que voulez-vous faire ?"
+      },
       "merge": "Fusionner avec mes données",
       "mergeHint": "Ajoute les vins du fichier et met à jour ceux qui existent déjà. Rien n'est supprimé.",
       "replace": "Remplacer toutes mes données",
@@ -321,7 +347,16 @@
       "star": "Mes goûts",
       "grand-cru": "Grand cru"
     },
-    "editShort": "Modifier"
+    "editShort": "Modifier",
+    "wish": {
+      "title": "Sur votre liste de souhaits",
+      "text": "Pas encore en cave. Une fois acheté, il rejoint la cave.",
+      "bought": "Je l'ai acheté",
+      "remove": "Retirer de mes souhaits",
+      "add": "Mettre sur ma liste de souhaits",
+      "boughtToast": "Ajouté à votre cave."
+    },
+    "noted": "Dégustation enregistrée."
   },
   "modifier": {
     "title": "Modifier le vin",
@@ -395,7 +430,8 @@
   "addMode": {
     "label": "Type d'ajout",
     "bought": "Je l'ai acheté",
-    "store": "Je suis en magasin"
+    "store": "En magasin",
+    "tasted": "Je l'ai goûté"
   },
   "magasin": {
     "title": "En magasin",
@@ -413,7 +449,10 @@
       "deconseille": "Probablement pas pour vous"
     },
     "affinity": "Affinité {{value}} sur 10",
-    "duplicate": "Déjà dans votre cave : {{count}} bouteille(s). Voir la fiche",
+    "duplicate": {
+      "one": "Déjà dans votre cave : 1 bouteille. Voir la fiche",
+      "other": "Déjà dans votre cave : {{count}} bouteilles. Voir la fiche"
+    },
     "why": "Pourquoi",
     "signs": {
       "+": "Point positif",
@@ -421,7 +460,10 @@
       "i": "Information"
     },
     "buy": "Je l'achète",
-    "pass": "Je passe"
+    "pass": "Je passe",
+    "wish": "Liste de souhaits",
+    "duplicateWish": "Déjà sur votre liste de souhaits. Voir la fiche",
+    "duplicateGone": "Déjà goûté, plus en cave. Voir la fiche"
   },
   "advice": {
     "title": "Conseil",

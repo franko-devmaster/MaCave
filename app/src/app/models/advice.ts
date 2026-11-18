@@ -17,7 +17,7 @@ export interface Verdict {
   affinity: number;
   level: VerdictLevel;
   reasons: VerdictReason[];
-  outcome: 'achete' | 'passe' | null;
+  outcome: 'achete' | 'souhait' | 'passe' | null;
   /** Vin de la cave créé ou complété après achat : sert à calibrer les verdicts suivants. */
   boughtWineId: string | null;
   date: string;

@@ -164,7 +164,16 @@
 }
 
 .pick__open {
-  text-decoration: underline;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
+  margin-top: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .buy {

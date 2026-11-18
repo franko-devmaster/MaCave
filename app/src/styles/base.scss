@@ -41,10 +41,20 @@ p {
   outline-offset: 2px;
 }
 
+/*
+ * Masqué à l'écran, lu par les lecteurs d'écran. Les tailles sont imposées : un style de champ
+ * (`input { width: 100% }` d'un composant) ne doit jamais rendre l'élément plus large que l'écran,
+ * sinon la page déborde et iOS la décale ou la dézoome.
+ */
 .visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+  position: absolute !important;
+  width: 1px !important;
+  min-width: 0 !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;

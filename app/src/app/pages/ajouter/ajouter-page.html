@@ -3,13 +3,21 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
   </a>
 </div>
-<app-page-header [title]="'ajouter.title' | translate" [subtitle]="(settings.hasApiKey() ? 'ajouter.subtitle' : 'ajouter.subtitleManual') | translate" />
-<app-add-mode-switch active="achat" />
+<app-page-header
+  [title]="(wish() ? 'ajouter.wishTitle' : 'ajouter.title') | translate"
+  [subtitle]="(wish() ? 'ajouter.wishSubtitle' : settings.hasApiKey() ? 'ajouter.subtitle' : 'ajouter.subtitleManual') | translate"
+/>
+<app-add-mode-switch [active]="wish() ? 'souhait' : 'achat'" />
 
 @if (added(); as wine) {
   <div class="banner" role="status">
-    <span>{{ wine.key | translate: { name: wine.label, count: wine.count } }}</span>
-    <a class="banner__link" [routerLink]="['/cave', wine.id]">{{ 'ajouter.view' | translate }}</a>
+    <p class="banner__text">{{ wine.key | translate: { name: wine.label, count: wine.count } }}</p>
+    <div class="banner__actions">
+      @if (wine.wish) {
+        <a class="btn btn--primary banner__btn" [routerLink]="['/cave', wine.id, 'noter']">{{ 'ajouter.rate' | translate }}</a>
+      }
+      <a class="btn banner__btn" [routerLink]="['/cave', wine.id]">{{ 'ajouter.view' | translate }}</a>
+    </div>
   </div>
 }
 
@@ -62,18 +70,23 @@
   }
 }
 
-<app-wine-form mode="create" [submitLabel]="'ajouter.submit' | translate" [busy]="busy() || flow.status() === 'reading'" (submitted)="save($event)">
+<app-wine-form
+  [mode]="formMode()"
+  [submitLabel]="(wish() ? 'ajouter.wishSubmit' : 'ajouter.submit') | translate"
+  [busy]="busy() || flow.status() === 'reading'"
+  (submitted)="save($event)"
+/>
+
+<dialog #duplicateDialog class="sheet" aria-labelledby="duplicate-title" aria-describedby="duplicate-text" (close)="cancelDuplicate()">
   @if (duplicate(); as pending) {
-    <div class="duplicate" role="alertdialog" aria-labelledby="duplicate-title" aria-describedby="duplicate-text">
-      <p id="duplicate-title" class="duplicate__title">{{ 'ajouter.duplicate.title' | translate }}</p>
-      <p id="duplicate-text" class="duplicate__text">
-        {{ 'ajouter.duplicate.text' | translate: { name: pending.wine.name, vintage: pending.wine.vintage ?? '', producer: pending.wine.producer } }}
-      </p>
-      <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="addToExisting()">
-        {{ 'ajouter.duplicate.add' | translate: { count: pending.result.quantity } }}
-      </button>
-      <button type="button" class="btn" [disabled]="busy()" (click)="createAnyway()">{{ 'ajouter.duplicate.create' | translate }}</button>
-      <button type="button" class="btn btn--quiet" (click)="cancelDuplicate()">{{ 'ajouter.duplicate.cancel' | translate }}</button>
-    </div>
+    <p id="duplicate-title" class="sheet__title">{{ (wish() ? 'ajouter.duplicate.titleWish' : 'ajouter.duplicate.title') | translate }}</p>
+    <p id="duplicate-text" class="sheet__text">
+      {{ 'ajouter.duplicate.text' | translate: { name: pending.wine.name, vintage: pending.wine.vintage ?? '', producer: pending.wine.producer } }}
+    </p>
+    <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="addToExisting()">
+      {{ (wish() ? 'ajouter.duplicate.wish' : duplicateAddKey()) | translate: { count: pending.result.quantity } }}
+    </button>
+    <button type="button" class="btn" [disabled]="busy()" (click)="createAnyway()">{{ 'ajouter.duplicate.create' | translate }}</button>
+    <button type="button" class="btn btn--quiet" (click)="cancelDuplicate()">{{ 'ajouter.duplicate.cancel' | translate }}</button>
   }
-</app-wine-form>
+</dialog>

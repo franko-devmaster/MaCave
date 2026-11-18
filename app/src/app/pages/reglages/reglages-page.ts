@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BUILD_INFO } from '../../../build-info';
@@ -16,6 +16,7 @@ import { AppUpdateService } from '../../services/app-update.service';
 import { ClaudeService } from '../../services/claude.service';
 import { BackupFile, BackupFormatError, BackupService, parseBackup, RestoreMode } from '../../services/backup.service';
 import { FileShareService } from '../../services/file-share.service';
+import { pluralKey } from '../../utils/format';
 import { StoragePersistenceService } from '../../services/storage-persistence.service';
 
 interface Feedback {
@@ -54,6 +55,7 @@ export class ReglagesPage {
   protected readonly build = BUILD_INFO;
   protected readonly busy = signal(false);
   protected readonly pendingImport = signal<PendingImport | null>(null);
+  protected readonly importQuestionKey = computed(() => pluralKey('reglages.backup.importQuestion', this.pendingImport()?.wines ?? 0));
   protected readonly backupFeedback = signal<Feedback | null>(null);
   protected readonly updateFeedback = signal<string | null>(null);
   protected readonly keyInput = signal('');
@@ -168,7 +170,7 @@ export class ReglagesPage {
       const count = await this.backup.restore(pending.backup, mode);
       await Promise.all([this.wines.load(), this.tastings.load(), this.profile.load(), this.pairings.load(), this.verdicts.load(), this.references.load(), this.settings.load()]);
       this.pendingImport.set(null);
-      this.backupFeedback.set({ kind: 'success', text: this.translate.instant('reglages.backup.imported', { count }) });
+      this.backupFeedback.set({ kind: 'success', text: this.translate.instant(pluralKey('reglages.backup.imported', count), { count }) });
     } catch (error) {
       this.pendingImport.set(null);
       this.showImportError(error);

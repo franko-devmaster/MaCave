@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-/** Bascule de l'onglet Ajouter : vin acheté ou vin vu en magasin. */
+/** Bascule de l'onglet Ajouter : vin acheté, vin goûté (liste de souhaits) ou vin vu en magasin. */
 @Component({
   selector: 'app-add-mode-switch',
   imports: [RouterLink, TranslatePipe],
@@ -10,7 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   styles: `
     .modes {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       margin: var(--space-4) var(--gutter) 0;
       padding: 3px;
       border-radius: var(--radius-md);
@@ -38,6 +38,9 @@ import { TranslatePipe } from '@ngx-translate/core';
       <a routerLink="/ajouter" [replaceUrl]="true" [class.on]="active() === 'achat'" [attr.aria-current]="active() === 'achat' ? 'page' : null">
         {{ 'addMode.bought' | translate }}
       </a>
+      <a routerLink="/ajouter/souhait" [replaceUrl]="true" [class.on]="active() === 'souhait'" [attr.aria-current]="active() === 'souhait' ? 'page' : null">
+        {{ 'addMode.tasted' | translate }}
+      </a>
       <a routerLink="/magasin" [replaceUrl]="true" [class.on]="active() === 'magasin'" [attr.aria-current]="active() === 'magasin' ? 'page' : null">
         {{ 'addMode.store' | translate }}
       </a>
@@ -45,5 +48,5 @@ import { TranslatePipe } from '@ngx-translate/core';
   `,
 })
 export class AddModeSwitchComponent {
-  readonly active = input.required<'achat' | 'magasin'>();
+  readonly active = input.required<'achat' | 'souhait' | 'magasin'>();
 }

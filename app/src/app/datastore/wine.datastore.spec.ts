@@ -90,6 +90,31 @@ describe('WineDatastore', () => {
     expect(sut.starWineIds()).toEqual(new Set([loved.id, close.id]));
   });
 
+  it('createWish should add a wine on the wishlist with no bottle', async () => {
+    const wine = await sut.createWish(wineInput({ country: 'Suisse', region: 'Lavaux', grapes: ['Chasselas'] }));
+
+    expect(sut.detail(wine.id)).toMatchObject({ bottles: 0, wine: { wishlist: true } });
+    expect(sut.summary()).toEqual({ bottles: 0, wines: 0, drinkNow: 0 });
+    expect(await db.refGrapes.get('Chasselas')).toEqual({ name: 'Chasselas' });
+  });
+
+  it('buy should take the wine off the wishlist', async () => {
+    const wine = await sut.createWish(wineInput());
+
+    await sut.buy(wine.id, 34, 2);
+
+    expect(sut.detail(wine.id)).toMatchObject({ bottles: 2, lastPrice: 34, wine: { wishlist: false } });
+    expect((await db.wines.get(wine.id))?.wishlist).toBe(false);
+  });
+
+  it('a stock correction above zero should also take the wine off the wishlist', async () => {
+    const wine = await sut.createWish(wineInput());
+
+    await sut.update(wine.id, wineInput(), { bottles: 3, pricePaid: null });
+
+    expect(sut.detail(wine.id)?.wine.wishlist).toBe(false);
+  });
+
   it('remove should drop the wine and its movements from state', async () => {
     const wine = await sut.create(wineInput(), { quantity: 4, pricePaid: null });
 

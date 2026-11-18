@@ -15,7 +15,10 @@ import { formatDrinkWindow, pluralKey } from '../../utils/format';
 
 interface Toast {
   key: string;
-  movementId: string;
+  /** Mouvement annulable ; sans mouvement, simple confirmation. */
+  movementId?: string;
+  /** Annuler un achat depuis la liste de souhaits y remet le vin. */
+  restoreWish?: boolean;
 }
 
 const TOAST_DURATION_MS = 6000;
@@ -59,6 +62,11 @@ export class FichePage {
 
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.toastTimer));
+    // Confirmation transmise par l'écran précédent (dégustation enregistrée, par exemple).
+    const notice: unknown = this.router.currentNavigation()?.extras.state?.['notice'];
+    if (typeof notice === 'string') {
+      this.showToast({ key: notice });
+    }
   }
 
   /** −1 bouteille, puis l'écran Noter ; l'ouverture y reste annulable. */
@@ -76,6 +84,18 @@ export class FichePage {
       const movement = await this.store.buy(this.id());
       this.showToast({ key: 'fiche.bought', movementId: movement.id });
     });
+  }
+
+  /** « Je l'ai acheté » depuis la liste de souhaits : une bouteille entre en cave, le vin quitte la liste. */
+  protected async buyWish(): Promise<void> {
+    await this.run(async () => {
+      const movement = await this.store.buy(this.id());
+      this.showToast({ key: 'fiche.wish.boughtToast', movementId: movement.id, restoreWish: true });
+    });
+  }
+
+  protected async setWish(wishlist: boolean): Promise<void> {
+    await this.run(() => this.store.setWishlist(this.id(), wishlist));
   }
 
   /**
@@ -101,7 +121,16 @@ export class FichePage {
       return;
     }
     this.hideToast();
-    await this.run(() => this.store.undoMovement(toast.movementId));
+    const movementId = toast.movementId;
+    if (!movementId) {
+      return;
+    }
+    await this.run(async () => {
+      await this.store.undoMovement(movementId);
+      if (toast.restoreWish) {
+        await this.store.setWishlist(this.id(), true);
+      }
+    });
   }
 
   private async run(action: () => Promise<void>): Promise<void> {

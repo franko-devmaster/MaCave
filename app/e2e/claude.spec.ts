@@ -90,8 +90,8 @@ test.describe('Itération 2 — connecteur Claude et lecture d’étiquette', ()
 
     await page.getByRole('button', { name: 'Ajouter à ma cave' }).tap();
     await expect(page.getByText('Ce vin est déjà dans votre cave.')).toBeVisible();
-    await page.getByRole('button', { name: 'Ajouter 6 bouteille(s) à ce vin' }).tap();
-    await expect(page.getByText('6 bouteille(s) ajoutée(s) à Cornalin 2019.')).toBeVisible();
+    await page.getByRole('button', { name: 'Ajouter 6 bouteilles à ce vin' }).tap();
+    await expect(page.getByText('6 bouteilles ajoutées à Cornalin 2019.')).toBeVisible();
 
     await page.getByRole('link', { name: 'Voir la fiche' }).tap();
     await expect(page.getByTestId('bottles')).toHaveText('7');

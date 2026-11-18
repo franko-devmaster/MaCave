@@ -79,6 +79,15 @@ describe('VerdictDatastore', () => {
     expect(addWine.verdictId()).toBe(sut.current()?.id);
   });
 
+  it('markWished should record that the wine went to the wishlist', async () => {
+    await sut.checkDescription('Syrah Cayas 2020');
+    const verdictId = sut.current()?.id ?? '';
+
+    await sut.markWished(verdictId);
+
+    expect(await db.verdicts.get(verdictId)).toMatchObject({ outcome: 'souhait' });
+  });
+
   it('markBought then a tasting should feed the calibration of the next verdict', async () => {
     await sut.checkDescription('Syrah Cayas 2020');
     const verdictId = sut.current()?.id ?? '';

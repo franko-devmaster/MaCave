@@ -40,6 +40,34 @@ export class WineRepository {
     return { wine, movement };
   }
 
+  /** Crée un vin sur la liste de souhaits : aucune bouteille, donc aucun mouvement de stock. */
+  async createWish(input: WineInput, photo: PhotoInput | null = null, now: Date = new Date()): Promise<Wine> {
+    const timestamp = now.toISOString();
+    const photoRecord = photo ? buildPhoto(photo, now) : null;
+    const wine: Wine = {
+      ...input,
+      id: crypto.randomUUID(),
+      labelPhotoId: photoRecord?.id ?? null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      wishlist: true,
+    };
+    await this.db.transaction('rw', this.db.wines, this.db.photos, async () => {
+      if (photoRecord) {
+        await this.db.photos.add(photoRecord);
+      }
+      await this.db.wines.add(wine);
+    });
+    return wine;
+  }
+
+  /** Met le vin sur la liste de souhaits ou l'en retire, sans toucher à `updatedAt`. */
+  async setWishlist(id: string, wishlist: boolean): Promise<Wine> {
+    const wine: Wine = { ...(await this.getOrThrow(id)), wishlist };
+    await this.db.wines.put(wine);
+    return wine;
+  }
+
   /** Enregistre la saisie. `updatedAt` ne change que si un champ change : le conseil n'est alors pas redemandé. */
   async update(id: string, input: WineInput, now: Date = new Date()): Promise<Wine> {
     const existing = await this.getOrThrow(id);

@@ -12,6 +12,7 @@ import {
   validateWineForm,
   WineFormErrors,
   WineFormResult,
+  WineFormMode,
   WineFormValue,
 } from '../../utils/wine-form';
 import { ColorDotComponent } from '../color-dot/color-dot';
@@ -51,7 +52,7 @@ function buildForm(value: WineFormValue): WineFormGroup {
   templateUrl: './wine-form.html',
 })
 export class WineFormComponent implements OnInit {
-  readonly mode = input<'create' | 'edit'>('create');
+  readonly mode = input<WineFormMode>('create');
   readonly initial = input<WineInput | null>(null);
   /** En modification : stock en cave et dernier prix payé, éditables avec la fiche. */
   readonly stock = input<{ bottles: number; pricePaid: number | null } | null>(null);

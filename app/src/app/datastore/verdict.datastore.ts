@@ -72,12 +72,17 @@ export class VerdictDatastore {
     this.clear();
   }
 
-  /** « J'achète » : transmet la lecture, la photo et le prix au flux Ajouter. */
+  /** « J'achète » ou « Liste de souhaits » : transmet la lecture, la photo et le prix au flux Ajouter. */
   buy(): void {
     const verdict = this.currentSignal();
     if (verdict) {
       this.addWine.prefill(verdict.wineIdentified, this.photo, verdict.id);
     }
+  }
+
+  /** Appelé une fois le vin mis sur la liste de souhaits. */
+  async markWished(verdictId: string): Promise<void> {
+    await this.setOutcome(verdictId, { outcome: 'souhait' });
   }
 
   /** Appelé une fois le vin enregistré en cave : relie le verdict au vin pour la calibration. */
