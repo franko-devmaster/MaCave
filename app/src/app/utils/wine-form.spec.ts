@@ -28,6 +28,10 @@ describe('wine-form', () => {
     expect(validateWineForm(form({ quantity }), 'create', 2026).quantity?.key).toBe('form.errors.quantity');
   });
 
+  it('validateWineForm for a wish should ignore quantity and price', () => {
+    expect(validateWineForm(form({ quantity: '', price: 'abc' }), 'wish', 2026)).toEqual({});
+  });
+
   it('validateWineForm in edit mode should accept an empty cellar', () => {
     expect(validateWineForm(form({ quantity: '0' }), 'edit', 2026)).toEqual({});
   });

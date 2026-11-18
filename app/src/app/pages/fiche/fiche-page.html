@@ -1,5 +1,5 @@
 <div class="top">
-  <a class="back" routerLink="/cave">
+  <a class="back" routerLink="/cave" [queryParams]="detail()?.wine?.wishlist ? { vue: 'souhaits' } : null">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
     {{ 'fiche.back' | translate }}
   </a>
@@ -59,26 +59,43 @@
     </div>
   </dl>
 
-  <div class="stock">
-    <p class="stock__count">
-      <span class="stock__number" data-testid="bottles">{{ d.bottles }}</span>
-      <span class="stock__unit">{{ bottlesKey() | translate }}</span>
-    </p>
-    @if (d.wine.location) {
-      <span class="label">{{ d.wine.location }}</span>
+  @if (d.wine.wishlist) {
+    <div class="wish" data-testid="wish-state">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+      <div>
+        <p class="wish__title">{{ 'fiche.wish.title' | translate }}</p>
+        <p class="wish__text">{{ 'fiche.wish.text' | translate }}</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="buyWish()">{{ 'fiche.wish.bought' | translate }}</button>
+      <button type="button" class="btn btn--quiet" [disabled]="busy()" (click)="setWish(false)">{{ 'fiche.wish.remove' | translate }}</button>
+    </div>
+  } @else {
+    <div class="stock">
+      <p class="stock__count">
+        <span class="stock__number" data-testid="bottles">{{ d.bottles }}</span>
+        <span class="stock__unit">{{ bottlesKey() | translate }}</span>
+      </p>
+      @if (d.wine.location) {
+        <span class="label">{{ d.wine.location }}</span>
+      }
+    </div>
+    @if (d.drinkNow) {
+      <p class="drink-now">{{ 'fiche.drinkNow' | translate }}</p>
     }
-  </div>
-  @if (d.drinkNow) {
-    <p class="drink-now">{{ 'fiche.drinkNow' | translate }}</p>
-  }
 
-  <div class="actions">
-    <button type="button" class="btn btn--primary" [disabled]="busy() || d.bottles === 0" (click)="open()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8 20h8" /></svg>
-      {{ 'fiche.open' | translate }}
-    </button>
-    <button type="button" class="btn" [disabled]="busy()" (click)="buy()">{{ 'fiche.buy' | translate }}</button>
-  </div>
+    <div class="actions">
+      <button type="button" class="btn btn--primary" [disabled]="busy() || d.bottles === 0" (click)="open()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8 20h8" /></svg>
+        {{ 'fiche.open' | translate }}
+      </button>
+      <button type="button" class="btn" [disabled]="busy()" (click)="buy()">{{ 'fiche.buy' | translate }}</button>
+      @if (d.bottles === 0) {
+        <button type="button" class="btn btn--quiet" [disabled]="busy()" (click)="setWish(true)">{{ 'fiche.wish.add' | translate }}</button>
+      }
+    </div>
+  }
 
   <app-wine-advice [wineId]="id()" />
 
@@ -96,7 +113,9 @@
   @if (toast(); as t) {
     <div class="toast" role="status">
       <span>{{ t.key | translate }}</span>
-      <button type="button" class="toast__undo" (click)="undo()">{{ 'fiche.undo' | translate }}</button>
+      @if (t.movementId) {
+        <button type="button" class="toast__undo" (click)="undo()">{{ 'fiche.undo' | translate }}</button>
+      }
     </div>
   }
 } @else {

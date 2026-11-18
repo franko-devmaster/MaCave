@@ -233,3 +233,26 @@
   padding: var(--space-6) var(--gutter);
   color: var(--color-muted);
 }
+
+.wish {
+  display: flex;
+  gap: var(--space-3);
+  margin: 22px var(--gutter) 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.wish__title {
+  margin: 0;
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.wish__text {
+  margin: 2px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}

@@ -32,7 +32,7 @@ async function saveKey(page: Page): Promise<void> {
 test.describe('Itération 6 — en magasin', () => {
   test.use({ serviceWorkers: 'block' });
 
-  test('bascule entre « Je l’ai acheté » et « Je suis en magasin » dans l’onglet Ajouter', async ({ page }) => {
+  test('bascule entre « Je l’ai acheté » et « En magasin » dans l’onglet Ajouter', async ({ page }) => {
     await page.goto('cave');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ma cave');
     await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Ajouter' }).tap();
@@ -40,7 +40,7 @@ test.describe('Itération 6 — en magasin', () => {
     const modes = page.getByRole('navigation', { name: "Type d'ajout" });
     await expect(modes.getByRole('link', { name: "Je l'ai acheté" })).toHaveAttribute('aria-current', 'page');
 
-    await modes.getByRole('link', { name: 'Je suis en magasin' }).tap();
+    await modes.getByRole('link', { name: 'En magasin' }).tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('En magasin');
     await expect(page.getByText('Pour obtenir un verdict de Claude, ajoutez votre clé API.')).toBeVisible();
 
@@ -111,7 +111,7 @@ test.describe('Itération 6 — en magasin', () => {
     await page.getByLabel('Ou décrivez le vin').fill('Cornalin Germanier 2019');
     await page.getByRole('button', { name: 'Demander le verdict' }).tap();
 
-    await page.getByRole('link', { name: /Déjà dans votre cave : 3 bouteille\(s\)/ }).tap();
+    await page.getByRole('link', { name: /Déjà dans votre cave : 3 bouteilles/ }).tap();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cornalin');
   });
 

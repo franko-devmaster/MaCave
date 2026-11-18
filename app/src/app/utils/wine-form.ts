@@ -67,8 +67,10 @@ export function toFormValue(wine: WineInput, stock: { bottles: number; pricePaid
   };
 }
 
-/** Contrôle la saisie. En modification, la quantité est le stock en cave et peut tomber à zéro. */
-export function validateWineForm(value: WineFormValue, mode: 'create' | 'edit', currentYear: number): WineFormErrors {
+/** Contrôle la saisie. En modification, la quantité est le stock en cave et peut tomber à zéro ; un souhait n'a ni quantité ni prix. */
+export type WineFormMode = 'create' | 'edit' | 'wish';
+
+export function validateWineForm(value: WineFormValue, mode: WineFormMode, currentYear: number): WineFormErrors {
   const errors: WineFormErrors = {};
   if (!value.name.trim()) {
     errors.name = { key: 'form.errors.nameRequired' };
@@ -77,14 +79,16 @@ export function validateWineForm(value: WineFormValue, mode: 'create' | 'edit', 
   if (value.vintage.trim() && !isYear(vintage, 1900, currentYear + 1)) {
     errors.vintage = { key: 'form.errors.vintage', params: { max: currentYear + 1 } };
   }
-  const quantity = parseNumber(value.quantity);
-  const minQuantity = mode === 'create' ? 1 : 0;
-  if (quantity === null || !Number.isInteger(quantity) || quantity < minQuantity || quantity > 999) {
-    errors.quantity = { key: mode === 'create' ? 'form.errors.quantity' : 'form.errors.bottles' };
-  }
-  const price = parseNumber(value.price);
-  if (value.price.trim() && (price === null || price < 0 || price > 100_000)) {
-    errors.price = { key: 'form.errors.price' };
+  if (mode !== 'wish') {
+    const quantity = parseNumber(value.quantity);
+    const minQuantity = mode === 'create' ? 1 : 0;
+    if (quantity === null || !Number.isInteger(quantity) || quantity < minQuantity || quantity > 999) {
+      errors.quantity = { key: mode === 'create' ? 'form.errors.quantity' : 'form.errors.bottles' };
+    }
+    const price = parseNumber(value.price);
+    if (value.price.trim() && (price === null || price < 0 || price > 100_000)) {
+      errors.price = { key: 'form.errors.price' };
+    }
   }
   const from = parseNumber(value.drinkFrom);
   const until = parseNumber(value.drinkUntil);

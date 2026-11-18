@@ -66,7 +66,7 @@
   @if (pendingImport(); as pending) {
     <div class="choice" role="group" aria-labelledby="import-question">
       <p id="import-question" class="choice__question">
-        {{ 'reglages.backup.importQuestion' | translate: { file: pending.fileName, count: pending.wines } }}
+        {{ importQuestionKey() | translate: { file: pending.fileName, count: pending.wines } }}
       </p>
       <button type="button" class="btn btn--primary" [disabled]="busy()" (click)="confirmImport('merge')">
         {{ 'reglages.backup.merge' | translate }}

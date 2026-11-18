@@ -71,7 +71,7 @@ test.describe('Itération 0 — socle', () => {
       buffer: Buffer.from(JSON.stringify(backup)),
     });
     await page.getByRole('button', { name: 'Remplacer toutes mes données' }).tap();
-    await expect(page.getByRole('status')).toHaveText(/^Import terminé : \d+ enregistrement\(s\)\.$/);
+    await expect(page.getByRole('status')).toHaveText(/^Import terminé : \d+ enregistrements?\.$/);
 
     await page.getByLabel('Importer une sauvegarde').setInputFiles({
       name: 'autre.json',

@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BadgeIconComponent } from '../../components/badge-icon/badge-icon';
 import { ColorDotComponent } from '../../components/color-dot/color-dot';
@@ -22,6 +22,7 @@ import { pluralKey } from '../../utils/format';
 })
 export class CavePage {
   private readonly store = inject(WineDatastore);
+  private readonly router = inject(Router);
   protected readonly starIds = this.store.starWineIds;
   private readonly settings = inject(SettingsDatastore);
   protected readonly rebuyIds = inject(TastingDatastore).rebuyWineIds;
@@ -34,6 +35,9 @@ export class CavePage {
   protected readonly filters = signal<CellarFilters>(NO_FILTERS);
   protected readonly filtered = computed(() => hasFilters(this.filters()));
   protected readonly showEmptied = signal(false);
+  /** Vue choisie, gardée dans l'adresse (`?vue=souhaits`) pour la retrouver au retour d'une fiche. */
+  readonly vue = input<string>();
+  protected readonly view = computed<'cave' | 'souhaits'>(() => (this.vue() === 'souhaits' ? 'souhaits' : 'cave'));
 
   protected readonly summary = this.store.summary;
   protected readonly isEmpty = computed(() => this.store.wines().length === 0);
@@ -55,7 +59,14 @@ export class CavePage {
   protected readonly groups = computed(() => groupByColor(this.visible().filter((e) => e.bottles > 0)));
   protected readonly emptied = computed(() =>
     this.visible()
-      .filter((e) => e.bottles === 0)
+      .filter((e) => e.bottles === 0 && !e.wine.wishlist)
+      .sort((a, b) => a.wine.name.localeCompare(b.wine.name, 'fr')),
+  );
+  private readonly allWishes = computed(() => this.store.entries().filter((e) => e.wine.wishlist));
+  protected readonly wishCount = computed(() => this.allWishes().length);
+  protected readonly wishes = computed(() =>
+    this.allWishes()
+      .filter((e) => matchesSearch(e.wine, this.query()))
       .sort((a, b) => a.wine.name.localeCompare(b.wine.name, 'fr')),
   );
   protected readonly noResult = computed(() => !this.isEmpty() && this.groups().length === 0 && this.emptied().length === 0);
@@ -80,6 +91,10 @@ export class CavePage {
 
   protected toggleTaste(value: TasteFilter): void {
     this.filters.update((f) => toggleFilter(f, 'taste', value));
+  }
+
+  protected showView(view: 'cave' | 'souhaits'): void {
+    void this.router.navigate([], { queryParams: { vue: view === 'souhaits' ? 'souhaits' : null }, replaceUrl: true });
   }
 
   protected onSearch(event: Event): void {

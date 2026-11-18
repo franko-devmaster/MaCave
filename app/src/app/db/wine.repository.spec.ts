@@ -63,6 +63,23 @@ describe('WineRepository', () => {
     expect(await db.stockMovements.count()).toBe(1);
   });
 
+  it('createWish should store a wine on the wishlist without any stock movement', async () => {
+    const wine = await sut.createWish(wineInput(), photoInput(), FIXED_NOW);
+
+    expect(await db.wines.get(wine.id)).toMatchObject({ wishlist: true, name: 'Cornalin' });
+    expect(wine.labelPhotoId).not.toBeNull();
+    expect(await db.stockMovements.count()).toBe(0);
+  });
+
+  it('setWishlist should toggle the flag without bumping updatedAt', async () => {
+    const wine = await sut.createWish(wineInput(), null, FIXED_NOW);
+
+    const updated = await sut.setWishlist(wine.id, false);
+
+    expect(updated).toMatchObject({ wishlist: false, updatedAt: FIXED_NOW.toISOString() });
+    expect((await db.wines.get(wine.id))?.wishlist).toBe(false);
+  });
+
   it('update when the wine does not exist should throw', async () => {
     await expect(sut.update('absent', wineInput())).rejects.toThrow('Vin introuvable');
   });

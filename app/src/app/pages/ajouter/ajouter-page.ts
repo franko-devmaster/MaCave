@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, OnDestroy, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AddModeSwitchComponent } from '../../components/add-mode-switch/add-mode-switch';
@@ -10,13 +10,16 @@ import { ScrollService } from '../../services/scroll.service';
 import { VerdictDatastore } from '../../datastore/verdict.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { Wine } from '../../models/wine';
-import { readingToFormValue, uncertainFormFields, WineFormResult } from '../../utils/wine-form';
+import { pluralKey } from '../../utils/format';
+import { readingToFormValue, uncertainFormFields, WineFormMode, WineFormResult } from '../../utils/wine-form';
 
 interface Added {
   id: string;
   label: string;
-  key: 'ajouter.added' | 'ajouter.addedBottles';
+  key: string;
   count: number;
+  /** Vin mis sur la liste de souhaits : la bannière propose de le noter. */
+  wish: boolean;
 }
 
 interface PendingDuplicate {
@@ -26,7 +29,8 @@ interface PendingDuplicate {
 
 /**
  * Ajout d'un vin : photo d'étiquette ou description lue par Claude, ou saisie manuelle.
- * Après enregistrement, tout se vide pour enchaîner les saisies.
+ * En mode souhait (`/ajouter/souhait`), le vin goûté ou repéré rejoint la liste de souhaits,
+ * sans bouteille. Après enregistrement, tout se vide pour enchaîner les saisies.
  */
 @Component({
   selector: 'app-ajouter-page',
@@ -40,6 +44,11 @@ export class AjouterPage implements AfterViewInit, OnDestroy {
   private readonly scroll = inject(ScrollService);
   private readonly verdicts = inject(VerdictDatastore);
   private readonly form = viewChild.required(WineFormComponent);
+  private readonly duplicateDialog = viewChild<ElementRef<HTMLDialogElement>>('duplicateDialog');
+
+  /** Vient de la route `ajouter/souhait`. */
+  readonly wish = input(false);
+  protected readonly formMode = computed<WineFormMode>(() => (this.wish() ? 'wish' : 'create'));
 
   protected readonly flow = inject(AddWineDatastore);
   protected readonly settings = inject(SettingsDatastore);
@@ -47,6 +56,22 @@ export class AjouterPage implements AfterViewInit, OnDestroy {
   protected readonly added = signal<Added | null>(null);
   protected readonly duplicate = signal<PendingDuplicate | null>(null);
   protected readonly description = signal('');
+  protected readonly duplicateAddKey = computed(() => pluralKey('ajouter.duplicate.add', this.duplicate()?.result.quantity ?? 1));
+
+  constructor() {
+    // Le doublon s'affiche en feuille modale : la question reste visible quelle que soit la position dans le formulaire.
+    effect(() => {
+      const dialog = this.duplicateDialog()?.nativeElement;
+      if (!dialog) {
+        return;
+      }
+      if (this.duplicate() && !dialog.open) {
+        dialog.showModal();
+      } else if (!this.duplicate() && dialog.open) {
+        dialog.close();
+      }
+    });
+  }
 
   /** Une lecture déjà prête (venue du magasin) remplit le formulaire dès l'ouverture. */
   ngAfterViewInit(): void {
@@ -100,13 +125,18 @@ export class AjouterPage implements AfterViewInit, OnDestroy {
     }
     await this.run(async () => {
       const { wine, result } = pending;
-      await this.wines.buy(wine.id, result.pricePaid, result.quantity);
+      if (this.wish()) {
+        await this.wines.setWishlist(wine.id, true);
+      } else {
+        await this.wines.buy(wine.id, result.pricePaid, result.quantity);
+      }
       await this.linkVerdict(wine.id);
       const photo = this.flow.photoToSave();
       if (photo && !wine.labelPhotoId) {
         await this.wines.setPhoto(wine.id, photo);
       }
-      this.done({ id: wine.id, label: wineLabel(wine), key: 'ajouter.addedBottles', count: result.quantity });
+      const key = this.wish() ? 'ajouter.wished' : pluralKey('ajouter.addedBottles', result.quantity);
+      this.done({ id: wine.id, label: wineLabel(wine), key, count: result.quantity, wish: this.wish() });
     });
   }
 
@@ -133,16 +163,19 @@ export class AjouterPage implements AfterViewInit, OnDestroy {
 
   private async create(result: WineFormResult): Promise<void> {
     await this.run(async () => {
-      const wine = await this.wines.create(result.input, { quantity: result.quantity, pricePaid: result.pricePaid }, this.flow.photoToSave());
+      const photo = this.flow.photoToSave();
+      const wine = this.wish()
+        ? await this.wines.createWish(result.input, photo)
+        : await this.wines.create(result.input, { quantity: result.quantity, pricePaid: result.pricePaid }, photo);
       await this.linkVerdict(wine.id);
-      this.done({ id: wine.id, label: wineLabel(wine), key: 'ajouter.added', count: result.quantity });
+      this.done({ id: wine.id, label: wineLabel(wine), key: this.wish() ? 'ajouter.wished' : 'ajouter.added', count: result.quantity, wish: this.wish() });
     });
   }
 
   private async linkVerdict(wineId: string): Promise<void> {
     const verdictId = this.flow.verdictId();
     if (verdictId) {
-      await this.verdicts.markBought(verdictId, wineId);
+      await (this.wish() ? this.verdicts.markWished(verdictId) : this.verdicts.markBought(verdictId, wineId));
     }
   }
 

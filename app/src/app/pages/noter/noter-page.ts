@@ -95,7 +95,7 @@ export class NoterPage implements OnInit {
       } else {
         await this.tastings.add(input);
       }
-      await this.backToFiche();
+      await this.backToFiche('fiche.noted');
     });
   }
 
@@ -121,8 +121,9 @@ export class NoterPage implements OnInit {
     });
   }
 
-  private backToFiche(): Promise<boolean> {
-    return this.router.navigate(['/cave', this.id()], { replaceUrl: true });
+  /** Retour à la fiche ; `notice` y est affiché en confirmation de l'action. */
+  private backToFiche(notice?: string): Promise<boolean> {
+    return this.router.navigate(['/cave', this.id()], { replaceUrl: true, state: notice ? { notice } : undefined });
   }
 
   private async run(action: () => Promise<void>): Promise<void> {

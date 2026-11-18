@@ -7,6 +7,7 @@ import { SettingsDatastore } from '../../datastore/settings.datastore';
 import { VerdictDatastore } from '../../datastore/verdict.datastore';
 import { WineDatastore } from '../../datastore/wine.datastore';
 import { ChfPipe } from '../../pipes/chf.pipe';
+import { pluralKey } from '../../utils/format';
 
 @Component({
   selector: 'app-magasin-page',
@@ -26,6 +27,14 @@ export class MagasinPage implements OnDestroy {
   protected readonly duplicate = computed(() => {
     const id = this.store.current()?.wineIdentified.possibleDuplicateId;
     return id ? (this.wines.detail(id) ?? null) : null;
+  });
+  /** Déjà en cave (avec le bon pluriel), sur la liste de souhaits, ou bu entièrement. */
+  protected readonly duplicateKey = computed(() => {
+    const d = this.duplicate();
+    if (!d || d.wine.wishlist) {
+      return 'magasin.duplicateWish';
+    }
+    return d.bottles === 0 ? 'magasin.duplicateGone' : pluralKey('magasin.duplicate', d.bottles);
   });
 
   ngOnDestroy(): void {
@@ -52,6 +61,12 @@ export class MagasinPage implements OnDestroy {
   protected async buy(): Promise<void> {
     this.store.buy();
     await this.router.navigate(['/ajouter'], { replaceUrl: true });
+  }
+
+  /** « Liste de souhaits » : même lecture que « J'achète », enregistrée sans bouteille. */
+  protected async wish(): Promise<void> {
+    this.store.buy();
+    await this.router.navigate(['/ajouter/souhait'], { replaceUrl: true });
   }
 
   protected async pass(): Promise<void> {

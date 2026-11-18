@@ -45,10 +45,12 @@ export interface Wine {
   advice?: WineAdvice | null;
   /** Fiche info (photo ou PDF, par exemple un descriptif QoQa). Absent sur les vins plus anciens. */
   infoAttachmentId?: string | null;
+  /** Sur la liste de souhaits : goûté ou vu en magasin, à acheter. Retiré au premier achat. */
+  wishlist?: boolean;
 }
 
 /** Champs saisis par l'utilisateur ; l'identifiant et les dates sont gérés par le dépôt. */
-export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt' | 'advice' | 'infoAttachmentId'>;
+export type WineInput = Omit<Wine, 'id' | 'labelPhotoId' | 'createdAt' | 'updatedAt' | 'advice' | 'infoAttachmentId' | 'wishlist'>;
 
 export const PDF_MEDIA_TYPE = 'application/pdf';
 

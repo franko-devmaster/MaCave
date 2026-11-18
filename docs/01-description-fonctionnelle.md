@@ -254,7 +254,8 @@ Le plan de la v1 est entièrement livré.
 | 0.11.0 | Indicateurs et filtres combinables dans la cave | Livrée |
 | 0.11.1 | Filtres sur deux lignes, indicateurs en haut de la fiche | Livrée |
 | 0.12.0 | Réévaluer ma cave, bouton Modifier visible | Livrée |
-| 0.12.1 | Correctif : export sur Android | Livrée, en recette |
+| 0.12.1 | Correctif : export sur Android | Livrée |
+| 0.13.0 | Liste de souhaits, prix dans l'export, revue UX | Livrée, en recette |
 
 0.8.0 — Fiche info et photo Bouteille, à la demande de l'utilisateur :
 
@@ -302,6 +303,26 @@ Le plan de la v1 est entièrement livré.
 - Si la feuille de partage échoue (geste de l'utilisateur expiré pendant la préparation d'un gros export, par exemple), l'export est téléchargé au lieu d'échouer en silence.
 - L'adresse du fichier reste valable 60 secondes au lieu d'une : le gestionnaire de téléchargements d'Android a le temps de lire un export de plusieurs Mo.
 - Une erreur d'export s'affiche désormais dans Réglages.
+
+0.13.0 — Liste de souhaits, prix dans l'export, revue UX :
+
+- Liste de souhaits : un vin goûté ailleurs ou repéré en magasin est enregistré sans bouteille, sur la liste de souhaits (`wishlist` sur le vin, aucun mouvement de stock).
+  - Ajouter, troisième mode « Je l'ai goûté » (`/ajouter/souhait`) : même lecture par Claude, sans quantité ni prix. Après l'enregistrement, « Noter ce vin » ouvre directement la notation.
+  - En magasin, « Liste de souhaits » à côté de « Je l'achète » et « Je passe » : la lecture est reprise dans le mode souhait ; le verdict est journalisé avec l'issue `souhait`.
+  - Cave : bascule « En cave / Souhaits (n) », gardée dans l'adresse (`?vue=souhaits`) ; la recherche s'applique aux deux vues, les filtres à la cave seule.
+  - Fiche d'un souhait : « Je l'ai acheté » (une bouteille entre en cave, annulable) et « Retirer de mes souhaits ». Un vin épuisé peut être remis sur la liste. Toute entrée de bouteilles retire le vin de la liste.
+  - Le profil, l'affinité et le grand cru tiennent compte des vins souhaités ; les accords et la réévaluation de la cave ne portent que sur les vins en stock.
+- Export : chaque vin du fichier porte aussi `bottles` et `lastPricePaid`, lisibles sans croiser les mouvements de stock. Ces deux champs sont ignorés à l'import ; les mouvements restent la source.
+- Revue UX/UI des parcours (captures de chaque écran sur le profil iPhone 16 Pro) et corrections :
+  - Débordement horizontal : les cases masquées du choix de couleur prenaient la largeur des champs et élargissaient la page (539 px au lieu de 402), d'où des écrans décalés ou dézoomés après une saisie. Corrigé à la source (`.visually-hidden` impose sa taille) et gardé par un parcours e2e sur tous les écrans.
+  - Formulaires d'ajout et de modification : le bouton d'enregistrement reste collé en bas de l'écran pendant toute la saisie.
+  - Doublon à l'ajout : la question s'affiche en feuille qui monte du bas, visible où que l'on soit dans le formulaire.
+  - Verdict en magasin : « Je l'achète », « Liste de souhaits » et « Je passe » restent collés en bas, visibles sans faire défiler.
+  - Après un ajout : message et boutons « Voir la fiche » (et « Noter ce vin » pour un souhait) en vrais boutons.
+  - Après une dégustation : confirmation « Dégustation enregistrée » sur la fiche.
+  - Accords : « Voir la fiche pour l'ouvrir » devient un bouton dans la carte du choix principal.
+  - Pluriels corrects partout (« 1 bouteille », « 6 bouteilles »…) au lieu de « bouteille(s) ».
+  - « Je suis en magasin » devient « En magasin » pour tenir à trois modes.
 
 Choix faits pendant l'itération 1, à confirmer en recette :
 

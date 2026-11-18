@@ -61,6 +61,18 @@ export class WineDatastore {
    * Enregistre la fiche et, si fourni, le stock et le prix corrigés : un écart de stock devient
    * un mouvement `correction`, un nouveau prix remplace celui du dernier achat.
    */
+  /** Vin goûté ou vu en magasin, sur la liste de souhaits, sans bouteille en cave. */
+  async createWish(input: WineInput, photo: PhotoInput | null = null): Promise<Wine> {
+    const wine = await this.repository.createWish(input, photo);
+    await this.references.remember(input.country, input.region, input.grapes);
+    this.winesSignal.update((wines) => [...wines, wine]);
+    return wine;
+  }
+
+  async setWishlist(id: string, wishlist: boolean): Promise<void> {
+    this.replace(await this.repository.setWishlist(id, wishlist));
+  }
+
   async update(id: string, input: WineInput, stock: StockCorrection | null = null): Promise<Wine> {
     const before = this.detail(id);
     const wine = await this.repository.update(id, input);
@@ -124,9 +136,13 @@ export class WineDatastore {
     this.movementsSignal.update((movements) => movements.filter((m) => m.id !== movementId));
   }
 
+  /** Toute entrée de bouteilles retire le vin de la liste de souhaits : il est désormais en cave. */
   private async addMovement(id: string, delta: number, reason: StockMovement['reason'], pricePaid: number | null = null): Promise<StockMovement> {
     const movement = await this.repository.addMovement(id, delta, reason, pricePaid);
     this.movementsSignal.update((movements) => [...movements, movement]);
+    if (delta > 0 && this.winesSignal().find((w) => w.id === id)?.wishlist) {
+      await this.setWishlist(id, false);
+    }
     return movement;
   }
 }

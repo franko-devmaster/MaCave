@@ -129,7 +129,7 @@ test.describe('Itération 1 — cave', () => {
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(backup)),
     });
-    await expect(page.getByText('ancienne.json contient 1 vin(s). Que voulez-vous faire ?')).toBeVisible();
+    await expect(page.getByText('ancienne.json contient 1 vin. Que voulez-vous faire ?')).toBeVisible();
     await page.getByRole('button', { name: 'Fusionner avec mes données' }).tap();
     await expect(page.getByRole('status')).toContainText('Import terminé');
 

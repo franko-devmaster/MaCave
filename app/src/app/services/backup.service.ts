@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { DB_VERSION, MACAVE_DB, TABLE_NAMES, TableName } from '../db/schema';
 import { DEVICE_ONLY_SETTINGS } from '../constants/settings-keys';
 import { Setting } from '../models/reference';
-import { Photo } from '../models/wine';
+import { Photo, StockMovement, Wine } from '../models/wine';
+import { lastPricePaid, stockByWine } from '../utils/cellar';
 import { arrayBufferToBase64, base64ToArrayBuffer } from '../utils/base64';
 
 export const BACKUP_APP_ID = 'ma-cave';
@@ -33,6 +34,7 @@ export class BackupService {
     });
     data.settings = (data.settings as Setting[]).filter((s) => !DEVICE_ONLY_SETTINGS.includes(s.key));
     data.photos = (data.photos as Photo[]).map(encodePhoto);
+    data.wines = withStockSummary(data.wines as Wine[], data.stockMovements as StockMovement[]);
     return { app: BACKUP_APP_ID, schemaVersion: DB_VERSION, exportedAt: now.toISOString(), data };
   }
 
@@ -124,7 +126,39 @@ function decodePhotos(rows: unknown[]): Photo[] {
   });
 }
 
+/**
+ * Résumé lisible ajouté à chaque vin exporté : bouteilles en cave et dernier prix payé.
+ * Les mouvements de stock restent la source ; ces champs sont ignorés à l'import.
+ */
+export interface ExportedWineSummary {
+  bottles: number;
+  lastPricePaid: number | null;
+}
+
+const SUMMARY_KEYS: readonly (keyof ExportedWineSummary)[] = ['bottles', 'lastPricePaid'];
+
+function withStockSummary(wines: Wine[], movements: StockMovement[]): (Wine & ExportedWineSummary)[] {
+  const stock = stockByWine(movements);
+  return wines.map((wine) => ({ ...wine, bottles: Math.max(0, stock.get(wine.id) ?? 0), lastPricePaid: lastPricePaid(movements, wine.id) }));
+}
+
+function withoutStockSummary(rows: unknown[]): unknown[] {
+  return rows.map((row) => {
+    if (!isRecord(row)) {
+      return row;
+    }
+    const copy = { ...row };
+    for (const key of SUMMARY_KEYS) {
+      delete copy[key];
+    }
+    return copy;
+  });
+}
+
 function rowsToRestore(name: TableName, rows: unknown[]): unknown[] {
+  if (name === 'wines') {
+    return withoutStockSummary(rows);
+  }
   if (name === 'settings') {
     return withoutDeviceOnly(rows);
   }

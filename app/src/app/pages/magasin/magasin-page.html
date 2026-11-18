@@ -53,7 +53,7 @@
           </div>
 
           @if (duplicate(); as d) {
-            <a class="duplicate" [routerLink]="['/cave', d.wine.id]">{{ 'magasin.duplicate' | translate: { count: d.bottles } }}</a>
+            <a class="duplicate" [routerLink]="['/cave', d.wine.id]">{{ duplicateKey() | translate: { count: d.bottles } }}</a>
           }
 
           <h3 class="label why">{{ 'magasin.why' | translate }}</h3>
@@ -68,7 +68,10 @@
 
           <div class="actions">
             <button type="button" class="btn btn--primary" (click)="buy()">{{ 'magasin.buy' | translate }}</button>
-            <button type="button" class="btn actions__pass" (click)="pass()">{{ 'magasin.pass' | translate }}</button>
+            <div class="actions__row">
+              <button type="button" class="btn" (click)="wish()">{{ 'magasin.wish' | translate }}</button>
+              <button type="button" class="btn" (click)="pass()">{{ 'magasin.pass' | translate }}</button>
+            </div>
           </div>
         </section>
       }
